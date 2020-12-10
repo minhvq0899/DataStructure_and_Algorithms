@@ -35,21 +35,25 @@ All possible subsets with sum 10 are [2, 3, 5], [2, 8], [10]
 """
 
 def subsetSumCountHelper(arr, targetX, index):
-    # Base case 1: if there is nothing left to check
+    # Base case 1: if targetX is 0 --> we found another subset --> count += 1
+    if(targetX == 0): return 1
+    
+    # Base case 2: if there is nothing left to check
     if(index == len(arr)): return 0
 
-    # Base case 2: if targetX is 0 --> we found another subset --> count += 1
-    if(targetX == 0): return 1
+    # It's IMPORTANT to have base case 1 before base case 2 when you implement this code because if
+    # targetX hit 0 --> we found another solution, no questions asked, even when we exceed the index of the array
 
     # Base case 3: if the element we are checking is bigger than targetX --> skip that element
-    if(arr[index] > targetX):
+    if(arr[index] > targetX): 
         return subsetSumCountHelper(arr, targetX, index + 1)
 
-    # Recursive part
-    # Either the element can be counted in the subset 
-    # If the element is counted, then the remaining sum to be checked is sum - the selected element 
+    # Recursive part: Either the element can be counted in the subset 
+
+    # If the element is counted, then the remaining sum to be checked is sum - the selected element
+    # If each element can be used an arbitrary number of times, index will not be updated
+    use = subsetSumCountHelper(arr, targetX - arr[index], index + 1) 
     # If the element is not included, then the remaining sum to be checked is the total sum 
-    use = subsetSumCountHelper(arr, targetX - arr[index], index + 1)
     notUse = subsetSumCountHelper(arr, targetX, index + 1)
 
     return use + notUse
@@ -59,21 +63,14 @@ def subsetSumCount(arr, targetX):
 
 
 
-
-
-
-
-
-
-
-
-
-
 # --------------------------------------------------------------------------------------------------------------------------
 if __name__ == "__main__":
     # Subset Sum Count
     input_arr = [2, 3, 5, 6, 8, 10]
-    print(subsetSumCount(input_arr, 10))
+    #input_arr = [1,2,3,4,5]
+    targetX = 10
+    #targetX = 7
+    print("Number of ways to make target {0} by combining weights from array {1} is {2}".format(targetX, input_arr,  subsetSumCount(input_arr, 10)))
 
 
 
