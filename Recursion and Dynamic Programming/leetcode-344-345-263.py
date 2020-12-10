@@ -1,3 +1,18 @@
+"""
+Name: Minh Q. Vu
+
+This python file is a part of my effort in getting myself refreshed with Data Structure and Algorithms concepts so
+I can later tackle Leetcode challenges with more confidence. 
+
+========================================= Leetcode =========================================
+Class Solution will have the following Leetcode exercises:
+
+1. Leetcode 345: Reverse Vowels of a String
+2. Leetcode 344: Reverse String
+3. Leetcode 263: Ugly Number
+
+"""
+
 class Solution:
     def reverseVowels(self, s: str) -> str:
         vowels = 'aieouAIEOU'
