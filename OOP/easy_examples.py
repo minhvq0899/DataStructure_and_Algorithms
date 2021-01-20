@@ -11,6 +11,7 @@ https://realpython.com/python3-object-oriented-programming/
 ========================================= Examples for Object Oriented Programming =========================================
 """
 
+# Parent Class
 class Dog:
     species = "Canis familiaris"
 
@@ -31,9 +32,29 @@ class Dog:
         return f"{self.name} says {sound}"
 
 
+# Child Classes
+# One thing to keep in mind about class inheritance is that 
+# changes to the parent class automatically propagate to child classes
+class JackRussellTerrier(Dog):
+    pass
+
+class Dachshund(Dog):
+    pass
+
+class Bulldog(Dog):
+    pass
+
+
+
+
 if __name__ == "__main__":
+    # Dog class object
     miles = Dog("Miles", 5)
     print(miles)
     print(miles.description())
     print(miles.speak("I love you"))
 
+    # other breed
+    buddy = Dachshund("Buddy", 9)
+    print(buddy.description())
+    print("Is Buddy an instance of Dog? ", isinstance(buddy, Dog))
