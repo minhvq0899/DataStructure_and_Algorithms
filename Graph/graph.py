@@ -12,7 +12,7 @@ edges = [
     [0, 1],
     [0, 2],
     [2, 1],
-    [1, 4],
+    [1, 4], 
     [4, 2],
     [2, 3],
     [3, 0],
@@ -21,10 +21,10 @@ edges = [
 ]
 
 
-
 vertice = 8
 connection = 9
 
+# Or if you don't have the access to vertice and connection
 # connection = len(edges)
 # count = 0
 # aSet = set()

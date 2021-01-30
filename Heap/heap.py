@@ -86,3 +86,4 @@ if __name__ == "__main__":
     my_heap.delete(tree, 8) # delete element at index 8
     print("After deleting the element ar index 8, we have: ", tree)
 
+ 
