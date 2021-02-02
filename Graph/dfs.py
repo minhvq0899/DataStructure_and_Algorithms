@@ -46,19 +46,28 @@ def printPath(start: int, end: int) -> str:
     return "->".join( [str(item) for item in trace] )
 
 
-detechCycle = False
 # detect a cycle in directed graph
-def cycle(start: int):
-    for v in graph[start]:
-        if visited[v] == 0:
-            visited[v] == 1
-            cycle(v)
-        elif visited[start] == 1:
-            detectCycle = True
+class Cycle_proton:
+    detectCycle = False
+    # init
+    def __init__(self, graph, visited):
+        self.graph = graph
+        self.visited = visited
+
+    # detect a cycle in directed graph
+    def cycle(self, start: int):
+        for v in self.graph[start]:
+            if self.visited[v] == 0:
+                self.visited[v] = 1
+                self.cycle(v)
+            elif self.visited[start] == 1:
+                self.detectCycle = True
+            
+            self.visited[v] = 2
+
     
-    visited[v] = 2
 
-
+"""
 # Class cycle in CSCI 160
 class Cycle_160:
     hasCycleboo = False
@@ -67,7 +76,7 @@ class Cycle_160:
         self.graph = graph
         self.visited = visited
 
-    # detech a cycle from 160
+    # detect a cycle from 160
     def cycle_160(self):
         for i in range (len(self.graph)):
             if not self.visited[i]:
@@ -85,8 +94,7 @@ class Cycle_160:
     # has cycle
     def hasCycle(self):
         return self.hasCycleboo
-
-
+"""
 
 
 
@@ -99,31 +107,24 @@ class Cycle_160:
 
 
 if __name__ == "__main__":    
-    """
     edges = [
         (0, 1),
         (1, 2),
         (2, 3),
-        (4, 3),
+        (3, 4),
         (4, 2),
         (5, 1),
         (5, 4),
         (4, 6)
     ]
-    """
-
-    edges = [
-        (0, 1),
-        (1, 2), 
-        (2, 0)
-    ]
+    
 
     # vertices
     V = 7
 
     # three list we need
     graph = [[] for _ in range(V)]
-    visited = [False for _ in range(V)]
+    visited = [0 for _ in range(V)]
     path = [-1 for _ in range(V)]
 
     for edge in edges:
@@ -157,10 +158,13 @@ if __name__ == "__main__":
     # ----------------------------------------------------
     # visited = [False for _ in range(V)]
 
-    cycle = Cycle_160(graph, visited)
-    cycle.cycle_160()
-    b = cycle.hasCycle()
-    print( b )
+    #cycle = Cycle_160(graph, visited)
+    #cycle.cycle_160()
+    #print( cycle.hasCycle() )
 
+    # ----------------------------------------------------
+    cycle = Cycle_proton(graph, visited)
+    cycle.cycle(0)
+    print( cycle.detectCycle )
 
 
