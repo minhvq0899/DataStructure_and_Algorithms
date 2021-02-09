@@ -4,7 +4,7 @@ Name: Minh Q. Vu
 This python file is a part of my effort in getting myself refreshed with Data Structure and Algorithms concepts so
 I can later tackle Leetcode challenges with more confidence. 
 
-========================================================= DFS with Template =========================================================
+========================================================= DFS with template =========================================================
 DFS down different path: 
     1. Leetcode 22. Generate Parentheses
     2. Leetcode 752. Open the Lock
