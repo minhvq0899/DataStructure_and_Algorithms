@@ -12,11 +12,14 @@ DFS down different path:
 DFS on grid/ matrix
     1. Leetcode 417. Pacific Atlantic Water Flow
     2. Leetcode 1020. Number of Enclaves
-
+    3. Leetcode 529. Minesweeper
+    4. Leetcode 695. Max Area of Island
+    5. Leetcode 1254. Number of Closed Islands
+    6. Leetcode 130. Surrounded Regions
 
 """
 
-from collections import deque
+import queue
 from typing import List
 
 class Solution:
@@ -41,74 +44,9 @@ class Solution:
             self.dfs_paren(n, potential + ")", left, right+1, combinations)
         
     
-    # Leetcode 752. Open the Lock
-    def openLock(self, deadends: List[str], target: str) -> int:
-        # if each time you checks for deadends, you have to iterates through a list, it will be O(n)
-        # instead, store you deadends in a set
-        deadendsSet = {deadend for deadend in deadends}
-        
-        # create a data structure to store answers
-        potential = []
-        # create count and seen set
-        seen = set()
-        count = 0
-
-        # call DFS
-        self.dfs_openLock([0,0,0,0], deadendsSet, target, potential, count, seen)
-
-        print("Potential: ", potential)
-        return min(potential) if potential else -1
-
-
-    def dfs_openLock(self, current: List[int], deadends: set, target: str, potential: List[int], count: int, seen: set):
-        # base cases
-        currentStr = ""
-        for digit in current:
-            currentStr += str(digit)
-        print(currentStr)
-
-        if currentStr in deadends: # if the current combination is in deadend
-            print("Deadendddddddd")
-            return
-        if currentStr in seen: # if the current combination has already been seen
-            print("Seen\n\n")
-            return 
-        if currentStr == target: # if target is found
-            potential.append(count)
-            return 
-
-        # TO DO
-        count += 1
-        seen.add(currentStr)
-
-        # Call DFS where needed
-        for i in range (len(current)):
-            if current[i] == 9:
-                # go up
-                current[i] = 0
-                self.dfs_openLock(current, deadends, target, potential, count, seen)
-                # go down
-                current[i] = 8
-                self.dfs_openLock(current, deadends, target, potential, count, seen)
-            elif current[i] == 0:
-                # go up 
-                current[i] = 1
-                self.dfs_openLock(current, deadends, target, potential, count, seen)
-                # go down
-                current[i] = 9
-                self.dfs_openLock(current, deadends, target, potential, count, seen)
-            else: 
-                # go up
-                current[i] += 1
-                self.dfs_openLock(current, deadends, target, potential, count, seen)
-                # go down
-                current[i] -= 2
-                self.dfs_openLock(current, deadends, target, potential, count, seen)
-       
-            
-
    
 
+    # ========================================================================================================================================= 
     # ========================================================================================================================================= 
 
 
@@ -180,7 +118,7 @@ class Solution:
         self.dfs_pacificAtlantic(matrix, right, matrix[r][c], ocean)
 
 
-    # --------------------------------
+    # --------------------------------------------------------------
     # Leetcode 1020. Number of Enclaves
     def numEnclaves(self, A: List[List[int]]) -> int:
         count = 0
@@ -226,7 +164,220 @@ class Solution:
     # Time: O(m*n)?
     # Space: O(1)
 
-    # -------------------------------------------
+    # -----------------------------------------------
+
+    # Leetcode 529. Minesweeper
+    def adjacentMines(self, board: List[List[str]], click: List[int]) -> int:
+        i, j = click
+        
+        num_mines = 0
+        for r in range (i-1, i+2):
+            for c in range (j-1, j+2):
+                if r >= 0 and r < len(board) and c >= 0 and c < len(board[0]):
+                    if board[r][c] == "M":
+                        num_mines += 1
+
+        return num_mines
+                    
+
+    def updateBoard(self, board: List[List[str]], click: List[int]) -> List[List[str]]:
+        """
+        If click on "M" 
+            -> game over
+        else if click on "E"
+            if no adjacent mines
+                reveal it as "B"
+            else
+                digit 1->8
+        
+        """
+        i, j = click
+        
+        # 1. If a mine ('M') is revealed, then the game is over - change it to 'X'
+        if board[i][j] == 'M': 
+            board[i][j] = 'X'
+        # 2. If an empty square ('E') is revealed
+        else: 
+            # compute number of adjacent mines
+            num_mines = self.adjacentMines(board, click)
+            if num_mines: 
+                board[i][j] = str(num_mines)
+            else: 
+                board[i][j] = "B"
+                for r in range (i-1, i+2):
+                    for c in range (j-1, j+2):
+                        if r >= 0 and r < len(board) and c >= 0 and c < len(board[0]) and board[r][c] != "B":
+                            self.updateBoard(board, [r, c])
+                
+        return board
+    
+    """
+    Time Complexity: O()
+    Extra Space Complexity: O(1)
+    """
+
+
+    # ----------------------------------------------------------------------
+
+
+    # Leetcode 695. Max Area of Island
+    def maxAreaOfIsland(self, grid: List[List[int]]) -> int:
+        if not grid:
+            return 0
+        
+        area = 0
+
+        # call DFS on each grid cell
+        for r in range ( len(grid) ):
+            for c in range ( len(grid[0]) ):
+                if grid[r][c] == 1:
+                    area =  max(area, self.dfs_maxArea( [r,c], grid ) )
+
+        return area
+        """
+        Time Complexity: O(row * cow)
+        Extra Space Complexity: O(1)
+        """
+
+    # Initialize DFS
+    def dfs_maxArea(self, coordinate: List[int], grid: List[List[int]]) -> int:
+        r, c = coordinate
+        # base cases
+        if r < 0 or c < 0 or r >= len(grid) or c >= len(grid[0]):
+            return 0
+        if grid[r][c] == 0:
+            return 0
+        
+        # TO DO
+        grid[r][c] = 0
+        count = 1
+    
+        # call DFS where needed
+        count += self.dfs_maxArea( [r-1,c], grid ) # top
+        count += self.dfs_maxArea( [r+1,c], grid ) # down
+        count += self.dfs_maxArea( [r,c-1], grid ) # left
+        count += self.dfs_maxArea( [r,c+1], grid ) # right
+
+        return count
+        
+        
+    # ----------------------------------------------------------------------------
+
+
+    # Leetcode 1254. Number of Closed Islands
+    def closedIsland(self, grid: List[List[int]]) -> int:
+        # find all islands that touch boundary (they are not closed islands)
+        for r in range (len(grid)): 
+            if grid[r][0] == 0:
+                self.dfs_closedIsland( [r, 0], grid ) # left
+            if grid[r][len(grid[0]) - 1] == 0:
+                self.dfs_closedIsland( [r, len(grid[0])-1], grid ) # right
+
+        for c in range (len(grid[0])):
+            if grid[0][c] == 0:
+                self.dfs_closedIsland( [0, c], grid ) # top
+            if grid[len(grid)-1][c] == 0:
+                self.dfs_closedIsland( [len(grid)-1, c], grid ) # bottom
+
+        # now all islands left are closed islands
+        num_closed = 0
+        for r in range (1, len(grid)-1):
+            for c in range (1, len(grid[0])-1):
+                if grid[r][c] == 0:
+                    num_closed += 1
+                    self.dfs_closedIsland( [r, c], grid ) 
+
+        return num_closed
+        """
+        Time Complexity: O(row * col)
+        Extra Space Complexity: O(1)
+        """
+
+    def dfs_closedIsland(self, coordinate: List[int], grid: List[List[int]]):
+        r, c = coordinate
+        # Base cases
+        if r < 0 or c < 0 or r >= len(grid) or c >= len(grid[0]):
+            return 
+        if grid[r][c] == 1:
+            return 
+
+        # TO DO
+        grid[r][c] = 1
+
+        # Call DFS where needed
+        self.dfs_closedIsland( [r-1, c], grid ) # top
+        self.dfs_closedIsland( [r+1, c], grid ) # down
+        self.dfs_closedIsland( [r, c-1], grid ) # left
+        self.dfs_closedIsland( [r, c+1], grid ) # right
+    
+
+    # ------------------------------------------------------------------------
+
+
+    # Leetcode 130. Surrounded Regions
+    def solve(self, board: List[List[str]]) -> None:
+        """
+        Do not return anything, modify board in-place instead.
+        """
+        if not board: return 
+
+        m = len(board)
+        n = len(board[0])
+
+        # find all the 'O' on boundary and switch them into 'T' (Temporary)
+        for r in range (m): 
+            if board[r][0] == 'O':
+                self.dfs_solve( [r, 0], board ) # left
+            if board[r][n - 1] == 'O':
+                self.dfs_solve( [r, n-1], board ) # right
+
+        for c in range (n):
+            if board[0][c] == 'O':
+                self.dfs_solve( [0, c], board ) # top
+            if board[m - 1][c] == 'O':
+                self.dfs_solve( [m-1, c], board ) # bottom
+
+        # switch all 'O' that don't touch boudary into 'X'
+        for r in range (m):
+            for c in range (n):
+                if board[r][c] == 'O':
+                    board[r][c] = 'X'
+                elif board[r][c] == 'T':
+                    board[r][c] = 'O'
+        
+        """
+        Time Complexity: O(row * col)
+        Extra Space Complexity: O(1)
+        """
+                    
+
+    def dfs_solve(self, coordinate: List[int], board: List[List[str]]):
+        r, c = coordinate
+        # Base cases
+        if r < 0 or c < 0 or r >= len(board) or c >= len(board[0]):
+            return 
+        if board[r][c] == 'X' or board[r][c] == 'T':
+            return 
+
+        # TO DO
+        board[r][c] = 'T'
+
+        # Call DFS where needed
+        self.dfs_solve( [r-1, c], board ) # top
+        self.dfs_solve( [r+1, c], board ) # down
+        self.dfs_solve( [r, c-1], board ) # left
+        self.dfs_solve( [r, c+1], board ) # right
+
+
+
+    # ------------------------------------------------------------------------
+
+
+    # Leetcode 934. Shortest Bridge
+    def shortestBridge(self, A: List[List[int]]) -> int:
+        
+
+
 
 
 
@@ -265,18 +416,35 @@ if __name__ == "__main__":
 
 
     # -------------------------------------------
-    deadends = ["0201","0101","0102","1212","2002"] 
-    target = "6000"
+    # deadends = ["0201","0101","0102","1212","2002"] 
+    # target = "0202"
 
-    print( leetcode.openLock(deadends, target) )
-
-
-
+    # min_turns = leetcode.openLock(deadends, target)
+    # print(min_turns)
 
 
+    # ------------------------ 695: Max Area of Island -------------------------
+    # grid = [[0,0,1,0,0,0,0,1,0,0,0,0,0],
+    #         [0,0,0,0,0,0,0,1,1,1,0,0,0],
+    #         [0,1,1,0,1,0,0,0,0,0,0,0,0],
+    #         [0,1,0,0,1,1,0,0,1,0,1,0,0],
+    #         [0,1,0,0,1,1,0,0,1,1,1,0,0],
+    #         [0,0,0,0,0,0,0,0,0,0,1,0,0],
+    #         [0,0,0,0,0,0,0,1,1,1,0,0,0],
+    #         [0,0,0,0,0,0,0,1,1,0,0,0,0] ]
+
+    # max_area = leetcode.maxAreaOfIsland(grid)
+    # print(max_area)
 
 
-
+    # ------------------------- 1254: Number of Closed Islands -------------------------
+    # grid = [[1,1,1,1,1,1,1,0],
+    #         [1,0,0,0,0,1,1,0],
+    #         [1,0,1,0,1,1,1,0],
+    #         [1,0,0,0,0,1,0,1],
+    #         [1,1,1,1,1,1,1,0] ]
+    # num_closed_island = leetcode.closedIsland(grid)
+    # print(num_closed_island)
 
 
 
