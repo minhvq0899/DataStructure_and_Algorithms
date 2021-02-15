@@ -16,6 +16,7 @@ DFS on grid/ matrix
     4. Leetcode 695. Max Area of Island
     5. Leetcode 1254. Number of Closed Islands
     6. Leetcode 130. Surrounded Regions
+    7. Leetcode 1306. Jump Game III
 
 """
 
@@ -372,11 +373,50 @@ class Solution:
 
     # ------------------------------------------------------------------------
 
-
-    # Leetcode 934. Shortest Bridge
-    def shortestBridge(self, A: List[List[int]]) -> int:
+    # Leetcode 1306. Jump Game III
+    def canReach(self, arr: List[int], start: int) -> bool:
+        reach = []
         
+        self.dfs_canReach(arr, start, reach)
+        
+        return True if reach else False
+    
+        
+    def dfs_canReach(self, arr: List[int], index: int, reach: List[int]):
+        # base cases
+        if index < 0 or index >= len(arr):
+            return 
+        if arr[index] == 0:
+            reach.append(1)
+            return 
+        if arr[index] < 0: 
+            return 
+        
+        # TO DO
+        arr[index] *= -1
+        
+        # call DFS where needed
+        self.dfs_canReach(arr, index+arr[index], reach)
+        self.dfs_canReach(arr, index-arr[index], reach)
 
+
+    # ------------------------------------------------------------------------------------------
+
+
+    # # Leetcode 934. Shortest Bridge
+    # def shortestBridge(self, A: List[List[int]]) -> int:
+    #     pass
+
+    # def dfs_shortestBridge(self, A: List[List[int]], coordinate: List[int], count: int) -> int:
+    #     r, c = coordinate
+
+    #     # base cases 
+    #     if r < 0 or c < 0 or r >= len(A) or c >= len(A[0]):
+    #         return 0
+    #     if 
+
+
+    # --------------------------------------------------------------------------------------------
 
 
 

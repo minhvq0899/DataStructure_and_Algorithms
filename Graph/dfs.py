@@ -67,34 +67,6 @@ class Cycle_proton:
 
     
 
-"""
-# Class cycle in CSCI 160
-class Cycle_160:
-    hasCycleboo = False
-
-    def __init__(self, graph, visited):
-        self.graph = graph
-        self.visited = visited
-
-    # detect a cycle from 160
-    def cycle_160(self):
-        for i in range (len(self.graph)):
-            if not self.visited[i]:
-                self.dfs_160(i, i)
-
-    # dfs
-    def dfs_160(self, start: int, end: int):
-        self.visited[start] = True
-        for v in self.graph[start]:
-            if not self.visited[v]:
-                self.dfs_160(v, start) 
-            elif v == end:
-                self.hasCycleboo = True
-    
-    # has cycle
-    def hasCycle(self):
-        return self.hasCycleboo
-"""
 
 
 
