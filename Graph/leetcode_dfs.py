@@ -47,7 +47,6 @@ class Solution:
             for j in range( len(grid[0]) ):
                 if grid[i][j] == "1":
                     ans += self.bfs(grid, i, j)
-                    # print(grid)
         
         return ans
     
