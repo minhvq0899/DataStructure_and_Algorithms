@@ -10,6 +10,7 @@ I can later tackle Leetcode challenges with more confidence.
 """
 
 from typing import List
+from queue import Queue
 
 # Node for tree
 class Node:
@@ -62,7 +63,36 @@ def preOrder(root):
 
 
 
-# Invert Binary Tree
+# Level Order Traversal of a Binary Tree
+def levelByLevel(root):
+    level_order_traversal = []
+    if not root: return level_order_traversal
+    
+    q = Queue()
+    
+    # Step 1: enqueue root
+    q.put(root)
+    # Step 2: enqueue None (change level)
+    q.put(None)
+    
+    level = []
+    
+    # Step 3: 
+    while (not q.empty()):
+        n = q.get()
+        if n: # if n is not None
+            level.append(n.val)
+            if n.left:
+                q.put(n.left)
+            if n.right:
+                q.put(n.right)
+        else:
+            level_order_traversal.append(level)
+            level = []
+            if (not q.empty()): q.put(None)
+            
+    return level_order_traversal
+
 
 
 
@@ -72,6 +102,8 @@ if __name__ == "__main__":
     tree = buildTree(data)
 
     preOrder(tree)
+
+
 
 
 
