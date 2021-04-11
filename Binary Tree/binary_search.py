@@ -64,7 +64,6 @@ def bs_right(nums, target):
     return -1    
 
 
-
 # Leetcode 34. Find First and Last Position of Element in Sorted Array
 def searchRange(nums: List[int], target: int) -> List[int]:
     i = bisect.bisect_left(nums, target)
@@ -77,8 +76,6 @@ def searchRange(nums: List[int], target: int) -> List[int]:
 
 
 
-
-    
 
 if __name__ == "__main__":
     # nums = [-9, -2, 1, 4, 5, 6, 8, 9, 10, 13, 20, 30]
