@@ -14,19 +14,20 @@ index of the array which stores the data.
 """
 
 # this Hash Table is for string only
-class HashTable:
-    def __init__(self):
-        self.length = 100 # only 100 slots
-        self.array = [None for i in range(self.length)]
 
-    def get_hash(self, key):
-        hash = 0
-        for char in key:
-            hash += ord(char)
+# class HashTable:
+#     def __init__(self):
+#         self.length = 100 # only 100 slots
+#         self.array = [None for i in range(self.length)]
+
+#     def get_hash(self, key):
+#         hash = 0
+#         for char in key:
+#             hash += ord(char)
         
-        return hash % self.length
+#         return hash % self.length
     
-    def get()
+#     def get()
 
 
 
