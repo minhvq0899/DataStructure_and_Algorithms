@@ -8,39 +8,47 @@ I can later tackle Leetcode challenges with more confidence.
 
 */ 
     
-#pragma once
+// #pragma once
 
-#include<iostream>
-#include<cstdlib>
-#include<string>
-#include<cstdio>
+#ifndef HASHTABLE_H
+#define HASHTABLE_H
 
-const int table_size = 20; 
+#include <iostream>
+#include <cstdlib>
+#include <string>
+#include <cstdio>
+
+const int table_size = 10; 
 
 class HashTableEntry 
-{​​​​​​​
+{
 public:
     int k; 
     int v; 
+
+    // constructor
     HashTableEntry(int k, int v);
-}​​​​​​​;
+}; 
 
 
 class HashTable
-{​​​​​​​
-private:
+{
+private: 
     HashTableEntry** t; // an aray of pointers point to a HashTableEntry
-public:
-    HashTable(); 
-    ~HashTable(); 
 
+public:
+    HashTable();
+    ~HashTable();
 
     int hashFunc(int k); 
     void insert(int k, int v); 
     int searchKey(int k); 
     void remove(int k);
     void printTable();
-}​​​​​​​;
+};
+
+#endif
+
 
 
 
