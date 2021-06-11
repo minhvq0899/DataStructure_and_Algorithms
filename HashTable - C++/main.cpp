@@ -109,10 +109,10 @@ void main_hashtable_separatechaining(){
 
 int main() {
     // test for hash table
-    main_hashtable(); 
+    //main_hashtable(); 
 
     // test for hash table with separate   
-    main_hashtable_separatechaining(); 
+    //main_hashtable_separatechaining(); 
 
     // Debug
     // HashTable_SeparateChaining hashTable_sc_obj;

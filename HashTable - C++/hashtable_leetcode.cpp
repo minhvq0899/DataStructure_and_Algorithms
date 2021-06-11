@@ -12,10 +12,39 @@ I can later tackle Leetcode challenges with more confidence.
 */ 
 
 #include <iostream>
+#include <vector>
+#include <algorithm>
+#include <unordered_map>
+#include <bits/stdc++.h>
+using namespace std;
 
 class Solution {
 public:
-    
+    int longestConsecutive(vector<int>& nums) {
+        unordered_set <int> set;
+        // insert all elements in nums into a set: O(1) 
+        for (int x : nums){
+            set.insert(x); 
+        }
+        
+        int count = 0; 
+        int max = 0; 
+        
+        // loop through each nums: O(n)
+        for (int x : nums){
+            // check if x is the start of a sequence: O(1)
+            if (set.find(x-1) == set.end()){ 
+                count = 1; 
+                int current = x + 1; 
+                while (set.find(current) != set.end()) { // current is in the set
+                    count++; 
+                    current++; 
+                }
+                max = std::max(count, max);
+            }
+        }
+        
+        return max;
 };
 
 
