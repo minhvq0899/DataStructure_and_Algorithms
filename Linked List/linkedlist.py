@@ -17,7 +17,7 @@ Class Linkedlist
 
 class Node:
     def __init__(self, value):
-        self.value = value
+        self.val = value
         self.next = None
     
 
@@ -29,7 +29,7 @@ class Linkedlist:
     def printList(self): 
         current = self.head 
         while (current): 
-            print(current.value) 
+            print(current.val) 
             current = current.next
 
     # Put an element at the beginning of a Linked List
@@ -61,7 +61,7 @@ class Linkedlist:
     def delete(self, value):
         current = self.head
         # check if it's the head node
-        if value == current.value:
+        if value == current.val:
             self.head = current.next
             current = None
             return
@@ -70,33 +70,11 @@ class Linkedlist:
         pre = None
         while current:
             # found the wanted node
-            if current.value == value:
+            if current.val == value:
                 break
             pre = current
             current = current.next
         
         pre.next = current.next
         current = None
-
-
-
-
-
-
-
-if __name__ == "__main__":
-    hanoi = Node('Ha Noi')
-    quangbinh = Node('Quang Binh')
-    danang = Node('Da Nang')
-    saigon = Node('Sai Gon')
-
-    hanoi.next = quangbinh
-    quangbinh.next = danang
-    danang.next = saigon
-
-
-
-
-
-
 
