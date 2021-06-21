@@ -14,6 +14,7 @@ Class Solution will have the following Leetcode exercises:
 """
 
 class Solution:
+    # Leetcode 345: Reverse Vowels of a String
     def reverseVowels(self, s: str) -> str:
         vowels = 'aieouAIEOU'
         s = list(s)
@@ -38,7 +39,9 @@ class Solution:
 
         return ''.join(s)
 
+    # -------------------------------------------------------------------------------
 
+    # Leetcode 344: Reverse String
     def reverseStr(self, s: str, k: int) -> str:
         s = list(s)
         for i in range (0, len(s), 2*k):
@@ -57,7 +60,9 @@ class Solution:
             
         return ''.join(s)
 
+    # -------------------------------------------------------------------------------
 
+    # Leetcode 263: Ugly Number
     def nthUglyNumber(self, n: int) -> int:
         '''
         Any ugly number must be in one of these three sequence
