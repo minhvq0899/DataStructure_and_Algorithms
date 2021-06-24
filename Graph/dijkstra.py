@@ -23,7 +23,7 @@ class Dijkstra:
 
     def dijkstra(self, s: int):
         minHeap = []
-        dist[0] = 0 # distance from 0 to 0 is 0
+        self.dist[0] = 0 # distance from 0 to 0 is 0
         heapq.heappush( minHeap, (0, s) )
         # when heap is not empty
         while minHeap:
@@ -31,13 +31,13 @@ class Dijkstra:
             uWeight, uID = u
             # check all adjacents of u[0]
             # v has the form of (v, weight)
-            for v in graph[uID]:
+            for v in self.graph[uID]:
                 vID, vWeight = v
                 # if s->u + u-> v  <  s->v
                 # relax edge
-                if uWeight + vWeight < dist[vID]:
-                    dist[vID] = uWeight + vWeight
-                    path[vID] = uID
+                if uWeight + vWeight < self.dist[vID]:
+                    self.dist[vID] = uWeight + vWeight
+                    self.path[vID] = uID
                     heapq.heappush(minHeap, (uWeight + vWeight, vID))
 
 # Leetcode time
@@ -81,8 +81,6 @@ class Solution:
 
 
     # ----------------------------------------------------------------------------------------------------
-
-
     # Leetcode 787. Cheapest Flights Within K Stops
     def findCheapestPrice(self, n: int, flights: List[List[int]], src: int, dst: int, K: int) -> int:
         # initialize graph and dist

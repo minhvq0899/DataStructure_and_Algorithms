@@ -7,7 +7,8 @@ I can later tackle Leetcode challenges with more confidence.
 ========================================================= DFS with template =========================================================
 DFS down different path: 
     1. Leetcode 22. Generate Parentheses
-    2. Leetcode 752. Open the Lock
+    2. Leetcode 17. Letter Combinations of a Phone Number
+    3. Leetcode 752. Open the Lock
 
 DFS on grid/ matrix
     1. Leetcode 417. Pacific Atlantic Water Flow
@@ -17,7 +18,7 @@ DFS on grid/ matrix
     5. Leetcode 1254. Number of Closed Islands
     6. Leetcode 130. Surrounded Regions
     7. Leetcode 1306. Jump Game III
-
+    8. Leetcode 934. Shortest Bridge ??
 """
 
 import queue
@@ -45,14 +46,46 @@ class Solution:
             self.dfs_paren(n, potential + ")", left, right+1, combinations)
         
     
-   
+    # -----------------------------------------------------------------------------------------------
+    # Leetcode 17. Letter Combinations of a Phone Number
+    def letterCombinations(self, digits: str) -> List[str]:
+        # create a data strucutre to store answers
+        ans = []
+
+        if digits != None and len(digits) > 0:
+            mapping = ["", "", "abc", "def", "ghi", "jkl","mno","pqrs","tuv","wxyz"]
+            d = digits[0] # if digits == "23" then d == "2"
+            letters = mapping[ int(d) ] # letters == "abc"
+            for char in letters:     
+                self.dfs(digits, mapping, ans, 1, char)
+            
+        return ans
+
+    def dfs(self, digits: str, mapping: List[str], ans: List[str], index: int, potential: str):
+        # base cases: we found 1 combination
+        if len(potential) == len(digits):
+            ans.append(potential)
+            return 
+            
+        # variation
+        d = digits[index] # d == 2
+        letters = mapping[ int(d) ]
+        for char in letters:
+            self.dfs(digits, mapping, ans, index + 1, potential + char)
+
+
+    # ------------------------------------------------------------------------------------------
+    # Leetcode 752. Open the Lock
+
+
+
+
+
+
+
 
     # ========================================================================================================================================= 
     # ========================================================================================================================================= 
-
-
-
-
     # Leetcode 417. Pacific Atlantic Water Flow
     def pacificAtlantic(self, matrix: List[List[int]]) -> List[List[int]]:
         """
@@ -119,7 +152,7 @@ class Solution:
         self.dfs_pacificAtlantic(matrix, right, matrix[r][c], ocean)
 
 
-    # --------------------------------------------------------------
+    # --------------------------------------------------------------------------------------
     # Leetcode 1020. Number of Enclaves
     def numEnclaves(self, A: List[List[int]]) -> int:
         count = 0
@@ -165,8 +198,8 @@ class Solution:
     # Time: O(m*n)?
     # Space: O(1)
 
-    # -----------------------------------------------
 
+    # --------------------------------------------------------------------------------------
     # Leetcode 529. Minesweeper
     def adjacentMines(self, board: List[List[str]], click: List[int]) -> int:
         i, j = click
@@ -218,9 +251,7 @@ class Solution:
     """
 
 
-    # ----------------------------------------------------------------------
-
-
+    # --------------------------------------------------------------------------------------
     # Leetcode 695. Max Area of Island
     def maxAreaOfIsland(self, grid: List[List[int]]) -> int:
         if not grid:
@@ -262,9 +293,7 @@ class Solution:
         return count
         
         
-    # ----------------------------------------------------------------------------
-
-
+    # --------------------------------------------------------------------------------------
     # Leetcode 1254. Number of Closed Islands
     def closedIsland(self, grid: List[List[int]]) -> int:
         # find all islands that touch boundary (they are not closed islands)
@@ -312,9 +341,7 @@ class Solution:
         self.dfs_closedIsland( [r, c+1], grid ) # right
     
 
-    # ------------------------------------------------------------------------
-
-
+    # --------------------------------------------------------------------------------------
     # Leetcode 130. Surrounded Regions
     def solve(self, board: List[List[str]]) -> None:
         """
@@ -372,7 +399,6 @@ class Solution:
 
 
     # ------------------------------------------------------------------------
-
     # Leetcode 1306. Jump Game III
     def canReach(self, arr: List[int], start: int) -> bool:
         reach = []

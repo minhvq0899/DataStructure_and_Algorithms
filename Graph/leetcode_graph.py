@@ -8,6 +8,13 @@ I can later tackle Leetcode challenges with more confidence.
 
 1. Leetcode 997. Find the Town Judge
 2. Leetcode 1042. Flower Planting With No Adjacent
+==========================================
+Graph Template
+3. Leetcode 323: Number of CC in an Undirected Graph
+4. Leetcode 207: Course Schedule - Detect Cycle in Directed Graph
+5. Leetcode 261: Graph Valid Tree - Detect Cycle in Undirected Graph
+    Helper function to detect cycle in undirected graph using DFS
+
 
 """
 
@@ -41,6 +48,8 @@ class Solution:
 
         return -1
 
+
+    # ---------------------------------------------------------------------------------------
     # Leetcode 1042. Flower Planting With No Adjacent
     def gardenNoAdj(self, n: int, paths: List[List[int]]) -> List[int]:
         # store all edges in a list of length n+1 (edges[0] is empty)
@@ -76,6 +85,145 @@ class Solution:
         return ans
 
 
+    # ---------------------------------------------------------------------------------------
+    # Leetcode 323: Number of CC in an Undirected Graph
+    def countComponents(self, n: int, edges: List[List[int]]) -> int:
+        # -------------------------- set up graph --------------------------
+        # a special dict: <int, List[int]>
+        graph = collections.defaultdict(list)
+        for edge in edges:
+            u, v = edge
+            graph[u].append(v)
+            graph[v].append(u)
+        # ------------------------------------------------------------------
+
+        visited = [False for _ in range(n)]         # visited boolean
+        count = 0
+
+        # attempt to DFS from each vertice, so we can find the different CCs
+        for i in range(n):
+            if visited[i] == False:
+                count += 1                          # found a CC
+                self.CC_dfs(graph, visited, i)
+        
+        return count
+
+
+    # iterative
+    def CC_dfs(self, graph: collections.defaultdict(list), visited: List[bool], vertice: int):
+        stack = [vertice]
+        visited[vertice] = True
+
+        while stack:                                # while stack is not empty
+            u = stack.pop()
+            for v in graph[u]:
+                if visited[v] == False:
+                    visited[v] = True
+                    stack.append(v)
+
+
+    # ---------------------------------------------------------------------------------------
+    # Leetcode 207: Course Schedule - Detect Cycle in Directed Graph
+    def canFinish(self, numCourses: int, prerequisites: List[List[int]]) -> bool:
+        # initialize graph
+        graph = [[] for _ in range (numCourses)]
+        for pre in prerequisites:
+            v, u = pre
+            graph[u].append(v)
+        
+        visited = [0 for _ in range (numCourses)]
+        hasCycle = False
+        # ------------------------------------
+        # check for cycle
+        def cycle(start):
+            for v in graph[start]:
+                if visited[v] == 0:
+                    visited[v] = 1
+                    cycle(v)
+                elif visited[v] == 1:
+                    nonlocal hasCycle
+                    hasCycle = True
+                
+                visited[v] = 2
+        # ------------------------------------
+        # check cycle from each node
+        for i in range (numCourses):
+            cycle(i)
+
+        return not hasCycle
+
+
+    # -------------------------------------------------------------------------------------
+    # Leetcode 261: Graph Valid Tree - Detect Cycle in Undirected Graph
+    # Write a function that returns true if a given undirected graph is tree and false otherwise
+    # An undirected graph is tree if it has following properties. 
+    #       1) There is no cycle. 
+    #       2) The graph is connected.
+    def graphValidTree(self, n: int, edges: List[List[int]]) -> bool:
+        # ========== Step 1: Set up graph ==========
+        graph = collections.defaultdict(list)
+        for edge in edges:
+            u, v = edge
+            graph[u].append(v)
+            graph[v].append(u)
+        
+        visited = [False for _ in range(n)]
+
+        # ========== Step 2: Detect cycle and Step 3: Detect connectivity ==========
+        hasCycle = False
+        count = 0
+
+        for i in range(n):
+            if visited[i] == False:
+                count += 1
+                hasCycle = hasCycle or self.cycle_undirected_dfs(graph, visited, i, -1)
+        
+        return not hasCycle and count == 1
+
+
+    # -------------------------------------------------------------------------------------
+    # Helper to detect cycle in undirected graph using DFS
+    def detectCycleUndirected(self, n: int, edges: List[List[int]]) -> bool:
+        # ========== Step 1: Set up graph ==========
+        graph = collections.defaultdict(list)
+        for edge in edges:
+            u, v = edge
+            graph[u].append(v)
+            graph[v].append(u)
+        
+        visited = [False for _ in range(n)]
+
+        # ========== Step 2: DFS traversal ==========
+        hasCycle = False
+        for i in range(n):
+            if visited[i] == False:
+                hasCycle = hasCycle or self.cycle_undirected_dfs(graph, visited, i, -1)
+
+        return hasCycle
+
+
+    # iterative
+    def cycle_undirected_dfs(self, graph: collections.defaultdict(list), visited: List[bool], vertice: int, parent: int) -> bool:
+        visited[vertice] = True
+
+        for v in graph[vertice]:
+            if visited[v] == False:
+                if self.cycle_undirected_dfs(graph, visited, v, vertice): 
+                    return True
+            else: 
+                if v != parent: return True
+    
+        return False
+        
+
+
+
+
+
+
+
+
+
 
 
 
@@ -91,15 +239,21 @@ if __name__ == "__main__":
     # print("Judge: ", jugde)
 
     # ------------------------------------------------------------------
-    lc1042 = [[1,2],[2,3],[3,4],[4,1],[1,3],[2,4]]
-    n = 4
+    # lc1042 = [[1,2],[2,3],[3,4],[4,1],[1,3],[2,4]]
+    # n = 4
 
-    ans = leetcode.gardenNoAdj(n, lc1042)
-    print(ans)
+    # ans = leetcode.gardenNoAdj(n, lc1042)
+    # print(ans)
 
+    # ------------------------------------------------------------------
+    # N = 6
+    # edges = [ [0,1], [1,2], [2,0], [3,4] ]
+    # print( leetcode.countComponents(N, edges) )
 
-
-
+    # ------------------------------------------------------------------
+    N = 12
+    edges = [ [0,1],[1,2],[2,3],[0,6],[2,4],[1,5],[0,7],[7,8],[8,9],[7,11],[11,10] ]
+    print(leetcode.graphValidTree(N, edges)) # True
 
 
 

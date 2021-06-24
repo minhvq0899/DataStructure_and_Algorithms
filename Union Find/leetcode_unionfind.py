@@ -5,23 +5,28 @@ This python file is a part of my effort in getting myself refreshed with Data St
 I can later tackle Leetcode challenges with more confidence. 
 
 ========================================================= Union Find =========================================================
+0. Union Find
+    def findSetAndPathCompression(self, u: int, parent: List[int]):
+    def unionByRank(self, u: int, v: int, parent: int, rank: List[int]):
+
 1. Leetcode 547. Number of Provinces
 2. Leetcode 684. Redundant Connection
 3. Leetcode 1319. Number of Operations to Make Network Connected
+
 """
 
 from union_find import *
 
 class Solution:
     # Union Find
-    def findSetAndPathCompression(self, u, parent): 
+    def findSetAndPathCompression(self, u: int, parent: List[int]): 
         if parent[u] != u:
             parent[u] = self.findSetAndPathCompression(parent[u], parent)
         
         # this return will be first activated when we find the father
         return parent[u] 
 
-    def unionByRank(self, u, v, parent, rank):
+    def unionByRank(self, u: int, v: int, parent: int, rank: List[int]):
         u_parent = self.findSetAndPathCompression(u, parent)
         v_parent = self.findSetAndPathCompression(v, parent)
 
@@ -40,6 +45,7 @@ class Solution:
             rank[u_parent] += 1
     
 
+    # --------------------------------------------------------------------------------------
     # Leetcode 547. Number of Provinces
     def findCircleNum(self, isConnected: List[List[int]]) -> int:
         # initialization
@@ -61,7 +67,7 @@ class Solution:
         return cnt
 
 
-
+    # --------------------------------------------------------------------------------------
     # Leetcode 684. Redundant Connection
     def unionByRank_find_redundant(self, u, v, parent, rank) -> List[int]:
         u_parent = self.findSetAndPathCompression(u, parent)
@@ -96,7 +102,7 @@ class Solution:
         # do union find with all edges
         for edge in edges:
             u, v = edge
-            potential = self.unionByRank_684(u, v, parents, rank)
+            potential = self.unionByRank_find_redundant(u, v, parents, rank)
             if potential: # if the returning edge is not empty
                 redundant_edges.append(potential)
         
@@ -104,8 +110,7 @@ class Solution:
         return redundant_edges.pop() # return the last edge
 
 
-
-
+    # --------------------------------------------------------------------------------------
     # Leetcode 1319. Number of Operations to Make Network Connected 
     def makeConnected(self, n: int, connections: List[List[int]]) -> int:
         """
@@ -140,106 +145,26 @@ class Solution:
         else:
             return -1
 
-# ====================================================================================================================
-
-    # Leetcode 529. Minesweeper
-    def adjacentMines(self, board: List[List[str]], click: List[int]) -> int:
-        i, j = click
-        
-        num_mines = 0
-        for r in range (i-1, i+2):
-            for c in range (j-1, j+2):
-                if r >= 0 and r < len(board) and c >= 0 and c < len(board[0]):
-                    if board[r][c] == "M":
-                        num_mines += 1
-
-        return num_mines
-                    
-
-    def updateBoard(self, board: List[List[str]], click: List[int]) -> List[List[str]]:
-        """
-        If click on "M" 
-            -> game over
-        else if click on "E"
-            if no adjacent mines
-                reveal it as "B"
-            else
-                digit 1->8
-        
-        """
-        i, j = click
-        
-        # 1. If a mine ('M') is revealed, then the game is over - change it to 'X'
-        if board[i][j] == 'M': 
-            board[i][j] = 'X'
-        # 2. If an empty square ('E') is revealed
-        else: 
-            # compute number of adjacent mines
-            num_mines = self.adjacentMines(board, click)
-            if num_mines: 
-                board[i][j] = str(num_mines)
-            else: 
-                board[i][j] = "B"
-                for r in range (i-1, i+2):
-                    for c in range (j-1, j+2):
-                        if r >= 0 and r < len(board) and c >= 0 and c < len(board[0]) and board[r][c] != "B":
-                            self.updateBoard(board, [r, c])
-                
-        return board
+# ================================================================================================
 
 
-    # -----------------------------------------------------------------------
-
-    # Leetcode 17. Letter Combinations of a Phone Number
-    def letterCombinations(self, digits: str) -> List[str]:
-        # create a data strucutre to store answers
-        ans = []
-
-        if digits != None and len(digits) > 0:
-            mapping = ["", "", "abc", "def", "ghi", "jkl","mno","pqrs","tuv","wxyz"]
-            d = digits[0] # if digits == "23" then d == "2"
-            letters = mapping[ int(d) ] # letters == "abc"
-            for char in letters:     
-                self.dfs(digits, mapping, ans, 1, char)
-            
-        return ans
-
-    def dfs(self, digits: str, mapping: List[str], ans: List[str], index: int, potential: str):
-        # base cases: we found 1 combination
-        if len(potential) == len(digits):
-            ans.append(potential)
-            return 
-            
-        # variation
-        d = digits[index] # d == 2
-        letters = mapping[ int(d) ]
-        for char in letters:
-            self.dfs(digits, mapping, ans, index + 1, potential + char)
-
-    # -----------------------------------------------------------------------------------------
-
-    # Leetcode 752. Open the Lock
-    def openLock(self, deadends: List[str], target: str) -> int:
-        # create a DS to store answer
-        min_turn = 0
-
-        # initialize dfs/ bfs
-    
-    def bfs_openLock(self, )
-
-
-
-                
-
-
-
-
+   
 
 
 
 
 if __name__ == "__main__":
     leetcode = Solution()
+
+    # ------ Union by Rank ------
+    connections = [[3,1], [7,5], [10,7], [11,10], [9,8], [5,0], [4,2], [8,4], [6,3]]
+    N = 11
+    parent = [i for i in range(N+1)]
+    rank = [0 for _ in range(N+1)]
+
+    for conn in connections:
+        son, father = conn
+        leetcode.unionByRank(son, father, parent, rank)
 
     # ---------------------------
     # province = leetcode.findCircleNum([[1,1,0],[1,1,0],[0,0,1]])

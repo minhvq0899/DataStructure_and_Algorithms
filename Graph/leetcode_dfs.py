@@ -5,18 +5,44 @@ This python file is a part of my effort in getting myself refreshed with Data St
 I can later tackle Leetcode challenges with more confidence. 
 
 ========================================================= Depth First Search =========================================================
-1. Leetcode 841. Keys and Rooms
-2. Leetcode 200. Number of Islands
-3. Leetcode 207. Course Schedule
-4. Leetcode 210. Course Schedule II
+1. Leetcode 17. Letter Combinations of a Phone Number
+2. Leetcode 841. Keys and Rooms
+3. Leetcode 200. Number of Islands 
+4. Leetcode 529. Minesweeper
 
 """
  
 from typing import List
 
 class Solution:
-    # Leetcode 17. Letter Combinations of a Phone Number
+    # Leetcode 17. Letter Combinations of a Phone Number  
+    def letterCombinations(self, digits: str) -> List[str]:
+        # create a data strucutre to store answers
+        ans = []
 
+        if digits != None and len(digits) > 0:
+            mapping = ["", "", "abc", "def", "ghi", "jkl","mno","pqrs","tuv","wxyz"]
+            d = digits[0] # if digits == "23" then d == "2"
+            letters = mapping[ int(d) ] # letters == "abc"
+            for char in letters:     
+                self.dfs(digits, mapping, ans, 1, char)
+            
+        return ans
+
+    def dfs(self, digits: str, mapping: List[str], ans: List[str], index: int, potential: str):
+        # base cases: we found 1 combination
+        if len(potential) == len(digits):
+            ans.append(potential)
+            return 
+            
+        # variation
+        d = digits[index] # d == 2
+        letters = mapping[ int(d) ]
+        for char in letters:
+            self.dfs(digits, mapping, ans, index + 1, potential + char)
+
+
+    # -------------------------------------------------------------------------------------
     # Leetcode 841. Keys and Rooms
     def canVisitAllRooms(self, rooms: List[List[int]]) -> bool:
         # initialization
@@ -38,7 +64,6 @@ class Solution:
         return cnt == len(rooms)
 
     # -------------------------------------------------------------------------------------
-
     # Leetcode 200. Number of Islands
     def numIslands(self, grid: List[List[str]]) -> int:
         ans = 0
@@ -66,48 +91,51 @@ class Solution:
 
         # finally, return that you found 1 island
         return 1
-    
 
+        
     # -------------------------------------------------------------------------------------
-
-
-    # Leetcode 207. Course Schedule
-    # Detect cycle in a directed graph
-    def canFinish(self, numCourses: int, prerequisites: List[List[int]]) -> bool:
-        # initialize graph
-        graph = [[] for _ in range (numCourses)]
-        for pre in prerequisites:
-            v, u = pre
-            graph[u].append(v)
+    # Leetcode 529. Minesweeper
+    def adjacentMines(self, board: List[List[str]], click: List[int]) -> int:
+        i, j = click
         
-        visited = [0 for _ in range (numCourses)]
-        hasCycle = False
+        num_mines = 0
+        for r in range (i-1, i+2):
+            for c in range (j-1, j+2):
+                if r >= 0 and r < len(board) and c >= 0 and c < len(board[0]):
+                    if board[r][c] == "M":
+                        num_mines += 1
 
-        # check for cycle
-        def cycle(start):
-            for v in graph[start]:
-                if visited[v] == 0:
-                    visited[v] = 1
-                    cycle(v)
-                elif visited[v] == 1:
-                    nonlocal hasCycle
-                    hasCycle = True
+        return num_mines
+                    
+    def updateBoard(self, board: List[List[str]], click: List[int]) -> List[List[str]]:
+        """
+        If click on "M" 
+            -> game over
+        else if click on "E"
+            if no adjacent mines
+                reveal it as "B"
+            else
+                digit 1->8
+        """
+        i, j = click
+        
+        # 1. If a mine ('M') is revealed, then the game is over - change it to 'X'
+        if board[i][j] == 'M': 
+            board[i][j] = 'X'
+        # 2. If an empty square ('E') is revealed
+        else: 
+            # compute number of adjacent mines
+            num_mines = self.adjacentMines(board, click)
+            if num_mines: 
+                board[i][j] = str(num_mines)
+            else: 
+                board[i][j] = "B"
+                for r in range (i-1, i+2):
+                    for c in range (j-1, j+2):
+                        if r >= 0 and r < len(board) and c >= 0 and c < len(board[0]) and board[r][c] != "B":
+                            self.updateBoard(board, [r, c])
                 
-                visited[v] = 2
-        
-        # check cycle from each node
-        for i in range (numCourses):
-            cycle(i)
-
-        return not hasCycle
-
-
-
-    # Leetcode 210. Course Schedule II
-    # def findOrder(self, numCourses: int, prerequisites: List[List[int]]) -> List[int]:
-        
-
-
+        return board
 
 
 
@@ -136,10 +164,10 @@ if __name__=="__main__":
     
 
     # --------------- 207 ---------------
-    # numCourses = 20
-    # prerequisites = [[0,10],[3,18],[5,5],[6,11],[11,14],[13,1],[15,1],[17,4]]
+    numCourses = 20
+    prerequisites = [[0,10],[3,18],[5,5],[6,11],[11,14],[13,1],[15,1],[17,4]]
 
-    # print(leetcode.canFinish(numCourses, prerequisites))
+    print(leetcode.canFinish(numCourses, prerequisites))
 
 
     # --------------- 210 ---------------
