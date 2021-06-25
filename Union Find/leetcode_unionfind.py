@@ -12,10 +12,12 @@ I can later tackle Leetcode challenges with more confidence.
 1. Leetcode 547. Number of Provinces
 2. Leetcode 684. Redundant Connection
 3. Leetcode 1319. Number of Operations to Make Network Connected
+4. Leetcode 261: Graph Valid Tree - Detect Cycle in Undirected Graph
 
 """
 
 from union_find import *
+import collections
 
 class Solution:
     # Union Find
@@ -145,6 +147,52 @@ class Solution:
         else:
             return -1
 
+
+    # -------------------------------------------------------------------------------------
+    # Leetcode 261: Graph Valid Tree - Detect Cycle in Undirected Graph
+    # Write a function that returns true if a given undirected graph is tree and false otherwise
+    # An undirected graph is tree if it has following properties. 
+    #       1) There is no cycle. 
+    #       2) The graph is connected.
+    # We can do this with Union Find providing that there is no self loop (Ex: [0,0])
+    # helper function to detect cycle in an undirected graph using Union Find
+    def unionByRank_detect_cycle(self, u: int, v: int, parent: List[int], rank: List[int]) -> bool:
+        u_parent = self.findSetAndPathCompression(u, parent)
+        v_parent = self.findSetAndPathCompression(v, parent)
+
+        # If the two vertices share the same father, providing that there is no 
+        # duplicate in connection, a cycle is detected. Union-find cannot detect self loop
+        if u_parent == v_parent:
+            return True
+        if rank[u_parent] > rank[v_parent]:
+            parent[v_parent] = u_parent
+        elif rank[v_parent] > rank[u_parent]:
+            parent[u_parent] = v_parent
+        else:
+            parent[v_parent] = u_parent
+            rank[u_parent] += 1
+        
+        return False
+
+    # Union Find edition
+    def graphValidTree(self, n: int, edges: List[List[int]]) -> bool:
+        # ========== Step 1: Set up Union Find ==========
+        parent = [i for i in range(n)]
+        rank = [0 for _ in range(n)]
+
+        # ========== Step 2: Detect cycle and Step 3: Connectivity ==========
+        hasCycle = False
+        for edge in edges:
+            u, v = edge
+            hasCycle = hasCycle or self.unionByRank_detect_cycle(u, v, parent, rank)
+            
+        group = 0
+        for i in range(n):
+            if i == parent[i]: group += 1
+        
+        return not hasCycle and group == 1
+
+
 # ================================================================================================
 
 
@@ -157,14 +205,14 @@ if __name__ == "__main__":
     leetcode = Solution()
 
     # ------ Union by Rank ------
-    connections = [[3,1], [7,5], [10,7], [11,10], [9,8], [5,0], [4,2], [8,4], [6,3]]
-    N = 11
-    parent = [i for i in range(N+1)]
-    rank = [0 for _ in range(N+1)]
+    # connections = [[3,1], [7,5], [10,7], [11,10], [9,8], [5,0], [4,2], [8,4], [6,3]]
+    # N = 11
+    # parent = [i for i in range(N+1)]
+    # rank = [0 for _ in range(N+1)]
 
-    for conn in connections:
-        son, father = conn
-        leetcode.unionByRank(son, father, parent, rank)
+    # for conn in connections:
+    #     son, father = conn
+    #     leetcode.unionByRank(son, father, parent, rank)
 
     # ---------------------------
     # province = leetcode.findCircleNum([[1,1,0],[1,1,0],[0,0,1]])
@@ -199,7 +247,9 @@ if __name__ == "__main__":
     # print(combinations)
 
     # ------------------------------
-
+    N = 12
+    edges = [ [0,1],[1,2],[2,3],[0,6],[2,4],[1,5],[0,7],[7,8],[8,10],[8,9],[7,11],[11,10] ]
+    print(leetcode.graphValidTree(N, edges)) # True
         
 
 
