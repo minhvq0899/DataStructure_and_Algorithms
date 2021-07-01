@@ -9,12 +9,44 @@ I can later tackle Leetcode challenges with more confidence.
 2. Leetcode 767. Reorganize String
 3. Leetcode 378. Kth Smallest Element in a Sorted Matrix
 4. Leetcode 373. Find K Pairs with Smallest Sums
-
+Template: 
+5. Leetcode 347. Top K Frequent Elements
+6. Leetcode 23. Merge k Sorted Lists
+0. Leetcode 295. Find Median from Data Stream
+7. Leetcode 973. K Closest Points to Origin
+8. Leetcode 659. Split Array into Consecutive Subsequences
 
 """
 
 from typing import List
-import heapq
+import heapq 
+
+class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
+
+# Leetcode 295. Find Median from Data Stream
+class MedianFinder:
+    def __init__(self):
+        self.top_heap = []          # a min heap of upper half
+        self.bottom_heap = []       # a max heap of bottom half
+    
+    def addNum(self, num: int) -> None:
+        # we will set up in the way that the max heap will always have equal or more element than min heap
+        heapq.heappush(self.bottom_heap, (-1)*num)
+        heapq.heappush(self.top_heap, (-1)*heapq.heappop(self.bottom_heap))
+
+        if len(self.bottom_heap) < len(self.top_heap):
+            heapq.heappush( self.bottom_heap, (-1)*heapq.heappop(self.top_heap) )
+
+    def findMedian(self) -> float:
+        if len(self.bottom_heap) == len(self.top_heap):
+            return ( (-1)*self.bottom_heap[0] + self.top_heap[0] ) / 2
+        else:   # max heap has more element
+            return self.bottom_heap[0] * (-1)
+
+
 
 class Solution:
     # Leetcode 215. Kth Largest Element in an Array
@@ -29,6 +61,7 @@ class Solution:
         return heapq.heappop(aList)
 
 
+    # --------------------------------------------------------------------------------
     # Leetcode 767. Reorganize String
     def reorganizeString(self, S: str) -> str:
         # count the frequency of each letter and append it into a list
@@ -68,7 +101,8 @@ class Solution:
 
         return "".join(ans) + (pq[0][1] if pq else '') 
         
-        
+
+    # --------------------------------------------------------------------------------
     # Leetcode 378. Kth Smallest Element in a Sorted Matrix
     def kthSmallest(self, matrix: List[List[int]], k: int) -> int:
         flat_matrix = []
@@ -86,6 +120,7 @@ class Solution:
         return -1 * k_heap[0]
 
 
+    # --------------------------------------------------------------------------------
     # Leetcode 373. Find K Pairs with Smallest Sums
     def kSmallestPairs(self, nums1: List[int], nums2: List[int], k: int) -> List[List[int]]:
         """
@@ -122,6 +157,83 @@ class Solution:
         return ans
 
 
+    # --------------------------------------------------------------------------------
+    # Leetcode 347. Top K Frequent Elements
+    def topKFrequent(self, nums: List[int], k: int) -> List[int]:
+        freq_dict = dict()
+        
+        for num in nums:                # O(n)
+            if num not in freq_dict:
+                freq_dict[num] = 0
+            else:
+                freq_dict[num] -= 1     # this is a min heap
+        
+        heap = list()
+        for key in freq_dict:   # O(n)
+            heap.append( (freq_dict[key], key) )
+
+        heapq.heapify(heap)     # O(n)
+
+        answer = list()
+        for i in range(k):
+            pair = heapq.heappop(heap)
+            answer.append(pair[1])
+
+        return answer
+
+
+    # --------------------------------------------------------------------------------
+    # Leetcode 23. Merge k Sorted Lists
+    def mergeKLists(self, lists: List[ListNode]) -> ListNode:
+        # ----------------------------------------------
+        class Wrapper():
+            def __init__(self, node):
+                self.node = node
+            def __lt__(self, other):
+                return self.node.val < other.node.val
+        # ----------------------------------------------
+        heap = []
+        for node in lists:      # O(k)
+            if node:
+                heapq.heappush(heap, Wrapper(node))
+
+        dummy = ListNode()      # to keep track of the head
+        current = dummy
+        while len(heap) != 0:
+            node = heapq.heappop(heap).node
+            current.next = node
+            current = current.next
+            if node and node.next: heapq.heappush(heap, Wrapper(node.next))
+
+        return dummy.next
+
+
+    # --------------------------------------------------------------------------------
+    # Leetcode 973. K Closest Points to Origin
+    def kClosest(self, points: List[List[int]], k: int) -> List[List[int]]:
+        heap = []
+        for i, point in enumerate(points):
+            x, y = point
+            distance = ((x**2) + (y**2))**(1/2)
+            heapq.heappush( heap, (distance, i) )
+        
+        ans = []
+        for c in range(k):
+            dis, ind = heapq.heappop(heap)
+            ans.append( points[ind] )
+
+        return ans
+
+    # --------------------------------------------------------------------------------    
+    # Leetcode 659. Split Array into Consecutive Subsequences
+    def isPossible(self, nums: List[int]) -> bool:
+
+
+        return True
+
+
+
+
 
 if __name__ == "__main__":
     leetcode = Solution()
@@ -138,11 +250,11 @@ if __name__ == "__main__":
     #print(kthSmallest)
 
     # --------------------------------------------------------------------------------
-    lc373_nums1 = [1,7,11]
-    lc373_nums2 = [2,4,6]
-    k = 3
-    kpairs_smallest = leetcode.kSmallestPairs(lc373_nums1, lc373_nums2, k)
-    print(kpairs_smallest)
+    # lc373_nums1 = [1,7,11]
+    # lc373_nums2 = [2,4,6]
+    # k = 3
+    # kpairs_smallest = leetcode.kSmallestPairs(lc373_nums1, lc373_nums2, k)
+    # print(kpairs_smallest)
 
 
 

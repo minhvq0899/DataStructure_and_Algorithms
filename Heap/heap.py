@@ -80,10 +80,10 @@ if __name__ == "__main__":
 
     print(tree) # [0, 1, 3, 7, 4, 6, 9, 10, 15]
 
-    my_heap.insert(tree, 3.5)
+    my_heap.insert(tree, 8) # insert VALUE 8
     print("After inserting 8, we have: ", tree)
 
-    my_heap.delete(tree, 8) # delete element at index 8
-    print("After deleting the element ar index 8, we have: ", tree)
+    my_heap.delete(tree, 8) # delete element at INDEX 8
+    print("After deleting the element at index 8, we have: ", tree)
 
  
