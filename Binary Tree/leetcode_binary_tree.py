@@ -8,16 +8,33 @@ I can later tackle Leetcode challenges with more confidence.
 1. Leetcode 104. Maximum Depth of Binary Tree
 2. Leetcode 226. Invert Binary Tree
 3. Leetcode 617. Merge Two Binary Trees
-4. Leetcode 1315. Sum of Nodes with Even-Valued Grandparent
-5. Leetcode 102. Binary Tree Level Order Traversal    
-6. Leetcode 199. Binary Tree Right Side View
+4. Leetcode 1315. Sum of Nodes with Even-Valued Grandparent   
+5. Leetcode 199. Binary Tree Right Side View
 6. Leetcode 404. Sum of Left Leaves
 7. Leetcode 669. Trim a Binary Search Tree
+================================================================
+Kenny Talks Code: 
+Problems involve path finding: given a tree, find a path that optimizes the sub criteria
+8. Leetcode 112: Path Sum
+9. Leetcode 129. Sum Root to Leaf Numbers
+10.Leetcode 124. Binary Tree Maximum Path Sum
+
+Problems involve tree traversal: explore all nodes in the tree, ususally in some unique ways other 
+than pre-order, in-order and post-order
+11.Leetcode 102. Binary Tree Level Order Traversal  
+12.Leetcode 515. Find Largest Value in Each Tree Row
+13.Leetcode 116. Populating Next Right Pointers in Each Node
+14 Leetcode 117. Populating Next Right Pointers in Each Node II
+15.Leetcode 105. Construct Binary Tree from Preorder and Inorder Traversal 
+16.Leetcode 106. Construct Binary Tree from Inorder and Postorder Traversal
+17.Leetcode 889. Construct Binary Tree from Preorder and Postorder Traversal
+
 
 """
 
 
 from typing import List
+from queue import Queue
 
 # Definition for a binary tree node.
 class Node:
@@ -87,7 +104,8 @@ class Solution:
 
         return count(root, 0)
 
-    
+
+    # --------------------------------------------------------------------
     # Leetcode 226. Invert Binary Tree
     def invertTree(self, root: Node) -> Node:
         if not root: 
@@ -109,9 +127,10 @@ class Solution:
         
         return postOrder(root)
 
-    
+
+    # --------------------------------------------------------------------
     # Leetcode 617. Merge Two Binary Trees
-    def mergeTrees(self, root1: TreeNode, root2: TreeNode) -> TreeNode:
+    def mergeTrees(self, root1: Node, root2: Node) -> Node:
         # 1.Base cases
         if not root1:
             return root2
@@ -122,12 +141,13 @@ class Solution:
         # 2+3.Calling the same fn on the left and right subtree
         root1.left = self.mergeTrees(root1.left, root2.left)
         root1.right = self.mergeTrees(root1.right, root2.right)
-        
+
         return root1
 
 
+    # --------------------------------------------------------------------
     # Leetcode 1315. Sum of Nodes with Even-Valued Grandparent
-    def sumEvenGrandparent(self, root: TreeNode) -> int:
+    def sumEvenGrandparent(self, root: Node) -> int:
         self.result_sum = 0
         
         # helper function -----------------------------------------------------
@@ -153,8 +173,9 @@ class Solution:
         return self.result_sum
 
 
+    # --------------------------------------------------------------------
     # Leetcode 404. Sum of Left Leaves
-    def sumOfLeftLeaves(self, root: TreeNode) -> int:
+    def sumOfLeftLeaves(self, root: Node) -> int:
         self.leftSum = 0
         
         # ---------- helper function ----------
@@ -176,41 +197,11 @@ class Solution:
         helper(root)
         
         return self.leftSum  
-
-
-    # Leetcode 102. Binary Tree Level Order Traversal    
-    def levelOrder(self, root: TreeNode) -> List[List[int]]:
-        level_order_traversal = []
-        if not root: return level_order_traversal
-        
-        q = Queue()
-        
-        # Step 1: enqueue root
-        q.put(root)
-        # Step 2: enqueue None (change level)
-        q.put(None)
-        
-        level = []
-        
-        # Step 3: 
-        while (not q.empty()):
-            n = q.get()
-            if n: # if n is not None
-                level.append(n.val)
-                if n.left:
-                    q.put(n.left)
-                if n.right:
-                    q.put(n.right)
-            else:
-                level_order_traversal.append(level)
-                level = []
-                if (not q.empty()): q.put(None)
-                
-        return level_order_traversal
     
 
-   # Leetcode 199. Binary Tree Right Side View
-    def rightSideView(self, root: TreeNode) -> List[int]:
+    # --------------------------------------------------------------------
+    # Leetcode 199. Binary Tree Right Side View
+    def rightSideView(self, root: Node) -> List[int]:
         level_order_traversal = self.levelOrder(root)
         right_side_view = []
         for level in level_order_traversal:
@@ -219,8 +210,9 @@ class Solution:
         return right_side_view
 
 
+    # --------------------------------------------------------------------
     # Leetcode 669. Trim a Binary Search Tree
-    def trimBST(self, root: TreeNode, low: int, high: int) -> TreeNode:
+    def trimBST(self, root: Node, low: int, high: int) -> Node:
         # helper function --------------------------------------------------
         def helper(root):
             # 1.Base case(s)
@@ -255,6 +247,344 @@ class Solution:
         return helper(root)
 
 
+    # --------------------------------------------------------------------
+    # Leetcode 112: Path Sum
+    def hasPathSum(self, root: Node, targetSum: int) -> bool:
+        # --------- helper function ---------
+        def helper(root: Node, targetSum: int) -> bool:    
+            # Step 1: Find one or more base case
+            # Base case: Found a leaf
+            if (not root.right) and (not root.left): 
+                if targetSum == root.val: return True
+                else: return False
+
+            found = False
+            # Step 2: Calling the same function on left subtree
+            if root.left:
+                found = found or helper(root.left, targetSum-root.val)
+            
+            # Step 3: Calling the same function on right subtree
+            if root.right:
+                found = found or helper(root.right, targetSum-root.val)
+
+            # Step 4: Joining the result
+            return found
+        # ------------------------------------
+        if not root: return False
+
+        return helper(root, targetSum)
+        
+    
+    # --------------------------------------------------------------------
+    # Leetcode 113: Path Sum II
+    # --------- helper function ---------
+    def helper2(self, root_helper, targetSum_helper, curr_helper, res_helper):    
+        # Step 1: Find one or more base case
+        if not root_helper: return 
+        else: curr_helper.append(root_helper.val)
+        # Base case: Found a good leave
+        if (not root_helper.right) and (not root_helper.left) and (targetSum_helper == root_helper.val):
+            res_helper.append(list(curr_helper))
+
+        # Step 2: Calling the same function on left subtree
+        self.helper2(root_helper.left, targetSum_helper - root_helper.val, curr_helper, res_helper)
+        # Step 3: Calling the same function on right subtree
+        self.helper2(root_helper.right, targetSum_helper - root_helper.val, curr_helper, res_helper)
+        # Step 4: Remove the root so it can explore the other path
+        curr_helper.pop()
+    # ------------------------------------
+
+    def pathSum(self, root: Node, targetSum: int) -> List[List[int]]:
+        res = []
+        curr = []
+        self.helper2(root, targetSum, curr, res)
+        return res
+
+
+    # --------------------------------------------------------------------
+    # Leetcode 129. Sum Root to Leaf Numbers  
+    def helper_129(self, root, current, result):
+        # Step 1: Base case
+        if not root: return
+
+        current.append(root.val)
+        # Step 2: When and How to build the solution
+        if (not root.left) and (not root.right):
+            result.append(list(current))
+
+        # Step 3: Recursive calls
+        self.helper_129(root.left, current, result)
+        self.helper_129(root.right, current, result)
+
+        # Step 4: Back track or return
+        current.pop()       # explore other paths
+
+
+    def sumNumbers(self, root: Node) -> int:
+        all_numbers = list()
+        current_path = list()
+        self.helper_129(root, current_path, all_numbers)
+        sum = 0
+        for num in all_numbers:
+            for i,val in enumerate(reversed(num)):
+                sum += val * ( 10**i )
+
+        return sum
+
+
+    # --------------------------------------------------------------------
+    # Leetcode 298: BT Longest Consucutive Sequence
+    def helper_298(self, root) -> int:
+        # Step 1: Base cases
+        if not root:
+            return 0
+        if (not root.left) and (not root.right):
+            return 1
+
+        # Step 2: Recursive calls
+        max_len_left = self.helper_298(root.left)
+        max_len_right = self.helper_298(root.right)
+
+        # Step 3: When and How to build the solution
+        max_len = 1
+        if root.left and root.val + 1 == root.left.val:
+            max_len = max(max_len, 1 + max_len_left)
+        elif root.right and root.val + 1 == root.right.val:
+            max_len = max(max_len, 1 + max_len_right)
+        
+        self.result_298 = max(self.result_298, max_len)
+        # Step 4:
+        return max_len
+        
+    
+    def longestConsecutive(self, root: Node) -> int:
+        if not root: return 0
+
+        self.result_298 = 0
+        self.helper_298(root)
+
+        return self.result_298
+
+
+    # --------------------------------------------------------------------
+    # Leetcode 124. Binary Tree Maximum Path Sum
+    def helper_124(self, root: Node) -> int:
+        # Step 1: Base case(s)
+        if not root: return 0
+
+        # Step 2: Recursive call
+        left_MPS = max(0, self.helper_124(root.left) )
+        right_MPS = max(0, self.helper_124(root.right) )
+
+        # Step 3: Build the solution
+        max_MPS = root.val + left_MPS + right_MPS
+        self.result_124 = max (self.result_124, max_MPS)
+
+        # Step 4:
+        return max(root.val + left_MPS, root.val + right_MPS)
+
+    def maxPathSum(self, root: Node) -> int:
+        if not root: return 0
+        self.result_124 = float('-inf')
+        self.helper_124(root)
+
+        return self.result_124
+
+
+    # --------------------------------------------------------------------
+    # Leetcode 102. Binary Tree Level Order Traversal    
+    def levelOrder(self, root: Node) -> List[List[int]]:
+        level_order_traversal = []
+        if not root: return level_order_traversal
+        
+        q = Queue()
+        
+        # Step 1: enqueue root
+        q.put(root)
+        # Step 2: enqueue None (change level)
+        q.put(None)
+        
+        level = []
+        
+        # Step 3: 
+        while (not q.empty()):
+            n = q.get()
+            if n: # if n is not None 
+                level.append(n.val)
+                if n.left:
+                    q.put(n.left)
+                if n.right:
+                    q.put(n.right)
+            else:
+                level_order_traversal.append(level)
+                level = []
+                if (not q.empty()): q.put(None)
+                
+        return level_order_traversal
+
+
+    # --------------------------------------------------------------------
+    # Leetcode 515. Find Largest Value in Each Tree Row
+    def helper_515(self, root, level, ans):
+        # 1. Base case: 
+        if not root: return 
+
+        # 2. Build solution:
+        if len(ans) == level:
+            ans.append(float('-inf'))
+        ans[level] = max(ans[level], root.val)
+
+        # 3. Recursive call
+        self.helper_515(root.left, level+1, ans)
+        self.helper_515(root.right, level+1, ans)
+
+        # 4. Return or back track - no need
+
+    def largestValues(self, root: Node) -> List[int]:
+        result = list()
+        self.helper_515(root, 0, result)
+
+        return result
+
+
+    # --------------------------------------------------------------------
+    # Leetcode 116. Populating Next Right Pointers in Each Node
+    def connect(self, root: Node) -> Node:
+        if not root: return root
+
+        startLevel = root
+        while startLevel:
+            current = startLevel
+            while current:
+                if current.left:
+                    current.left.next = current.right
+                if current.right and current.next:
+                    current.right.next = current.next.left
+                current = current.next
+            startLevel = startLevel.left
+        
+        return root
+            
+
+    # --------------------------------------------------------------------
+    # Leetcode 117. Populating Next Right Pointers in Each Node II
+    def connect_117(self, root: Node) -> Node:
+        if not root: return 
+
+        q = Queue()
+        q.put(root)
+        q.put(None)
+        level = list()
+
+        while not q.empty(): 
+            pop = q.get()
+            if pop:
+                level.append(pop)
+                if pop.left: q.put(pop.left)
+                if pop.right: q.put(pop.right)
+            else:   # reach None
+                if not q.empty(): q.put(None)
+                for i in range(len(level) - 1):
+                    current = level[i]
+                    current_next = level[i+1]
+                    current.next = current_next
+                level[len(level) - 1].next = None
+                level.clear()
+        
+        return root
+
+
+    # --------------------------------------------------------------------
+    # Leetcode 105. Construct Binary Tree from Preorder and Inorder Traversal    
+    def buildTree_105(self, preorder: List[int], inorder: List[int]) -> Node:
+        # ----------------------------------------------
+        def arrayToTree_105(left: int, right: int) -> Node:
+            # Base case
+            if left > right or self.preorderIndex >= len(preorder): return None
+
+            root = Node( preorder[self.preorderIndex] )
+            inorderIndex = inorder_dict[ preorder[self.preorderIndex] ]
+
+            self.preorderIndex += 1
+
+            root.left = arrayToTree_105(left, inorderIndex - 1)
+            root.right = arrayToTree_105(inorderIndex + 1, right)
+                
+            return root
+        # ----------------------------------------------
+        inorder_dict = dict()   # so the look up time is constant
+        for i in range(len(inorder)):
+            inorder_dict[inorder[i]] = i
+        self.preorderIndex = 0
+
+        return arrayToTree_105(0, len(preorder) - 1)
+
+
+    # --------------------------------------------------------------------
+    # Leetcode 106. Construct Binary Tree from Inorder and Postorder Traversal
+    def buildTree_106(self, inorder: List[int], postorder: List[int]) -> Node:
+        # ----------------------------------------------
+        def arrayToTree_106(left: int, right: int) -> Node:     # left and right represent a range of inorder
+            # Base case
+            if left > right or self.postOrderIndex < 0: return None
+
+            root_value = postorder[self.postOrderIndex]
+            root = Node( root_value )
+            inorderIndex = inorder_dict[ root_value ]
+
+            self.postOrderIndex -= 1
+
+            root.right = arrayToTree_106(inorderIndex + 1, right)
+            root.left = arrayToTree_106(left, inorderIndex - 1)
+                
+            return root
+        # ----------------------------------------------
+        inorder_dict = dict()   # so the look up time is constant
+        for i in range(len(inorder)):
+            inorder_dict[inorder[i]] = i
+        self.postOrderIndex = len(postorder) - 1
+
+        return arrayToTree_106(0, len(postorder) - 1)
+
+
+    # ------------------------- -------------------------------------------
+    # Leetcode 889. Construct Binary Tree from Preorder and Postorder Traversal
+    def constructFromPrePost(self, pre: List[int], post: List[int]) -> Node:
+        # ----------------------------------------------
+        def arrayToTree_889(left: int, right: int) -> Node:
+            # Base case
+            if self.preorderIndex_889 >= len(pre) or left > right: return None
+
+            root_value = pre[self.preorderIndex_889]
+            root = Node( root_value )
+            
+            self.preorderIndex_889 += 1 
+            if left == right:   # meaning the .left of root does not exist
+                return root
+
+            potential_left = pre[self.preorderIndex_889]    # in preOrder traversal, the value right next to it can be a potential .left
+
+            postOrderIndex_potential_left = post_dict[potential_left]
+
+            root.left = arrayToTree_889(left, postOrderIndex_potential_left)
+            root.right = arrayToTree_889(postOrderIndex_potential_left + 1, right - 1)
+
+            return root
+        # ----------------------------------------------
+
+        post_dict = dict()
+        for ind, val in enumerate(post):
+            post_dict[val] = ind
+        
+        self.preorderIndex_889 = 0
+
+        return arrayToTree_889(0, len(pre) - 1)
+
+
+
+
+
+
 
 
 
@@ -270,8 +600,22 @@ if __name__ == "__main__":
     tree = Node()
 
     # ---------------------  104  ---------------------
-    array = [3,9,20,None,None,15,7]
+    # array = [3,9,20,None,None,15,7]
+    # root = tree.buildTree(array)
+    # print( "Max depth: ", leetcode.maxDepth(root) )
+
+    # ---------------------  113  ---------------------
+    # array = [5,4,8,11,None,13,4,7,2,None,None,5,1]
+    # root = tree.buildTree(array)
+    # targetSum = 22
+    # print( leetcode.pathSum(root, targetSum) )
+
+    # ---------------------  129  ---------------------
+    # array = [4,9,0,5,1]    
+    # root = tree.buildTree(array)
+    # print( leetcode.sumNumbers(root) )
+
+    # ---------------------  129  ---------------------
+    array = [2,6, 3, 7, 100, 2, 4, 100, 100, 100, 100, 100, 100, 5, 100]
     root = tree.buildTree(array)
-    print( "Max depth: ", leetcode.maxDepth(root) )
-
-
+    print( leetcode.longestConsecutive(root) )

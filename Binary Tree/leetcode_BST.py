@@ -34,9 +34,10 @@ class Solution:
                 return min(root_val - left, right - root_val, in_order(node.right, root_val, right), in_order(node.left, left, root_val))
             return final
                 
-        return in_order(root, -float('inf'), float(inf))
+        return in_order(root, -float('inf'), float('inf'))
 
 
+    # --------------------------------------------------------------------
     # Leetcode 653. Two Sum IV - Input is a BST
     def findTarget(self, root: TreeNode, k: int) -> bool:
         # helper function -----------------------------------------------
@@ -63,6 +64,7 @@ class Solution:
         return False
 
 
+    # --------------------------------------------------------------------
     # Leetcode 230. Kth Smallest Element in a BST
     def kthSmallest(self, root: TreeNode, k: int) -> int:
         # we will take advantage of the in-order traversal, 
@@ -85,6 +87,7 @@ class Solution:
             root = root.right
 
 
+    # --------------------------------------------------------------------
     # Leetcode 538. Convert BST to Greater Tree
     def convertBST(self, root: TreeNode) -> TreeNode:
         returned_root = root
@@ -109,6 +112,7 @@ class Solution:
         return returned_root
 
 
+    # --------------------------------------------------------------------
     # Leetcode 1382. Balance a Binary Search Tree
     def balanceBST(self, root: TreeNode) -> TreeNode:
         # Step 1: Convert the tree to a sorted array using an in-order traversal O(n)

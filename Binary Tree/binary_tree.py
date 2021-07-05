@@ -61,6 +61,13 @@ def preOrder(root):
     preOrder(root.left)
     preOrder(root.right)
 
+# in-order traversal
+def inOrder(root):
+    if not root:
+        return 
+    preOrder(root.left)
+    print(root.val)
+    preOrder(root.right)
 
 
 # Level Order Traversal of a Binary Tree
