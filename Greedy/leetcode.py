@@ -18,29 +18,29 @@ class Solution:
     def lemonadeChange(self, bills: List[int]) -> bool:
         wallet = { 5: 0, 10: 0, 20: 0 }
 
-    for bill in bills:
-        # if they pay $20
-        if bill == 20:
-            if wallet[10] > 0 and wallet[5] > 0:
-                wallet[20] += 1
-                wallet[10] -= 1
-                wallet[5] -= 1
-            elif wallet[5] >= 3:
-                wallet[20] += 1
-                wallet[5] -= 3
-            else: 
-                return False
-        # if they pay $10
-        elif bill == 10:
-            if wallet[5] > 0:
-                wallet[10] += 1
-                wallet[5] -= 1
-            else:
-                return False
-        else: # if bill == 5
-            wallet[5] += 1
-    
-    return True
+        for bill in bills:
+            # if they pay $20
+            if bill == 20:
+                if wallet[10] > 0 and wallet[5] > 0:
+                    wallet[20] += 1
+                    wallet[10] -= 1
+                    wallet[5] -= 1
+                elif wallet[5] >= 3:
+                    wallet[20] += 1
+                    wallet[5] -= 3
+                else: 
+                    return False
+            # if they pay $10
+            elif bill == 10:
+                if wallet[5] > 0:
+                    wallet[10] += 1
+                    wallet[5] -= 1
+                else:
+                    return False
+            else: # if bill == 5
+                wallet[5] += 1
+        
+        return True
 
     # Leetcode 455. Assign Cookies
     def findContentChildren(self, g: List[int], s: List[int]) -> int:

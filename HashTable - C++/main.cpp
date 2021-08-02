@@ -1,5 +1,6 @@
 #include "hashtable.h"
 #include "hashtable_separate_chaining.h" 
+#include "hashtable_leetcode.cpp" 
 
 void main_hashtable(){
     HashTable hashTable_obj;

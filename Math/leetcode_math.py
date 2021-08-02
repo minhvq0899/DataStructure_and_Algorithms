@@ -10,6 +10,7 @@ I can later tackle Leetcode challenges with more confidence.
 3. Leetcode 12. Integer to Roman
 4. Leetcode 1154. Day of the Year
 5. Leetcode 367. Valid Perfect Square
+6. Leetcode 1375. Bulb Switcher III
 
 """
 
@@ -96,6 +97,8 @@ class Solution:
         return result
 
 
+
+    # ----------------------------------------------------------------------------------
     # Leetcode 264. Ugly Number II
     def nthUglyNumber(self, n: int) -> int:
         '''
@@ -142,6 +145,8 @@ class Solution:
         return ugly[-1]
                 
 
+
+    # ----------------------------------------------------------------------------------
     # Leetcode 12. Integer to Roman
     def intToRoman(self, num: int) -> str:
         value =      [1000, 900, 500, 400, 100, 90, 50,  40, 10,  9,   5,  4,   1]
@@ -157,6 +162,7 @@ class Solution:
 
 
 
+    # ----------------------------------------------------------------------------------
     # Leetcode 1154. Day of the Year
     def dayOfYear(self, date: str) -> int:
         normal_month_mapping = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
@@ -188,6 +194,8 @@ class Solution:
         return number_of_days
 
 
+
+    # ----------------------------------------------------------------------------------
     # Leetcode 367. Valid Perfect Square
     def isPerfectSquare(self, num: int) -> bool:
         l = 1
@@ -204,6 +212,25 @@ class Solution:
         
         return False
         
+
+
+    # ----------------------------------------------------------------------------------
+    # Leetcode 1375. Bulb Switcher III
+    def numTimesAllBlue(self, light: List[int]) -> int:
+        num_bulb = len(light)
+        moments = 0
+        rightmost_blue = 0  # also keeps track of number of blue
+        for k in range (num_bulb):  # k keeps track of number of on
+            bulb = abs(light[k])
+            light[bulb-1] *= -1     # turn on bulb
+            # update rightmost_blue
+            while rightmost_blue < num_bulb and light[rightmost_blue] < 0:
+                rightmost_blue += 1
+            # update moments
+            if rightmost_blue == k + 1: 
+                moments += 1
+            
+        return moments
 
 
 

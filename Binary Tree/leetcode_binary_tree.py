@@ -16,8 +16,9 @@ I can later tackle Leetcode challenges with more confidence.
 Kenny Talks Code: 
 Problems involve path finding: given a tree, find a path that optimizes the sub criteria
 8. Leetcode 112: Path Sum
-9. Leetcode 129. Sum Root to Leaf Numbers
-10.Leetcode 124. Binary Tree Maximum Path Sum
+9. Leetcode 113: Path Sum II
+10. Leetcode 129. Sum Root to Leaf Numbers
+11.Leetcode 124. Binary Tree Maximum Path Sum
 
 Problems involve tree traversal: explore all nodes in the tree, ususally in some unique ways other 
 than pre-order, in-order and post-order
@@ -27,7 +28,7 @@ than pre-order, in-order and post-order
 14 Leetcode 117. Populating Next Right Pointers in Each Node II
 15.Leetcode 105. Construct Binary Tree from Preorder and Inorder Traversal 
 16.Leetcode 106. Construct Binary Tree from Inorder and Postorder Traversal
-17.Leetcode 889. Construct Binary Tree from Preorder and Postorder Traversal
+18.Leetcode 889. Construct Binary Tree from Preorder and Postorder Traversal
 
 
 """

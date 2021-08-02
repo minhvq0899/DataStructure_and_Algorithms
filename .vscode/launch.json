@@ -9,7 +9,7 @@
             "name": "gcc.exe build and debug active file", // "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/Array&String/string&array_exercise.exe", // "enter program name, for example ${workspaceFolder}/a.exe",
+            "program": "${workspaceFolder}/Heap - C++/heap-cpp.exe", // "enter program name, for example ${workspaceFolder}/a.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

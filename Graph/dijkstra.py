@@ -23,7 +23,7 @@ class Dijkstra:
 
     def dijkstra(self, s: int):
         minHeap = []
-        self.dist[0] = 0 # distance from 0 to 0 is 0
+        self.dist[s] = 0 # distance from s to s is 0
         heapq.heappush( minHeap, (0, s) )
         # when heap is not empty
         while minHeap:

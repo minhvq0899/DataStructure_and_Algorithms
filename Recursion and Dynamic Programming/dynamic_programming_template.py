@@ -10,10 +10,11 @@ I can later tackle Leetcode challenges with more confidence.
 3. Leetcode 300. Longest Increasing Subsequence
 4. Leetcode 139. Word Break
 5. Leetcode 1143. Longest Common Subsequence
-6. Leetcode 5. Longest Palindromic Substring
-7. Leetcode 647. Palindromic Substrings
-8. Classic 0/1 Knapsack Problem
-9. Leetcode 337. House Robber III
+6. Leetcode 516. Longest Palindromic Subsequence
+7. Leetcode 5. Longest Palindromic Substring
+8. Leetcode 647. Palindromic Substrings
+9. Classic 0/1 Knapsack Problem
+10. Leetcode 337. House Robber III
 
 """
 
@@ -109,6 +110,7 @@ class Solution:
         return result
 
 
+
     # ==================================================================================================
     # Leetcode 139. Word Break
     """
@@ -157,6 +159,28 @@ class Solution:
                     dp[i][j] = max( dp[i-1][j], dp[i][j-1] )
 
         return dp[row][col]
+
+
+
+    # ==================================================================================================
+    # Leetcode 516. Longest Palindromic Subsequence
+    def longestPalindromeSubseq(self, s: str) -> int:
+        # Most DP problems dealing with 2 strings can be solved with a 2d array
+        row, col = len(s), len(s)
+        dp = [[0] * (col) for _ in range (row)]       # LPS of substring from row to col
+        for i in range (col):
+            dp[i][i] = 1                              # LPS of a character is 1
+
+        # bottom up
+        for width in range (2, len(s)+1):
+            for r in range (len(s)-width+1):
+                c = r + width - 1
+                if s[r] == s[c]:
+                    dp[r][c] = dp[r+1][c-1] + 2
+                else:
+                    dp[r][c] = max(dp[r][c-1], dp[r+1][c])
+        
+        return dp[0][len(s)-1]
 
 
     # ==================================================================================================

@@ -9,6 +9,7 @@ I can later tackle Leetcode challenges with more confidence.
 2. Leetcode 841. Keys and Rooms
 3. Leetcode 200. Number of Islands 
 4. Leetcode 529. Minesweeper
+5. Leetcode 1466. Reorder Routes to Make All Paths Lead to the City Zero
 
 """
  
@@ -139,8 +140,39 @@ class Solution:
 
 
 
+    # -------------------------------------------------------------------------------------
+    # Leetcode 1466. Reorder Routes to Make All Paths Lead to the City Zero
+    # Treat the graph as undirected. Start a dfs from the root, if you come across an edge 
+    # in the forward direction, you need to reverse the edge.
+    def minReorder(self, n: int, connections: List[List[int]]) -> int:
+        # Set up graph
+        graph = [set() for _ in range(n)] # list of set to reduce look up time
+        neighbor = [[] for _ in range(n)]
+        # can you reach 0 from city i-th
+        reachable_0 = [False for _ in range(n)]
+        reachable_0[0] = True
+        for con in connections:
+            u, v = con
+            graph[u].add(v)
+            neighbor[u].append(v)
+            neighbor[v].append(u)
 
+        # run dfs
+        change = 0
+        stack = []
+        stack.append(0)
+        while stack: 
+            u = stack.pop()
+            for v in neighbor[u]:
+                if not reachable_0[v]:
+                    # after this, v can reach 0
+                    reachable_0[v] = True
+                    stack.append(v)                   
+                    # check if all cities that v points to can reach to 0
+                    if (0 not in graph[v]) and (u not in graph[v]):
+                        change += 1
 
+        return change
 
 
 

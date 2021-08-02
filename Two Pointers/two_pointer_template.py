@@ -11,6 +11,8 @@ I can later tackle Leetcode challenges with more confidence.
 4. Leetcode 209. Minimum Size Subarray Sum
 5. Leetcode 3. Longest Substring Without Repeating Characters
 6. Leetcode 438. Find All Anagrams in a String
+7. Leetcode 27. Remove Element
+8. Leetcode 26. Remove Duplicates from Sorted Array
 
 """
 
@@ -189,7 +191,30 @@ class Solution:
         return ans
 
 
+    # ==============================================================================================
+    # Leetcode 27. Remove Element
+    def removeElement(self, nums: List[int], val: int) -> int:
+        # two pointers
+        i = 0   # slow
+        for j in range (len(nums)): # fast
+            if nums[j] != val:
+                nums[i] = nums[j]
+                i += 1
+        return i
 
+     
+
+    # ==============================================================================================
+    # Leetcode 26. Remove Duplicates from Sorted Array
+    def removeDuplicates(self, nums: List[int]) -> int:
+        # same idea as Leetcode 27
+        i = 0
+        for j in range (len(nums)):
+            if j == len(nums)-1 or nums[j] != nums[j+1]:
+                nums[i] = nums[j]
+                i += 1
+        return i
+    
 
 
 

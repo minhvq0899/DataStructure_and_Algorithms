@@ -8,6 +8,7 @@ I can later tackle Leetcode challenges with more confidence.
 1) Design a Hash Table without using any built-in hash table libratries
     a) Leetcode 705. Design HashSet
     b) Leetcode 706: Design HashMap
+2) Leetcode 128. Longest Consecutive Sequence
 
 */ 
 
@@ -20,9 +21,10 @@ using namespace std;
 
 class Solution {
 public:
+    // Leetcode 128. Longest Consecutive Sequence
     int longestConsecutive(vector<int>& nums) {
         unordered_set <int> set;
-        // insert all elements in nums into a set: O(1) 
+        // insert all elements in nums into a set: O(n) 
         for (int x : nums){
             set.insert(x); 
         }
@@ -45,6 +47,10 @@ public:
         }
         
         return max;
+    }
+
+
+
 };
 
 
