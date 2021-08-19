@@ -11,6 +11,8 @@ I can later tackle Leetcode challenges with more confidence.
 4. Leetcode 1154. Day of the Year
 5. Leetcode 367. Valid Perfect Square
 6. Leetcode 1375. Bulb Switcher III
+7. Leetcode 1227. Airplane Seat Assignment Probability
+8. Leetcode 1033. Moving Stones Until Consecutive
 
 """
 
@@ -233,6 +235,34 @@ class Solution:
         return moments
 
 
+
+    # ----------------------------------------------------------------------------------
+    # Leetcode 1227. Airplane Seat Assignment Probability
+    def nthPersonGetsNthSeat(self, n: int) -> float:
+        return 1 if n == 1 else 0.5
+
+
+
+    # ----------------------------------------------------------------------------------
+    # Leetcode 1033. Moving Stones Until Consecutive
+    def numMovesStones(self, a: int, b: int, c: int) -> List[int]:
+        l = []
+        ans = [-1] * 2
+        l.append(a)
+        l.append(b)
+        l.append(c)
+        l.sort();         
+
+        ans[1] = l[2] - l[0] - 2
+
+        if l[0] + 1 == l[1] and l[1] + 1 == l[2]:
+            ans[0] = 0
+        elif (l[0] + 1 == l[1] or l[1] + 1 == l[2]) or (l[0] + 2 == l[1] or l[1] + 2 == l[2]): 
+            ans[0] = 1
+        else:
+            ans[0] = 2
+
+        return ans
 
 
 

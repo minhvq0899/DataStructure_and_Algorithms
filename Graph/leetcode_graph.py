@@ -10,11 +10,11 @@ I can later tackle Leetcode challenges with more confidence.
 2. Leetcode 1042. Flower Planting With No Adjacent
 ==========================================
 Graph Template
-3. Leetcode 323: Number of CC in an Undirected Graph
-4. Leetcode 207: Course Schedule - Detect Cycle in Directed Graph
-5. Leetcode 261: Graph Valid Tree - Detect Cycle in Undirected Graph
+3. Leetcode 323. Number of CC in an Undirected Graph
+4. Leetcode 207. Course Schedule - Detect Cycle in Directed Graph
+5. Leetcode 261. Graph Valid Tree - Detect Cycle in Undirected Graph
     Helper function to detect cycle in undirected graph using DFS
-
+6. Leetcode 332. Reconstruct Itinerary
 
 """
 
@@ -47,6 +47,8 @@ class Solution:
                 return poten
 
         return -1
+
+
 
 
     # ---------------------------------------------------------------------------------------
@@ -83,6 +85,8 @@ class Solution:
             ans[k-1] = v
 
         return ans
+
+
 
 
     # ---------------------------------------------------------------------------------------
@@ -122,6 +126,8 @@ class Solution:
                     stack.append(v)
 
 
+
+
     # ---------------------------------------------------------------------------------------
     # Leetcode 207: Course Schedule - Detect Cycle in Directed Graph
     def canFinish(self, numCourses: int, prerequisites: List[List[int]]) -> bool:
@@ -151,6 +157,9 @@ class Solution:
             cycle(i)
 
         return not hasCycle
+
+
+
 
 
     # -------------------------------------------------------------------------------------
@@ -216,6 +225,31 @@ class Solution:
         return False
         
 
+
+
+
+    # -------------------------------------------------------------------------------------
+    # Leetcode 6. Leetcode 332. Reconstruct Itinerary
+    def findItinerary(self, tickets: List[List[str]]) -> List[str]:
+        # ========== Step 1: Set up graph ==========
+        graph = collections.defaultdict(list)
+        for ticket in sorted(tickets, reverse=True):
+            u, v = ticket
+            graph[u].append(v)
+        
+        # ========== Step 2: DFS traversal ==========
+        stack, result = [], []
+        stop = "JFK"
+        while stop: 
+            if not graph[stop]:
+                result.append(stop)
+                if not stack: stop = None
+                else: stop = stack.pop()
+            else:
+                stack.append(stop)
+                stop = graph[stop].pop()
+                
+        return result[::-1]
 
 
 

@@ -10,6 +10,7 @@ I can later tackle Leetcode challenges with more confidence.
 3) Leetcode 133. Clone Graph
 4) Leetcode 785. Is Graph Bipartite?
 5) Leetcode 743. Network Delay Time
+6) Leetcode 1042. Flower Planting With No Adjacent
 
 */ 
 
@@ -250,6 +251,47 @@ public:
         return max_dist; 
     }
 
+
+    // ================================================================================================================================================================================================================
+    // Leetcode 1042. Flower Planting With No Adjacent
+    vector<int> gardenNoAdj(int n, vector<vector<int>>& paths) {
+        vector<vector<int>> graph (n + 1, vector<int>());
+
+        for (vector<int> path : paths) {
+            int v1 = path[0]; 
+            int v2 = path[1]; 
+            graph[v1].push_back(v2);
+            graph[v2].push_back(v1); 
+        }
+
+        unordered_map<int, int> flower_map; 
+        for (int i = 1; i < n+1; i++) {
+            unordered_set<int> flower_types ({1,2,3,4}); 
+            vector<int> connecting_edges = graph[i]; 
+
+            for (int con_edge : connecting_edges) {
+                if (flower_map[con_edge] != 0) {
+                    flower_types.erase(flower_map[con_edge]);
+                }
+            }
+
+            for (int k = 1; k < 5; k++) {
+                if (flower_types.find(k) != flower_types.end()) {
+                    flower_types.erase(k); 
+                    flower_map[i] = k; 
+                    break; 
+                }
+            }
+        }
+
+        vector<int> ans (n, 0);  
+        for (auto kv : flower_map) {
+            ans[kv.first - 1] = kv.second; 
+        }
+
+        return ans; 
+    }
+
 };
 
 
@@ -257,14 +299,14 @@ int main() {
     Solution solution; 
 
     // Leetcode 1466. Reorder Routes to Make All Paths Lead to the City Zero
-    int n = 6; 
-    vector<vector<int>> connections;  // [[0,1],[1,3],[2,3],[4,0],[4,5]]
-    connections.push_back({0, 1}); 
-    connections.push_back({1, 3}); 
-    connections.push_back({2, 3}); 
-    connections.push_back({4, 0});
-    connections.push_back({4, 5}); 
-    cout << solution.minReorder(n, connections); 
+    // int n = 6; 
+    // vector<vector<int>> connections;  // [[0,1],[1,3],[2,3],[4,0],[4,5]]
+    // connections.push_back({0, 1}); 
+    // connections.push_back({1, 3}); 
+    // connections.push_back({2, 3}); 
+    // connections.push_back({4, 0});
+    // connections.push_back({4, 5}); 
+    // cout << solution.minReorder(n, connections); 
 
     // 
 

@@ -7,6 +7,7 @@ I can later tackle Leetcode challenges with more confidence.
 ========================================================= Heap =========================================================
 1) Leetcode 692. Top K Frequent Words
 2) Leetcode 23. Merge k Sorted Lists
+3) Leetcode 973. K Closest Points to Origin
 
 */ 
 
@@ -105,6 +106,41 @@ public:
 
         return dummy->next; 
     }
+
+
+    // ======================================================================================================================
+    // Leetcode 973. K Closest Points to Origin
+    class compare973 {
+    public:
+        int operator() (pair<double, int>& a, pair<double, int>& b) {
+            return a.first > b.first; 
+        }
+    }; 
+    
+    vector<vector<int>> kClosest(vector<vector<int>>& points, int k) {
+        cout << sqrt(pow(1, 2) + pow(3, 2)) << "\n"; 
+        
+        priority_queue <pair<double, int>, vector<pair<double, int>>, compare973> min_heap; 
+        
+        for (int i = 0; i < points.size(); i++) {
+            double x = points[i][0];
+            double y = points[i][1];
+            double distance = sqrt(pow(x, 2) + pow(y, 2)); 
+            cout << distance << "\n";
+            min_heap.push( {distance, i} ); 
+        }
+        
+        vector<vector<int>> ans; 
+        for (int c = 0; c < k; c++) {
+            double dis = min_heap.top().first; 
+            int index = min_heap.top().second; 
+            min_heap.pop();
+            ans.push_back(points[index]); 
+        }
+        
+        return ans; 
+    }
+
 
 };
 

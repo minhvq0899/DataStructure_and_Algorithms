@@ -8,13 +8,15 @@ I can later tackle Leetcode challenges with more confidence.
 1) Leetcode 216. Combination Sum III
 2) Leetcode 40. Combination Sum II
 3) Leetcode 377. Combination Sum IV
-
+4) Leetcode 797. All Paths From Source to Target
+5) Leetcode 1079. Letter Tile Possibilities
 */ 
 
 #include <iostream>
 #include <vector>
 #include <algorithm>
 #include <unordered_map>
+#include <unordered_set>
 using namespace std;
 
 class Solution {
@@ -147,6 +149,101 @@ public:
         dfs797(graph, 0); 
         return this->result797; 
     }
+
+
+
+    // ================================================================================================================================================================================================================
+    // Leetcode 1079. Letter Tile Possibilities
+    int dfs1079(unordered_set<string>& result, unordered_map<char, int>& freq, string current, string tiles, int index) {
+        if (index == tiles.length()) {
+            if (result.count(current) == 0) {
+                result.insert(current); 
+                return 1; 
+            }
+        }
+
+        int sum = 0; 
+        for (auto frequency : freq) {
+            for (int f = 0; f < frequency.second; f++) {
+                char c = frequency.first; 
+                freq[c]--; 
+                int currentSum = dfs1079(result, freq, current+c, tiles, index+1); 
+                freq[c]++; // backtracking
+
+                if (result.count(current) == 0) {
+                    result.insert(current);
+                    sum += 1 + currentSum; 
+                } else {
+                    sum += 0 + currentSum; 
+                }
+
+            }
+        }
+
+        return sum; 
+    }
+
+    int numTilePossibilities(string tiles) {
+        unordered_map<char, int> freq; 
+        for (char& c : tiles) {
+            freq[c]++; 
+        }
+        unordered_set<string> result; 
+        int index = 0; 
+        string current_str = ""; 
+        return dfs1079(result, freq, current_str, tiles, index) - 1; 
+    }
+
+
+    // =====================================================================================
+    string longestPalindrome(string s) {
+        int len = s.length(); 
+        vector<vector<bool>> dp (len, vector<bool> (len, false)); 
+        int start = len-1; 
+        int max_len = 1; 
+
+        for (int i = 0; i < len - 1; i++) {
+            dp[i][i] = true;
+            if (s[i] == s[i+1]) {
+                dp[i][i+1] = true; 
+                max_len = 2; 
+                start = i; 
+            } 
+        }
+        dp[len-1][len-1] = true; 
+
+        for (int width = 3; width < len + 1; width++) {
+            for (int row = 0; row < len - width + 1; row++) {
+                int col = row + width - 1; 
+                if ( (s[row] == s[col]) && dp[row+1][col-1] ) {
+                    dp[row][col] = true; 
+                    max_len = width; 
+                    start = row; 
+                }
+            }
+        }
+
+        return s.substr(start, max_len); 
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 };
 

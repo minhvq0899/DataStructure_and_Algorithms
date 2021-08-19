@@ -8,16 +8,30 @@ I can later tackle Leetcode challenges with more confidence.
 1) Implement an algorithm to determine if a string has all unique characters. What if you cannot use 
 additional data structures? (Assuming the string is of ASCII type)
 
-2) 
-    Leetcode 567: Permutation in String: Given two strings s1 and s2, return true if s2 CONTAINS the permutation of s1.
+2)  Leetcode 567: Permutation in String: Given two strings s1 and s2, return true if s2 CONTAINS the permutation of s1.
     1.2. Given two strings, write a method to decide if one IS a permutation of the other. 
 
-3) 
+3)  1.4 or leetcode 226: Palindrome Permutation
+    Given a string, determine if a permutation of the string could form a palindrome.
+
+4)
+
+5) Leetcode 325: Maximum Size Subarray Sum K
+6) Leetcode 5. Longest Palindromic Substring
+7) Leetcode 15. 3Sum
 */ 
 
 #include <iostream>
 #include <string>
+#include <stack>
+#include <queue>
 #include <unordered_set>
+#include <unordered_map>
+#include <vector>
+#include <algorithm> 
+#include <limits>
+#include <math.h>
+using namespace std;
 //#include <bits/stdc++.h>
 
 
@@ -257,9 +271,82 @@ public:
         return true; 
     }
 
-    
+
+    // =================================================================================================
+    // Leetcode 325: Maximum Size Subarray Sum K
+    int maxSubArrayLen(vector<int>& nums, int k) {
+        // Brute force: have two for loops -> O(n^2)
+        // If we ust Hash Map, we can bring the complaxity down to O(n)
+        // Idea: The Hash Map will have: key is sum from 0th index to ith index, value is the ith index
+        unordered_map<int, int> map; 
+        int max_len = 0; 
+        
+        for (int i = 0, sum = 0; i < nums.size(); i++) {
+            sum += nums[i]; 
+            if (map.find(sum) == map.end()) {   // sum hasn't occurred before
+                map[sum] = i;                   // this mean sum of subarray from 0 to ith index is 'sum'
+            } 
+            // if the sum of (current 'sum' - k) is in the map/ has occured before at index jth, that means 
+            // the sum of subarray from jth to ith must be k -> found a match
+            if (map.find(sum-k) != map.end()) {   
+                max_len = max(max_len, i - map[sum-k]); 
+            }
+            // if sum == k, that means the sum of subarray from 0 to ith is k -> found another match
+            if (sum == k) {
+                max_len = max(max_len, i+1); 
+            }
+        }
+
+        return max_len; 
+    }
 
 
+    // =================================================================================================
+    // Leetcode 5. Longest Palindromic Substring
+    string longestPalindrome(string s) {
+        int len = s.length(); 
+        vector<vector<bool>> dp (len, vector<bool> (len, false)); 
+        int start = len-1; 
+        int max_len = 1; 
+
+        for (int i = 0; i < len - 1; i++) {
+            dp[i][i] = true;
+            if (s[i] == s[i+1]) {
+                dp[i][i+1] = true; 
+                max_len = 2; 
+                start = i; 
+            } 
+        }
+        dp[len-1][len-1] = true; 
+
+        for (int width = 3; width < len + 1; width++) {
+            for (int row = 0; row < len - width + 1; row++) {
+                int col = row + width - 1; 
+                if ( (s[row] == s[col]) && dp[row+1][col-1] ) {
+                    dp[row][col] = true; 
+                    max_len = width; 
+                    start = row; 
+                }
+            }
+        }
+
+        return s.substr(start, max_len); 
+    }
+
+
+
+
+
+
+    // =================================================================================================
+    // Leetcode 15. 3Sum
+    // vector<vector<int>> threeSum(vector<int>& nums) {
+        
+    // }
+
+
+
+    // =================================================================================================
 
 
 
@@ -269,16 +356,24 @@ public:
 
 
 
-
+  
 
 
 
 int main(){
     string_exercises obj; 
-    std::string s1 = "akjhdfajklsdhfail";
-    std::string s2 = "akjhdfajklsdhfails";
-    bool s1_palindrome = obj.oneEditAway(s1, s2); 
-    std::cout << s1_palindrome << "\n"; 
+
+    // ------------------------------------------------------
+    // std::string s1 = "akjhdfajklsdhfail";
+    // std::string s2 = "akjhdfajklsdhfails";
+    // bool s1_palindrome = obj.oneEditAway(s1, s2); 
+    // std::cout << s1_palindrome << "\n"; 
+
+
+    // ------------------------------------------------------
+
+
+
 }
 
 

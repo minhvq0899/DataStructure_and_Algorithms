@@ -15,6 +15,8 @@ I can later tackle Leetcode challenges with more confidence.
 5. Leetcode 1544. Make The String Great
 6. Leetcode 739. Daily Temperatures
 7. Leetcode 856. Score of Parentheses
+8. Leetcode 1381. Design a Stack With Increment Operation
+
 
 """
 
@@ -210,6 +212,9 @@ class Solution:
         return nums1 
 
 
+
+
+    # ----------------------------------------------------------------------------------------------------------------------------------------
     # Leetcode 739. Daily Temperatures
     def dailyTemperatures(self, T: List[int]) -> List[int]:
         ans = []
@@ -234,6 +239,11 @@ class Solution:
 
         return ans
 
+
+
+
+
+    # ----------------------------------------------------------------------------------------------------------------------------------------
     # Leetcode 856. Score of Parentheses
     def scoreOfParentheses(self, S: str) -> int:
         depth_score = [0] # depth 0 (has value 0) is for when the last time we pop
@@ -247,6 +257,11 @@ class Solution:
 
         return depth_score[0]
 
+
+
+
+
+    # ----------------------------------------------------------------------------------------------------------------------------------------
     # Leetcode 503. Next Greater Element II  
     def nextGreaterElements(self, nums: List[int]) -> List[int]:
         # we will iterate over the array two times to make it circular
@@ -266,6 +281,46 @@ class Solution:
         print(stack)
         return res
         
+
+
+
+    # ----------------------------------------------------------------------------------------------------------------------------------------
+    # Leetcode 1381. Design a Stack With Increment Operation
+    class Entry:
+        def __init__(self, value: int, offset: int):
+            self.val = value
+            self.offset = offset
+    
+    class CustomStack:
+        def __init__(self, maxSize: int):
+            self.stack = list()
+            self.cap = maxSize
+            self.size = 0
+
+        def push(self, x: int) -> None:
+            if self.size < self.cap:
+                self.stack.append( Entry(x, 0) )
+                self.size += 1
+                
+        def pop(self) -> int:
+            top = self.stack.pop()
+            self.size -= 1
+            if self.size != 0:
+                self.stack[-1].offset += top.offset
+
+            return top.val + top.offset
+            
+        def increment(self, k: int, val: int) -> None:
+            k = min(k, self.size)
+            self.stack[k-1].offset += val
+
+
+
+
+
+
+
+
 
 
 
