@@ -13,6 +13,7 @@ Leetcode time
 """
 import heapq
 from typing import List
+import collections
 
 # Dijkstra class
 class Dijkstra:
@@ -30,7 +31,7 @@ class Dijkstra:
             u = heapq.heappop(minHeap)
             uWeight, uID = u
             # check all adjacents of u[0]
-            # v has the form of (v, weight)
+            # v has the form of [v, weight]
             for v in self.graph[uID]:
                 vID, vWeight = v
                 # if s->u + u-> v  <  s->v
@@ -39,6 +40,57 @@ class Dijkstra:
                     self.dist[vID] = uWeight + vWeight
                     self.path[vID] = uID
                     heapq.heappush(minHeap, (uWeight + vWeight, vID))
+
+class Dijkstra_787:
+    def __init__(self, graph: collections.defaultdict(list), n: int, maxNumStops: int):
+        self.graph = graph
+        inf = float('inf')
+        self.distances = [inf for _ in range (n)] 
+        self.paths = [None for _ in range (n)]
+        self.maxNumStops = maxNumStops
+
+    def dijkstra(self, start: int, dst: int):
+        self.distances[start] = 0
+        self.paths[start] = start
+        hq = [] # This heap will contain (distance, path, # of stops)
+        heapq.heappush( hq, (self.distances[start], self.paths[start], -1) )
+
+        while hq:
+            u = heapq.heappop(hq)
+            weight_u, vertice_u, numStops = u
+            if vertice_u == dst:
+                return weight_u
+            for neighbor in self.graph[vertice_u]:
+                v, weight_v = neighbor
+                if weight_u + weight_v < self.distances[v] and numStops + 1 <= self.maxNumStops:
+                    self.distances[v] = weight_u + weight_v
+                    self.paths[v] = vertice_u
+                    heapq.heappush( hq, (weight_u + weight_v, v, numStops + 1) )
+
+class Solution_test:
+    def findCheapestPrice(self, n: int, flights: List[List[int]], src: int, dst: int, k: int) -> int:
+        graph = collections.defaultdict(list)
+        for flight in flights:
+            fromCity, toCity, price = flight
+            graph[fromCity].append([toCity, price])
+        
+        cheapestRoutes = Dijkstra_787(graph, n, k)
+        cheapestRoutes.dijkstra(src, dst)
+
+        numOfStops = -1
+        ogDst = dst
+
+        while dst != None and dst != src:
+            dst = cheapestRoutes.paths[dst]
+            numOfStops += 1
+
+        print(cheapestRoutes.distances)
+        print(cheapestRoutes.paths)
+
+        if numOfStops <= k and cheapestRoutes.paths[ogDst] != None:
+            return cheapestRoutes.distances[ogDst]
+
+        return -1
 
 # Leetcode time
 class Solution: 
@@ -158,7 +210,7 @@ if __name__ == "__main__":
     # print(maxDist)
     
     # -----------------------------------------------
-    minPrice = leetcode.findCheapestPrice(5, [[0,1,5],[1,2,5],[0,3,2],[3,1,2],[1,4,1],[4,2,1]], 0, 2, 2)
+    minPrice = leetcode.findCheapestPrice(4, [[0,1,1],[0,2,5],[1,2,1],[2,3,1]], 0, 3, 1)
     print(minPrice)
 
 

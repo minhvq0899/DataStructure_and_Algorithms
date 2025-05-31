@@ -588,8 +588,6 @@ class Solution:
 
 
 
-
-
 # ====================================================================================================================
 # ====================================================================================================================
 
@@ -601,7 +599,7 @@ if __name__ == "__main__":
     tree = Node()
 
     # ---------------------  104  ---------------------
-    # array = [3,9,20,None,None,15,7]
+    # array = [3]
     # root = tree.buildTree(array)
     # print( "Max depth: ", leetcode.maxDepth(root) )
 
@@ -617,6 +615,11 @@ if __name__ == "__main__":
     # print( leetcode.sumNumbers(root) )
 
     # ---------------------  129  ---------------------
-    array = [2,6, 3, 7, 100, 2, 4, 100, 100, 100, 100, 100, 100, 5, 100]
+    # array = [2,6, 3, 7, 100, 2, 4, 100, 100, 100, 100, 100, 100, 5, 100]
+    # root = tree.buildTree(array)
+    # print( leetcode.longestConsecutive(root) )
+
+    # ---------------------  1315  ---------------------
+    array = [6,7,8,2,7,1,3,9,None,1,4,None,None,None,5]
     root = tree.buildTree(array)
-    print( leetcode.longestConsecutive(root) )
+    print( "Sum: ", leetcode.sumEvenGrandparent(root) )

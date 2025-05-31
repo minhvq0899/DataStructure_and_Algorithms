@@ -5,11 +5,16 @@ This python file is a part of my effort in getting myself refreshed with Data St
 I can later tackle Leetcode challenges with more confidence. 
 
 =========================================================  Binary Search Tree  =========================================================
-1. 
-2. Leetcode 653. Two Sum IV - Input is a BST
-3. Leetcode 230. Kth Smallest Element in a BST
-4. Leetcode 538. Convert BST to Greater Tree
-5. Leetcode 1382. Balance a Binary Search Tree 
+# ----- Easy -----
+1. Leetcode 938. Range Sum of BST
+2. Leetcode 783. Minimum Distance Between BST Nodes
+3. Leetcode 450. Delete Node in a BST -> refer to BST.py
+
+# ----- Medium -----
+4. Leetcode 653. Two Sum IV - Input is a BST
+5. Leetcode 230. Kth Smallest Element in a BST
+6. Leetcode 538. Convert BST to Greater Tree
+7. Leetcode 1382. Balance a Binary Search Tree 
 
 """
 
@@ -24,7 +29,8 @@ class TreeNode:
 
 
 class Solution:
-    # Leetcode 
+    # --------------------------------------------------------------------
+    # Leetcode 783. Minimum Distance Between BST Nodes
     def minDiffInBST(self, root: TreeNode) -> int:
         in_order_tree = []
         def in_order(node, left, right):
@@ -35,7 +41,42 @@ class Solution:
             return final
                 
         return in_order(root, -float('inf'), float('inf'))
+    
+    def minDiffInBST2(self, root: TreeNode) -> int:
+        # helper fn to traverse in-order
+        def inOrder(root, inOrderList):
+            if not root: return 
+            
+            inOrder(root.left, inOrderList)
+            inOrderList.append(root.val)
+            inOrder(root.right, inOrderList)       
 
+        # traverse in-order -> the result array will be sorted
+        inOrderList = []
+        inOrder(root, inOrderList)
+
+        print("inOrderList: ", inOrderList)
+
+        minDiff = float('inf')
+        for i in range (1, len(inOrderList)):
+            minDiff = min( minDiff, inOrderList[i] - inOrderList[i-1] )
+
+        return minDiff
+
+    # --------------------------------------------------------------------
+    # Leetcode 938. Range Sum of BST
+    def dfs_938(self, root: TreeNode, low: int, high: int) -> int:
+        if not root: return 0
+
+        if low <= root.val and root.val <= high:
+            return root.val + self.dfs_938(root.left, low, high) + self.dfs_938(root.right, low, high)
+
+        return self.dfs_938(root.left, low, high) + self.dfs_938(root.right, low, high)
+
+    def rangeSumBST(self, root: TreeNode, low: int, high: int) -> int:
+        ans = 0
+
+        return self.dfs_938(root, low, high)
 
     # --------------------------------------------------------------------
     # Leetcode 653. Two Sum IV - Input is a BST

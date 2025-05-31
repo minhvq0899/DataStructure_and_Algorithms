@@ -24,6 +24,7 @@ DFS on grid/ matrix
 
 import queue
 from typing import List
+import collections
 
 class Solution:
     # Leetcode 22. Generate Parentheses
@@ -157,7 +158,37 @@ class Solution:
 
         return neighbors_list
     
+    def openLock_2025(self, deadends: List[str], target: str) -> int:
+        if target == "0000": return 0
+        deadend_set = set(deadends)
+        if "0000" in deadend_set: return -1
 
+        # paths will act as both Visited set and Path dict
+        paths = collections.defaultdict(str)
+        paths["0000"] = None
+        q = queue.Queue()
+        q.put("0000")
+
+        while not q.empty():
+            u = q.get()
+            if u not in deadend_set:
+                neighbors = self.find_neighbor(u)
+                for neighbor in neighbors:
+                    if neighbor not in paths and neighbor not in deadend_set:
+                        paths[neighbor] = u
+                        q.put(neighbor)
+        
+        for key,value in paths.items():
+            print ("{}: {} \n".format(key,value) )
+
+        answer = 0
+        if target in paths:
+            while target != "0000":
+                target = paths[target]
+                answer += 1
+            return answer
+
+        return -1
 
 
 
@@ -624,11 +655,11 @@ if __name__ == "__main__":
 
 
     # -------------------------------------------
-    # deadends = ["0201","0101","0102","1212","2002"] 
-    # target = "0202"
+    deadends = ["0201","0101","0102","1212","2002"] 
+    target = "0202"
 
-    # min_turns = leetcode.openLock(deadends, target)
-    # print(min_turns)
+    min_turns = leetcode.openLock_2025(deadends, target)
+    print(min_turns)
 
 
     # ------------------------ 695: Max Area of Island -------------------------
@@ -656,8 +687,8 @@ if __name__ == "__main__":
 
 
     # ------------------------- 39. Combination Sum -------------------------
-    candidates = [2,3,5]
-    target = 8
-    ans = leetcode.combinationSum(candidates, target)
-    print(ans)
+    # candidates = [2,3,5]
+    # target = 8
+    # ans = leetcode.combinationSum(candidates, target)
+    # print(ans)
 

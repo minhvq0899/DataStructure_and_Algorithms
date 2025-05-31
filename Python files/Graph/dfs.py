@@ -13,6 +13,7 @@ from typing import List
 
 # DFS
 def dfs(start: int):
+    # create a stack
     s = [start]
     visited[start] = True
     while len(s) > 0:
@@ -59,7 +60,7 @@ class Cycle_proton:
         for v in self.graph[start]:
             if self.visited[v] == 0:
                 self.visited[v] = 1
-                self.cycle(v)
+                self.cycle(v) 
             elif self.visited[start] == 1:
                 self.detectCycle = True
             
@@ -79,20 +80,25 @@ class Cycle_proton:
 
 
 if __name__ == "__main__":    
+    # edges = [
+    #     (0, 1),
+    #     (1, 2),
+    #     (2, 3),
+    #     (3, 4),
+    #     (4, 2),
+    #     (5, 1),
+    #     (5, 4),
+    #     (4, 6)
+    # ]
+    
     edges = [
         (0, 1),
         (1, 2),
-        (2, 3),
-        (3, 4),
-        (4, 2),
-        (5, 1),
-        (5, 4),
-        (4, 6)
+        (2, 0)
     ]
-    
 
     # vertices
-    V = 7
+    V = 3
 
     # three list we need
     graph = [[] for _ in range(V)]

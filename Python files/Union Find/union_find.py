@@ -22,6 +22,7 @@ class Union_by_rank():
         u_parent = self.findSetAndPathCompression(u, parent)
         v_parent = self.findSetAndPathCompression(v, parent)
 
+        # After finding the parents, only work on the parents now
         # case 1: if they share a father
         if u_parent == v_parent:
             return

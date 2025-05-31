@@ -37,9 +37,31 @@ class ListNode:
 
 # Leetcode exercises
 class Solution:
+    def printLinkedList(self, head: ListNode): 
+        current = head 
+        while (current): 
+            print("%d ->" % (current.val), end=" ") 
+            current = current.next
+
+        print("\n")
+
+    # This fn is to prepare a head Node for input param
+    def prepareInput(self, nums: List[int]) -> ListNode:
+        head = ListNode(nums[0])
+        current = head
+
+        for i in range (1, len(nums)):
+            node = ListNode(nums[i])
+            current.next = node
+            current = current.next
+        
+        return head
+
+
     # Leetcode 206. Reverse Linked List
     # iteratives
     def reverseList_iter(self, head: ListNode) -> ListNode:
+        """
         # ======== Step 2 ========
         current = head
         prev = None
@@ -51,7 +73,20 @@ class Solution:
             current = after
 
         return prev
+        """
+        prev = ListNode()
 
+        while head:
+            self.printLinkedList(head)
+            after = head.next
+            head.next = prev
+            after.next = head
+            prev = head
+            head = after
+
+        self.printLinkedList(prev)
+        return prev
+        
 
     # recursive
     def reverseList_recursive(self, head: ListNode) -> ListNode:
@@ -323,8 +358,8 @@ class Solution:
     # Idea 2: We can use Floy's Cycle detection 
     def hasCycle(self, head: ListNode) -> bool:
         # =========== Step 2: Move our walker and runner ===========
-        walker = head;         
-        runner = head; 
+        walker = head         
+        runner = head
         
         while runner and runner.next:
             walker = walker.next
@@ -338,8 +373,8 @@ class Solution:
     def detectCycle(self, head: ListNode) -> ListNode:
         hasCycle = False
         # =========== Step 2: Move our walker and runner ===========
-        walker = head;         
-        runner = head; 
+        walker = head         
+        runner = head
         
         while runner and runner.next:
             walker = walker.next
@@ -427,10 +462,34 @@ class Solution:
 
 
 
+    def partition_test(self, head: ListNode, x: int) -> ListNode:
+        self.printLinkedList(head)
+        current = head
+        left_head, right_head = ListNode(), ListNode()
+        left_current, right_current = left_head, right_head
+
+        while (current != None):
+            if current.val < x:
+                left_current.next = current
+                left_current = left_current.next
+            else:
+                right_current.next = current
+                right_current = right_current.next
+            current = current.next
+        
+        self.printLinkedList(left_head)
+        self.printLinkedList(right_head)
+        self.printLinkedList(left_current)
+        left_current.next = right_head.next
+        right_current.next = None
+        self.printLinkedList(left_head)
+
+        return left_head.next
 
 
 
 if __name__ == "__main__":
+    """
     hanoi = Node('Ha Noi')
     quangbinh = Node('Quang Binh')
     quangbinh2 = Node('Quang Binh')
@@ -448,10 +507,19 @@ if __name__ == "__main__":
     linkedlist_obj.head = hanoi; 
     linkedlist_obj.printList()
     # Ha Noi -> Quang Binh -> Quang Binh -> Da Nang ->  Sai Gon -> Sai Gon
+    """
 
     solution = Solution()
-    linkedlist_obj.head = solution.deleteDups(linkedlist_obj.head)
-    linkedlist_obj.printList()
+
+    # Prepare input parameter
+    nums = [1,2,3,4,5]
+    head = solution.prepareInput(nums)
+    # solution.printLinkedList(head)
+    solution.reverseList_iter(head)
+
+
+    
+
 
 
 

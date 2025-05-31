@@ -211,7 +211,6 @@ class Solution:
         return hasCycle
 
 
-    # iterative
     def cycle_undirected_dfs(self, graph: collections.defaultdict(list), visited: List[bool], vertice: int, parent: int) -> bool:
         visited[vertice] = True
 
@@ -219,11 +218,11 @@ class Solution:
             if visited[v] == False:
                 if self.cycle_undirected_dfs(graph, visited, v, vertice): 
                     return True
-            else: 
-                if v != parent: return True
+            elif v != parent: 
+                return True
     
         return False
-        
+
 
 
 
@@ -250,13 +249,6 @@ class Solution:
                 stop = graph[stop].pop()
                 
         return result[::-1]
-
-
-
-
-    # -------------------------------------------------------------------------------------
-    
-
 
 
 
@@ -293,8 +285,10 @@ if __name__ == "__main__":
     edges = [ [0,1],[1,2],[2,3],[0,6],[2,4],[1,5],[0,7],[7,8],[8,9],[7,11],[11,10] ]
     print(leetcode.graphValidTree(N, edges)) # True
 
-
-
+    # ------------------------------------------------------------------
+    # N = 10
+    # edges = [ [0,1],[1,2],[1,5],[2,3],[3,4],[4,2],[4,6],[7,8],[8,9] ]
+    # print(leetcode.countComponents_test(N,edges))
 
 
 

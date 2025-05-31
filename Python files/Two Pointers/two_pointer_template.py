@@ -13,10 +13,15 @@ I can later tackle Leetcode challenges with more confidence.
 6. Leetcode 438. Find All Anagrams in a String
 7. Leetcode 27. Remove Element
 8. Leetcode 26. Remove Duplicates from Sorted Array
+9. 
+   Leetcode 487. Max Consecutive Ones II
+   Leetcode 1004. Max Consecutive Ones III
 
 """
 
 from typing import List
+from collections import defaultdict, Counter
+
 
 
 # Leetcode 560. Subarray Sum Equals K
@@ -45,8 +50,24 @@ class subarraySumEqualsK:
             
         return cnt
 
-    def medium(self, nums: List[int], K: int) -> int:
-        pass
+    # [3,4,7,-2,2,1,4,2] and K=7
+    def medium(self, nums: List[int], k: int) -> int:
+        sum_variable, count, i = 0, 0, 0
+        accumulated_sum_dict = defaultdict(int) # dict contains how many time a sum has been recorded before
+        
+        while i < len(nums):
+            sum_variable += nums[i]
+
+            if sum_variable == k: # basic case
+                count += 1
+            if (sum_variable - k) in accumulated_sum_dict: # if sum != k, then we are checking in the dict to see if there has been a sum2 before where sum - k == sum2
+                count += accumulated_sum_dict[sum_variable - k]
+            
+            accumulated_sum_dict[sum_variable] += 1
+            i += 1
+
+        return count
+            
 
 
 
@@ -153,43 +174,40 @@ class Solution:
     # ==============================================================================================
     # Leetcode 438. Find All Anagrams in a String
     def findAnagrams(self, s: str, p: str) -> List[int]:
-        # basic check
         if len(s) < len(p): return []
 
-        ans = []                        # a list to store answers
+        # Track character frequencies in p and window
+        target_freq = Counter(p)  
+        window_freq = Counter()
 
-        chars = [0 for _ in range (26)] # an array represents how many of each char to do we need to make an anagram
-        for i in range (len(p)):        # populate the array
-            slot = ord(p[i]) - 97
-            chars[slot] += 1
+        # populate the first window freq
+        L, R = 0, 0
+        while R < L + len(p):
+            window_freq[s[R]] += 1
+            R += 1
+        R -= 1
 
-        diff = len(p)                   # the distance between window and p
-        first_window = s[:len(p)]
-        for i in range (len(first_window)):
-            slot = ord(first_window[i]) - 97
-            chars[slot] -= 1
-            if chars[slot] >= 0: diff -= 1          # if chars[slot] is positive, the char is in p
+        ans = []
+        # Compare window frequencies with target frequencies
+        if window_freq == target_freq:
+            ans.append(L)
 
-        # sliding window part: fixed window size
-        for left in range (len(s) - len(p) + 1):
-            # validate the window on the fly
-            if left: # if left != 0
-                right = left + len(p) - 1
-                left_char = s[left - 1]
-                right_char = s[right]
+        while R < len(s)-1:
+            # move the window
+            if window_freq[s[L]] == 1:
+                del window_freq[s[L]]  # Remove fully
+            else:
+                window_freq[s[L]] -= 1  # Decrease count
+            L += 1
 
-                chars[ord(left_char) - 97] += 1                 # the prev char is out of the window
-                if chars[ord(left_char) - 97] > 0: diff += 1
+            R += 1
+            window_freq[s[R]] += 1  # Increase count
 
-                chars[ord(right_char) - 97] -= 1                # the new char is added to the window
-                if chars[ord(right_char) - 97]  >= 0: diff -= 1
+            # Compare window frequencies with target frequencies
+            if window_freq == target_freq:
+                ans.append(L)
 
-            print(diff)
-            if diff == 0:               # found an anagram
-                ans.append(left)
-                
         return ans
-
 
     # ==============================================================================================
     # Leetcode 27. Remove Element
@@ -202,7 +220,6 @@ class Solution:
                 i += 1
         return i
 
-     
 
     # ==============================================================================================
     # Leetcode 26. Remove Duplicates from Sorted Array
@@ -216,16 +233,56 @@ class Solution:
         return i
     
 
-
+    # ==============================================================================================
+    # Leetcode 487. Max Consecutive Ones II - similar to 1004 below, only diff is that K = 1
+    # Leetcode 1004. Max Consecutive Ones III
+    def longestOnes(self, nums: List[int], K: int) -> int:
+        """
+        Dem so luong 0 trong mang con hien va so sanh voi K
+        Neu so luong so 0 ma nho hon K:
+            Ta cu tang i 
+        Neu so luong so 0 lon hon K
+            Ta cu tang j
+        """
+        
+        i, j = 0, 0
+        counter = [0, 0] # counter number of 0s and 1s in substring
+        final = 0
+        nums.append(0)
+        while i < len(nums):
+            if counter[0] <= K: # if the number of 0 is still less than K
+                # longest 1s will be the sum of 0 turned into 1 and actual 1s
+                final = max(counter[0] + counter[1], final)
+                # increase count of A[i]
+                counter[nums[i]] += 1
+                i += 1
+            else:
+                counter[nums[j]] -= 1 # decrase count of A[j]
+                j += 1
+        
+        return final
 
 
 if __name__ == "__main__":
+    # subarraySumEqualsKObj = subarraySumEqualsK()
+
+    # nums = [0,0,0,0,0,0,0,0,0,0]
+    # k = 0
+    # print(subarraySumEqualsKObj.medium(nums, k))
+
+    # ================================================================================================
     solution = Solution()
     
+    # -------------------- Leetcode 1234 --------------------
     # print('Answer is: ', solution.balancedString('EQRWQQQW'))
                 
-    s = "abab"
-    p = "ab"
+    # -------------------- Leetcode 438 --------------------
+    s = "cbaebabacd"
+    p = "abc"
     print(solution.findAnagrams(s, p))
+
+    # -------------------- Leetcode 1004 --------------------
+    # nums = [0,0,1,1,0,0,1]
+    # print(solution.longestOnes(nums, 3))
 
 

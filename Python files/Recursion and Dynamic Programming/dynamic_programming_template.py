@@ -14,11 +14,15 @@ I can later tackle Leetcode challenges with more confidence.
 7. Leetcode 5. Longest Palindromic Substring
 8. Leetcode 647. Palindromic Substrings
 9. Classic 0/1 Knapsack Problem
-10. Leetcode 337. House Robber III
+   Similar idea: Leetcode 474. Ones and Zeroes
+10. 
+    Leetcode 198. House Robber
+    Leetcode 213. House Robber II
+    Leetcode 337. House Robber III
 
 """
 
-from typing import List
+from typing import List, Tuple
 from array import *
 
 class TreeNode:
@@ -91,6 +95,7 @@ class Solution:
 
     # ==================================================================================================
     # Leetcode 300. Longest Increasing Subsequence
+    # Note: Current solution's time complexity is O(N^2) in worst case. This can be solved in O(NlogN) using Binary Search and Patience Sorting
     def lengthOfLIS(self, nums: List[int]) -> int:
         if len(nums) == 1: return 1
         
@@ -168,13 +173,15 @@ class Solution:
         # Most DP problems dealing with 2 strings can be solved with a 2d array
         row, col = len(s), len(s)
         dp = [[0] * (col) for _ in range (row)]       # LPS of substring from row to col
+        print(dp)
         for i in range (col):
             dp[i][i] = 1                              # LPS of a character is 1
 
         # bottom up
-        for width in range (2, len(s)+1):
-            for r in range (len(s)-width+1):
-                c = r + width - 1
+        # substringLen is the length of a possible substring that we are examining
+        for substringLen in range (2, len(s)+1):
+            for r in range (len(s) - substringLen+1):
+                c = r + substringLen - 1
                 if s[r] == s[c]:
                     dp[r][c] = dp[r+1][c-1] + 2
                 else:
@@ -251,40 +258,136 @@ class Solution:
 
     # ==================================================================================================
     # Classic 0/1 Knapsack problem
-    def solveKnapsack(self, value: List[int], weights: List[int], capacity: int) -> int:
-        # basic check
-        if capacity <= 0 or not value or len(value) != len(weights):
-            return 0
+    def solveKnapsack(self, value: List[int], weights: List[int], capacity: int) -> Tuple[int, List[int]]:
+        if not weights or not value: return 0
         
-        v_len = len(value)
-        w_len = len(weights)
+        ogWeightsLen = len(weights)
+        memo = [[0] * (capacity+1) for _ in range (ogWeightsLen + 1)]
 
-        # each position in this matrix will hold the max value that we can form with a capacity 
-        dp = [[0] * (capacity+1) for _ in range (v_len) ]       # or w_len same idea
+        # Add
+        newValueList = [0] + value
+        newWeightsList = [0] + weights
+        print(newValueList)
+        print(newWeightsList)
 
-        # base case row 0th: which cap can hold the first item
-        for c in range (1, capacity + 1):
-            if weights[0] <= c:
-                dp[0][c] = value[0]
+        # Fill up the grid
+        for w in range (1, len(newWeightsList)):
+            for c in range (capacity+1):
+                if newWeightsList[w] > c:           # exclude
+                    memo[w][c] = memo[w-1][c]
+                else:                               # include
+                    memo[w][c] = max( memo[w-1][c], newValueList[w]+memo[w-1][c-newWeightsList[w]] )
         
-        # now just fill out the rest of the table
-        for row_or_w in range (1, w_len): 
-            for col_or_c in range (1, capacity + 1):
-                sum1 = dp[row_or_w - 1][col_or_c]                       # exclude
-                
-                sum2 = value[row_or_w]                                  # include
-                if col_or_c - weights[row_or_w] > 0:
-                    sum2 += dp[row_or_w - 1][col_or_c - weights[row_or_w]]
-                
-                dp[row_or_w][col_or_c] = max(sum1, sum2)
+        print(memo)
         
-        print(dp)
-        return dp[w_len-1][capacity]
+        # Find the list of item that needed to be included
+        w = len(newValueList) - 1
+        c = capacity
+        maxValue = memo[w][c]
+
+        items = []
+        while w != 0:
+            if memo[w][c] > memo[w-1][c]:
+                items.append(w-1)
+                c -= newWeightsList[w]
+
+            w -= 1
+
+        return (maxValue, items)
+
+    # Leetcode 474. Ones and Zeroes
+    def helperCount(self, s: str) -> List[int]:
+        m, n = 0, 0
+        for char in s:
+            if char == "0": m += 1
+            else: n += 1
+
+        return [m,n]
+
+    def findMaxForm(self, strs: List[str], m: int, n: int) -> int:
+        if not strs: return 0
+        
+        ogStrsLen = len(strs)
+        memo = [[[0 for _ in range(m+1)] for _ in range(n+1)] for _ in range(ogStrsLen + 1)]
+        print(self.get_matrix_dimensions(memo))
+
+        print(self.print_3d_matrix(memo))
+        newStrsList = [0] + strs
+        # Fill up the grid
+        for i_str in range (1, len(newStrsList)):
+            s = newStrsList[i_str]
+            m_in_s, n_in_s = self.helperCount(s)
+            for n_count in range (n+1):
+                for m_count in range (m+1):
+                    if m_count < m_in_s or n_count < n_in_s:        # exclude
+                        memo[i_str][n_count][m_count] = memo[i_str - 1][n_count][m_count]
+                    else:                               # include
+                        memo[i_str][n_count][m_count] = max( memo[i_str - 1][n_count][m_count], 1+memo[i_str - 1][n_count-n_in_s][m_count-m_in_s] )
+        
+        print(self.print_3d_matrix(memo))
+
+        return memo[ogStrsLen][n][m]
+        
+
+    def get_matrix_dimensions(self, matrix):
+        depth = len(matrix)
+        rows = len(matrix[0]) if depth > 0 else 0
+        cols = len(matrix[0][0]) if rows > 0 else 0
+        return (depth, rows, cols)
+
+    def print_3d_matrix(self, matrix):
+        depth = len(matrix)
+        for d in range(depth):
+            print(f"Layer {d + 1}:")
+            for row in matrix[d]:
+                print("  " + " ".join(map(str, row)))  # Nicely formatted rows
+            print("-" * 20)  # Separator for layers
+
+
 
 
     # ==================================================================================================
-    # Leetcode 337. House Robber III
-    def rob(self, root: TreeNode) -> int:
+    # Leetcode 198. House Robber ------------------------------------------
+    def rob(self, nums: List[int]) -> int:
+        if not nums: return 0
+
+        nums = [0] + nums
+        memo = [0] * len(nums)
+        memo[1] = nums[1]
+        # print("memo: ", memo)
+        # print("nums: ", nums)
+
+        for i in range (2, len(nums)):
+            memo[i] = max( nums[i]+memo[i-2], memo[i-1]  )
+
+        # print("memo: ", memo)
+
+        return max(memo)
+    
+    # Leetcode 213. House Robber II ------------------------------------------
+    def classic_rob(self, og_nums: List[int], L: int, R: int) -> int:
+        nums = og_nums.copy()
+        nums = nums[L:R]
+
+        print(nums)
+        
+        nums = [0] + nums
+        memo = [0] * len(nums)
+        memo[1] = nums[1]
+        
+        for i in range (2, len(nums)):
+            memo[i] = max( nums[i]+memo[i-2], memo[i-1]  )
+
+        return max(memo)
+
+    def rob(self, nums: List[int]) -> int:
+        if not nums: return 0
+        elif len(nums) < 4: return max(nums)
+
+        return max(self.classic_rob(nums, 0, len(nums) - 1), self.classic_rob(nums, 1, len(nums)))
+
+    # Leetcode 337. House Robber III ------------------------------------------
+    def rob3(self, root: TreeNode) -> int:
         if not root: return 0
         mydict = dict()
         return self.helper_337(root, mydict)
@@ -314,6 +417,7 @@ class Solution:
         return max(rob, not_rob)
 
 
+        
 
 
 
@@ -338,19 +442,35 @@ class Solution:
 
 if __name__ == "__main__":
     solution = Solution()
+
+    # -------------------- 70 --------------------
     # print(solution.climbStairs_top_down(5))
 
+    # -------------------- 1143 --------------------
     # a = "abcba"
     # b = "abcbcba"
     # print(solution.longestCommonSubsequence(a, b))
 
+    # -------------------- 674 --------------------
     # a = "aaaaa"
     # print(solution.countSubstrings(a))
 
-    value = [60, 100, 120]
-    weight = [10, 20, 30]
-    capacity = 50
-    print(solution.solveKnapsack(value, weight, capacity))
+    # -------------------- 474 --------------------
+    # value = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+    # weight = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    # capacity = 15
+    # print(solution.solveKnapsack(value, weight, capacity))
+
+    # strs = ["10","0001","111001","1","0"]
+    # m = 5
+    # n = 3
+    # print(solution.findMaxForm(strs, m, n))
+
+    # -------------------- 300 --------------------
+    # print( solution.lengthOfLIS([10,9,2,5,3,7,101,18]) )
+
+    # -------------------- 516 --------------------
+    # print( solution.longestPalindromeSubseq("cbbd") )
 
 
 

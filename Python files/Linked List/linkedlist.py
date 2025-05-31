@@ -29,7 +29,7 @@ class Linkedlist:
     def printList(self): 
         current = self.head 
         while (current): 
-            print(current.val) 
+            print(current.val + "->") 
             current = current.next
 
     # Put an element at the beginning of a Linked List

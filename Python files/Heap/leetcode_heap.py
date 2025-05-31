@@ -233,17 +233,6 @@ class Solution:
     #     return True
 
 
-    # --------------------------------------------------------------------------------   
-    
-
-
-
-
-
-
-
-
-
 
 
 
@@ -270,6 +259,10 @@ if __name__ == "__main__":
     # kpairs_smallest = leetcode.kSmallestPairs(lc373_nums1, lc373_nums2, k)
     # print(kpairs_smallest)
 
+    # --------------------------------------------------------------------------------
+    nums = [3,2,1,5,6,4]
+    k = 2
+    leetcode.findKthLargest(nums, k)
 
 
 

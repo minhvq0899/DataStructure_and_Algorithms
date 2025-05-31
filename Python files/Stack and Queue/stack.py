@@ -6,16 +6,17 @@ I can later tackle Leetcode challenges with more confidence.
 
 ============================================================ Stack ============================================================
 
-1. Leetcode 20. Valid Parentheses
+Leetcode 20. Valid Parentheses
     isValid_easy
     isValid_medium
-2. Leetcode 1047. Remove All Adjacent Duplicates In String
-3. Leetcode 443. String Compression
-4. Leetcode 394. Decode String
-5. Leetcode 1544. Make The String Great
-6. Leetcode 739. Daily Temperatures
-7. Leetcode 856. Score of Parentheses
-8. Leetcode 1381. Design a Stack With Increment Operation
+Leetcode 1047. Remove All Adjacent Duplicates In String
+Leetcode 443. String Compression
+Leetcode 394. Decode String
+Leetcode 1544. Make The String Great
+Leetcode 739. Daily Temperatures
+Leetcode 496. Next Greater Element I
+Leetcode 856. Score of Parentheses
+Leetcode 1381. Design a Stack With Increment Operation
 
 
 """
@@ -24,6 +25,7 @@ from typing import List
 
 class Solution:
     # --------------------------------------------------------------------------------------------
+    # Leetcode 20
     # first just take it easy
     # s only contains "(" and ")"
     def isValid_easy(self, s: str) -> bool:
@@ -63,6 +65,7 @@ class Solution:
         pass
 
     # --------------------------------------------------------------------------------------------
+    # Leetcode 443
     def compress(self, chars: List[str]) -> int:
         stack = []
         for char in chars:
@@ -262,7 +265,7 @@ class Solution:
 
 
     # ----------------------------------------------------------------------------------------------------------------------------------------
-    # Leetcode 503. Next Greater Element II  
+    # Leetcode 503. Next Greater Element II  - use Monotonic stack
     def nextGreaterElements(self, nums: List[int]) -> List[int]:
         # we will iterate over the array two times to make it circular
         stack = []
@@ -278,7 +281,8 @@ class Solution:
 
             stack.append([nums[index_nums], index_nums])
         
-        print(stack)
+            print(stack)
+
         return res
         
 
@@ -352,7 +356,7 @@ if __name__ == "__main__":
     # lc496_nums1 = [4,1,2]
     # lc739 = [73,74,75,71,69,72,76,73]
     # lc856 = "(()(()))"
-    lc503 = [3,8,4,1,2]
+    lc503 = [1,2,3,4,3]
 
     # -----------------------------------------------------------
     leetcode = Solution()
