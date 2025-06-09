@@ -9,7 +9,8 @@ I can later tackle Leetcode challenges with more confidence.
 2. Leetcode 841. Keys and Rooms
 3. Leetcode 200. Number of Islands 
 4. Leetcode 529. Minesweeper
-5. Leetcode 1466. Reorder Routes to Make All Paths Lead to the City Zero
+5. Leetcode 1466. Reorder Routes to Make All Paths Lead to the City Zero (Hard version: Leetcode 2858)
+
 
 """
  
@@ -142,7 +143,7 @@ class Solution:
 
     # -------------------------------------------------------------------------------------
     # Leetcode 1466. Reorder Routes to Make All Paths Lead to the City Zero
-    # Treat the graph as undirected. Start a dfs from the root, if you come across an edge 
+    # Treat the graph as directed. Start a dfs from the root, if you come across an edge 
     # in the forward direction, you need to reverse the edge.
     def minReorder(self, n: int, connections: List[List[int]]) -> int:
         # Set up graph

@@ -10,6 +10,7 @@ DFS down different path:
     2. Leetcode 17. Letter Combinations of a Phone Number
     3. Leetcode 752. Open the Lock
     4. Leetcode 39. Combination Sum
+    5. Leetcode 377. Combination Sum IV
 
 DFS on grid/ matrix
     1. Leetcode 417. Pacific Atlantic Water Flow
@@ -24,7 +25,8 @@ DFS on grid/ matrix
 
 import queue
 from typing import List
-import collections
+from collections import Counter
+from math import factorial
 
 class Solution:
     # Leetcode 22. Generate Parentheses
@@ -240,13 +242,55 @@ class Solution:
                 # back track
                 potential.pop()
         # ------------------------------------------------------------------------------
-        subsetCount(target, [])
+        subsetCount(target, [], 0)
         return ans
 
   
+    # ------------------------------------------------------------------------------------------
+    # Leetcode 377. Combination Sum IV
+    # Currently this solution is running into TLE. Current idea is follow Leetcode39 above, and once we have all the combination, we compute the # of permutation from each combination
+    # Instead of computing in the end, just make sure to add the Counter to ans instead of the list(potential)
+    def count_permutations(self, counter: Counter) -> int:
+        total_chars = sum(counter.values())  # Total characters
+        denominator = 1
+        
+        for freq in counter.values():
+            denominator *= factorial(freq)  # Multiply factorials of frequencies
 
+        return factorial(total_chars) // denominator  # Apply formula
 
+    def combinationSum4(self, nums: List[int], target: int) -> int:
+        ans = []
+        # ------------------------------------------------------------------------------
+        def subsetCount(tar, potential, start):
+            # base case 1: found a combination
+            if tar == 0: 
+                ans.append(list(potential))
+                return
+            # base case 2: target < 0
+            if tar < 0:
+                return 
 
+            for i in range (start, len(nums)):
+                potential.append(nums[i])
+                # recursive call
+                subsetCount(tar-nums[i], potential, i)
+                # back track
+                potential.pop()
+        # ------------------------------------------------------------------------------
+        subsetCount(target, [], 0)
+        counter_frozensets = set()
+        for answer in ans:
+            c = Counter(answer)
+            counter_frozensets.add(frozenset(c.items()))
+
+        print(counter_frozensets)
+        counter_sets = [Counter(dict(fset)) for fset in counter_frozensets]
+        total_perm = 0
+        for c in counter_sets:
+            total_perm += self.count_permutations(c)
+
+        return total_perm
 
 
     # ================================================================================================================================================================================================================================================================================== 

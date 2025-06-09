@@ -77,6 +77,8 @@ class Merge:
     def merge_sort(self, a: List[str]):
         self.sort(a, 0, len(a))
 
+
+
 class leetcode_exercises:
     # this is a helper function to help find the longest repeated substring
     # Given: Two strings string s and t.
