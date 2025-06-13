@@ -223,7 +223,7 @@ class Solution:
         subsetCount(target, poten, 0)
         return ans
 
-    def combinationSum_leetcode_solution(self, candidates: List[int], target: int) -> List[List[int]]:
+    def combinationSum_backtrack(self, candidates: List[int], target: int) -> List[List[int]]:
         ans = []
         # ------------------------------------------------------------------------------
         def subsetCount(tar, potential, start):
@@ -245,7 +245,6 @@ class Solution:
         subsetCount(target, [], 0)
         return ans
 
-  
     # ------------------------------------------------------------------------------------------
     # Leetcode 377. Combination Sum IV
     # Currently this solution is running into TLE. Current idea is follow Leetcode39 above, and once we have all the combination, we compute the # of permutation from each combination
