@@ -245,6 +245,39 @@ class Solution:
         subsetCount(target, [], 0)
         return ans
 
+    def tripletSum_backtrack(self, candidates: List[int], divisor: int) -> int:
+        seenTriplet = set()
+        # cnt = 0
+
+        # ------------------------------------------------------------------------------
+        def dfs(potential, start):
+            # nonlocal cnt
+            # base case 2
+            if len(potential) > 3:
+                return 
+            
+            # base case 1: found a triplet
+            if len(potential) == 3 and sum(potential) % divisor == 0: 
+                seenTriplet.add( tuple(sorted(potential)) )
+                # cnt += 1
+                print(seenTriplet)
+                print(cnt)
+                return
+            
+
+            for i in range (start, len(candidates)):
+                potential.append(candidates[i])
+                # recursive call
+                dfs(potential, i+1)
+                # back track
+                potential.pop()
+        # ------------------------------------------------------------------------------
+        dfs([], 0)
+
+        return len(seenTriplet)
+
+
+
     # ------------------------------------------------------------------------------------------
     # Leetcode 377. Combination Sum IV
     # Currently this solution is running into TLE. Current idea is follow Leetcode39 above, and once we have all the combination, we compute the # of permutation from each combination
@@ -698,11 +731,11 @@ if __name__ == "__main__":
 
 
     # -------------------------------------------
-    deadends = ["0201","0101","0102","1212","2002"] 
-    target = "0202"
+    # deadends = ["0201","0101","0102","1212","2002"] 
+    # target = "0202"
 
-    min_turns = leetcode.openLock_2025(deadends, target)
-    print(min_turns)
+    # min_turns = leetcode.openLock_2025(deadends, target)
+    # print(min_turns)
 
 
     # ------------------------ 695: Max Area of Island -------------------------
@@ -730,8 +763,8 @@ if __name__ == "__main__":
 
 
     # ------------------------- 39. Combination Sum -------------------------
-    # candidates = [2,3,5]
-    # target = 8
-    # ans = leetcode.combinationSum(candidates, target)
-    # print(ans)
+    candidates = [5,5,0,1,8,3]
+    divisor = 3
+    ans = leetcode.tripletSum_backtrack(candidates, divisor)
+    print(ans)
 

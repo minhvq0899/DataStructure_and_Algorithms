@@ -67,31 +67,6 @@ class Dijkstra_787:
                     self.paths[v] = vertice_u
                     heapq.heappush( hq, (weight_u + weight_v, v, numStops + 1) )
 
-class Solution_test:
-    def findCheapestPrice(self, n: int, flights: List[List[int]], src: int, dst: int, k: int) -> int:
-        graph = collections.defaultdict(list)
-        for flight in flights:
-            fromCity, toCity, price = flight
-            graph[fromCity].append([toCity, price])
-        
-        cheapestRoutes = Dijkstra_787(graph, n, k)
-        cheapestRoutes.dijkstra(src, dst)
-
-        numOfStops = -1
-        ogDst = dst
-
-        while dst != None and dst != src:
-            dst = cheapestRoutes.paths[dst]
-            numOfStops += 1
-
-        print(cheapestRoutes.distances)
-        print(cheapestRoutes.paths)
-
-        if numOfStops <= k and cheapestRoutes.paths[ogDst] != None:
-            return cheapestRoutes.distances[ogDst]
-
-        return -1
-
 # Leetcode time
 class Solution: 
     # Leetcode 743. Network Delay Time
@@ -169,7 +144,7 @@ class Solution:
 
 
 
-if __name__ == "__main__":    
+if __name__ == "__main__":
     """
     edges = [
             [0, 2, 1],

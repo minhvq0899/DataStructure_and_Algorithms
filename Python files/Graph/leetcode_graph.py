@@ -191,26 +191,6 @@ class Solution:
 
 
     # -------------------------------------------------------------------------------------
-    # Helper to detect cycle in undirected graph using DFS
-    def detectCycleUndirected(self, n: int, edges: List[List[int]]) -> bool:
-        # ========== Step 1: Set up graph ==========
-        graph = collections.defaultdict(list)
-        for edge in edges:
-            u, v = edge
-            graph[u].append(v)
-            graph[v].append(u)
-        
-        visited = [False for _ in range(n)]
-
-        # ========== Step 2: DFS traversal ==========
-        hasCycle = False
-        for i in range(n):
-            if visited[i] == False:
-                hasCycle = hasCycle or self.cycle_undirected_dfs(graph, visited, i, -1)
-
-        return hasCycle
-
-
     def cycle_undirected_dfs(self, graph: collections.defaultdict(list), visited: List[bool], vertice: int, parent: int) -> bool:
         visited[vertice] = True
 
