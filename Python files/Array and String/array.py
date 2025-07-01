@@ -17,6 +17,9 @@ I can later tackle Leetcode challenges with more confidence.
 3. Leetcode 152: Maximum Product Subarray
 4. Leetcode 238. Product of Array Except Self
 5. Leetcode 567. Permutation in String
+6. Leetcode 128: Longest Consecutive Sequence
+7. Leetcode 252: Meeting Rooms (Easy)
+8. Leetcode 253: Meeting Rooms II
 
 """
 
@@ -186,14 +189,65 @@ class Solution:
 
         return counterS1 == counterS2
 
+    # ------------------------------------------------------------------------------
+    # Leetcode 128: Longest Consecutive Sequence
+    def longestConsecutive(self, nums: List[int]) -> int:
+        # add all elements in nums in a set
+        numsSet = set(nums)
 
+        # variable to store answer
+        maxLen = 0
+        currentLen = 0
 
+        # iterating over the set instead of the list because nums can contain dups
+        for num in numsSet:
+            # check if num is the beginning of a sequence
+            if (num-1) not in numsSet:
+                currentLen = 1
+                current = num+1
+                while (current in numsSet):
+                    currentLen += 1
+                    current += 1
 
+                maxLen = max(maxLen, currentLen)
 
+        return maxLen
 
+    # ------------------------------------------------------------------------------
+    # Leetcode 252: Meeting Rooms (Easy)
+    def canAttendMeetings(self, intervals: List[List[int]]) -> bool:
+        sorted_interval = sorted(intervals, key=lambda x: x[0])
+        # print(sorted_interval)
 
+        for i in range (len(sorted_interval) - 1):
+            if sorted_interval[i][1] > sorted_interval[i+1][0]:
+                return False
 
+        return True
 
+    # ------------------------------------------------------------------------------
+    # Leetcode 253: Meeting Rooms II
+    # Follow Sweep line algorithm. Learn more about this algo with this playlist
+    # https://leetcode.com/problem-list/ax36evp1/
+    def minMeetingRooms(self, intervals: List[List[int]]) -> int:
+        sortedStartingTime = sorted(list([i[0] for i in intervals]))
+        sortedEndingTime = sorted(list([i[1] for i in intervals]))
+
+        s, e = 0, 0
+        res, count = 0, 0
+        # sweep line algorithm
+        while s < len(sortedStartingTime):
+            # case 1: starting a new meeting
+            if sortedStartingTime[s] < sortedEndingTime[e]:
+                count += 1
+                s += 1
+            # case 2: a meeting ends
+            else:
+                count -= 1
+                e += 1
+            res = max(res, count)
+        
+        return res
 
 
 

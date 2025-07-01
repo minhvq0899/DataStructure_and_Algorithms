@@ -21,14 +21,21 @@ DFS on grid/ matrix
     6. Leetcode 130. Surrounded Regions
     7. Leetcode 1306. Jump Game III
     8. Leetcode 934. Shortest Bridge ??
+    9. Leetcode 827. Making A Large Island (Hard - very similar to 695)
 """
 
 import queue
 from typing import List
 from collections import Counter
+from collections import defaultdict
 from math import factorial
 
 class Solution:
+    # Helper print function
+    def printMatrix(self, grid):
+        for row in grid:
+            print(row)
+    
     # Leetcode 22. Generate Parentheses
     def generateParenthesis(self, n: int) -> List[str]:
         combinations = []
@@ -692,6 +699,91 @@ class Solution:
 
 
     # --------------------------------------------------------------------------------------------
+    # Leetcode 827. Making A Large Island
+    def largestIsland(self, grid: List[List[int]]) -> int:
+        if not grid:
+            return 0
+
+        # Ex: 2 (island code) --> 5 (area of island 2)
+        islandCodeToAreaMap = defaultdict(int)
+        islandCode = 2
+        area = 0
+        # call DFS on each grid cell to compute the area of each island and override the value for that island
+        for r in range ( len(grid) ):
+            for c in range ( len(grid[0]) ):
+                if grid[r][c] == 1:
+                    area =  self.dfs_computeArea( [r,c], grid, islandCode)
+                    # self.printMatrix(grid)
+                    islandCodeToAreaMap[islandCode] = area
+                    islandCode += 1
+
+        # self.printMatrix(grid)
+        print(islandCodeToAreaMap)
+
+        # attemp to bridge each 0 cell to find the max area
+        largestArea = area
+        for r in range ( len(grid) ):
+            for c in range ( len(grid[0]) ):
+                if grid[r][c] == 0:
+                    largestArea = max(largestArea, self.bridging([r,c], grid, islandCodeToAreaMap))
+        
+        return largestArea
+        """
+        Time Complexity: O(N^2) 
+        """
+
+    # DFS to compute the area of an island
+    def dfs_computeArea(self, coordinate: List[int], grid: List[List[int]], islandCode: int) -> int:
+        r, c = coordinate
+        # base cases
+        if r < 0 or c < 0 or r >= len(grid) or c >= len(grid[0]):
+            return 0
+        if grid[r][c] != 1:
+            return 0
+        
+        # TO DO: mark cell as islandCode
+        grid[r][c] = islandCode
+        count = 1
+
+        # call DFS on 4 directions to continue computing the area and marking cell as islandCode
+        count += self.dfs_computeArea( [r-1,c], grid, islandCode ) # top
+        count += self.dfs_computeArea( [r+1,c], grid, islandCode ) # down
+        count += self.dfs_computeArea( [r,c-1], grid, islandCode ) # left
+        count += self.dfs_computeArea( [r,c+1], grid, islandCode ) # right
+
+        return count
+
+    def bridging(self, coordinate: List[int], grid: List[List[int]], islandCodeToAreaMap: defaultdict(int)):
+        r, c = coordinate
+        largestArea = 1                 # [r,c] is a 0 cell, that means def have at least area of 1
+        visitedIslands = set()
+
+        # top
+        if r-1 >= 0: 
+            islandCode = grid[r-1][c]
+            visitedIslands.add(islandCode)
+            largestArea += islandCodeToAreaMap[islandCode]
+        # down
+        if r+1 <= (len(grid)-1):
+            islandCode = grid[r+1][c]
+            if islandCode not in visitedIslands:
+                visitedIslands.add(islandCode)
+                largestArea += islandCodeToAreaMap[islandCode]
+        # left
+        if c-1 >= 0:
+            islandCode = grid[r][c-1]
+            if islandCode not in visitedIslands:
+                visitedIslands.add(islandCode)
+                largestArea += islandCodeToAreaMap[islandCode]
+        # right
+        if c+1 <= (len(grid[0]) - 1):
+            islandCode = grid[r][c+1]
+            if islandCode not in visitedIslands:
+                visitedIslands.add(islandCode)
+                largestArea += islandCodeToAreaMap[islandCode]
+
+        return largestArea
+
 
 
 
@@ -763,8 +855,19 @@ if __name__ == "__main__":
 
 
     # ------------------------- 39. Combination Sum -------------------------
-    candidates = [5,5,0,1,8,3]
-    divisor = 3
-    ans = leetcode.tripletSum_backtrack(candidates, divisor)
-    print(ans)
+    # candidates = [5,5,0,1,8,3]
+    # divisor = 3
+    # ans = leetcode.tripletSum_backtrack(candidates, divisor)
+    # print(ans)
 
+
+    # ------------------------ 827. Making A Large Island -------------------------
+    # grid = [[0,0,1,1],
+    #         [0,0,0,1],
+    #         [1,0,0,0],
+    #         [1,1,0,0]]
+    
+    grid = [[1,1],[1,1]]
+
+    largeIsland = leetcode.largestIsland(grid)
+    print(largeIsland)

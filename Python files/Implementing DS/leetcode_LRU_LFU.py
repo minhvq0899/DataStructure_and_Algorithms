@@ -6,15 +6,17 @@ I can later tackle Leetcode challenges with more confidence.
 
 ========================================================= Implement LRU and LFU =========================================================
 
-Leetcode 146: LRU Cache
+1. Leetcode 146: LRU Cache
     https://www.romaglushko.com/blog/design-lru-cache/
      
-Leetcode 895. Maximum Frequency Stack (Hard)
-Leetcode 460: LFU Cache (Hard)
+2. Leetcode 895. Maximum Frequency Stack (Hard)
+3. Leetcode 460: LFU Cache (Hard)
+Leetcode 588. Design In-Memory File System
 
 """
 
 import collections
+from typing import List
 
 """
 Your LRUCache object will be instantiated and called as such:
@@ -199,7 +201,7 @@ class FreqStack:
         return val
 
 
-# Leetcode 460: LFU cache ------------------------------------------------------------------------------
+# Leetcode 460: LFU cache (Hard) ------------------------------------------------------------------------------
 class NodeLFU:
     def __init__(self, key: int, value: int, count=1):
         self.key = key
@@ -292,7 +294,6 @@ class LinkedListLFU:
     # return True if the LL is empty
     def isEmpty(self) -> bool:
         return (self.head == None) and (self.tail == None)
-
 
 class LFUCache:
     def __init__(self, capacity: int):
@@ -387,6 +388,23 @@ class LFUCache:
         self.minFreq = 1 # update self.minFreq
 
 
+
+# Leetcode 588. Design In-Memory File System ------------------------------------------------------------------------------
+class FileSystem:
+
+    def __init__(self):
+        
+
+    def ls(self, path: str) -> List[str]:
+        
+
+    def mkdir(self, path: str) -> None:
+        
+
+    def addContentToFile(self, filePath: str, content: str) -> None:
+        
+
+    def readContentFromFile(self, filePath: str) -> str:
 
         
 

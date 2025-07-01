@@ -12,7 +12,7 @@ I can later tackle Leetcode challenges with more confidence.
 Template: 
 5. Leetcode 347. Top K Frequent Elements
 6. Leetcode 23. Merge k Sorted Lists
-0. Leetcode 295. Find Median from Data Stream
+0. Leetcode 295. Find Median from Data Stream (Hard)
 7. Leetcode 973. K Closest Points to Origin
 8. Leetcode 659. Split Array into Consecutive Subsequences
 

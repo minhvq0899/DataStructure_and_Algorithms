@@ -5,6 +5,13 @@ This python file is a part of my effort in getting myself refreshed with Data St
 I can later tackle Leetcode challenges with more confidence. 
 
 ========================================= Template for Dynamic Programming =========================================
+
+Easy
+Leetcode 263: Ugly Number
+# ------------------------------------------------
+
+0. Leetcode 53. Maximum Subarray
+
 1. Leetcode 70: Climbing Stairs
 2. Leetcode 322. Coin Change
 3. Leetcode 300. Longest Increasing Subsequence
@@ -15,15 +22,16 @@ I can later tackle Leetcode challenges with more confidence.
 8. Leetcode 647. Palindromic Substrings
 9. Classic 0/1 Knapsack Problem
    Similar idea: Leetcode 474. Ones and Zeroes
-10. 
-    Leetcode 198. House Robber
+10. Leetcode 198. House Robber
     Leetcode 213. House Robber II
     Leetcode 337. House Robber III
+11. Leetcode 10. Regular Expression Matching (Hard)
 
 """
-
+import bisect
 from typing import List, Tuple
 from array import *
+from collections import defaultdict
 
 class TreeNode:
     def __init__(self, val=0, left=None, right=None):
@@ -33,6 +41,74 @@ class TreeNode:
 
 
 class Solution:
+    # Leetcode 53. Maximum Subarray
+    # Kadane’s Algorithm
+    def maxSubArray(self, nums):
+        # Initialize current subarray sum and overall maximum with the first element
+        max_ending_sum = nums[0]
+        result = nums[0]
+
+        # Should I keep adding to the current subarray, or start fresh from here?
+        for i in range(1, len(nums)):
+            # 1. Starting fresh from nums[i] gives a better sum
+            if max_ending_sum + nums[i] < nums[i]:
+                max_ending_sum = nums[i]
+            # 2. Extending the existing subarray gives a better or equal result
+            else:
+                max_ending_sum += nums[i]
+
+            result = max(result, max_ending_sum)        # Update result if we've found a new maximum
+
+        return result
+    
+    # ==================================================================================================
+    # Leetcode 263: Ugly Number
+    def nthUglyNumber(self, n: int) -> int:
+        '''
+        Any ugly number must be in one of these three sequence
+        (1) 1×2, 2×2, 3×2, 4×2, 5×2, …
+        (2) 1×3, 2×3, 3×3, 4×3, 5×3, …
+        (3) 1×5, 2×5, 3×5, 4×5, 5×5, …
+        '''
+        # initialize stored array
+        ugly = [None] * n
+        ugly[0] = 1
+        
+        # initialize 3 index pointers
+        i2, i3, i5 = 0, 0, 0
+        
+        # Assume you have Uk, the kth ugly number. 
+        # Then Uk+1 must be Min(L1 * 2, L2 * 3, L3 * 5), with L1, L2, L3 
+        # be three of the previous ugly numbers (can be Uk+1)
+        next_multiple_of_2 = ugly[i2] * 2
+        next_multiple_of_3 = ugly[i3] * 3
+        next_multiple_of_5 = ugly[i5] * 5
+        
+        # loop to that n-th ugly number we need
+        for i in range (1, n):
+            ugly[i] = min(next_multiple_of_2,
+                          next_multiple_of_3,
+                          next_multiple_of_5)
+            # we prioritize i2, meaning if there is an ugly number can be
+            # computed by two number (ex: 10 = 2*5 and 5*2), we prioritize 
+            # increasing the small number (2)
+            if ugly[i] == next_multiple_of_2: 
+                i2 += 1
+                next_multiple_of_2 = ugly[i2] * 2
+            
+            if ugly[i] == next_multiple_of_3:
+                i3 += 1
+                next_multiple_of_3 = ugly[i3] * 3
+            
+            if ugly[i] == next_multiple_of_5: 
+                i5 += 1
+                next_multiple_of_5 = ugly[i5] * 5
+        
+        print(ugly)
+        
+        return ugly[-1]
+    
+    # ==================================================================================================
     # leetcode 70: Climbing Stairs
     # -------- top down solution --------
     def climbStairs_top_down(self, n: int) -> int:
@@ -73,7 +149,6 @@ class Solution:
         return n_substract_1 + n_substract_2
 
 
-
     # ==================================================================================================
     # Leetcode 322. Coin Change
     # -------- bottom_up solution --------
@@ -92,13 +167,13 @@ class Solution:
         # return the last element
         return memo[amount] if memo[amount] != float('inf') else -1
 
-
     # ==================================================================================================
     # Leetcode 300. Longest Increasing Subsequence
     # Note: Current solution's time complexity is O(N^2) in worst case. This can be solved in O(NlogN) using Binary Search and Patience Sorting
     def lengthOfLIS(self, nums: List[int]) -> int:
         if len(nums) == 1: return 1
         
+        # the value in memo[i] will represent the LIS up to i-th element
         memo = [-1] * len(nums)
         memo[0] = 1     # the LIS up to slot 0 is 1 (itself)
 
@@ -113,7 +188,20 @@ class Solution:
             result = max(result, max_len_LIS + 1)
         
         return result
+    
+    # O(NlogN) using Binary Search and Patience Sorting
+    def lengthOfLIS_patienceSort(self, nums):
+        # each of tails[i] will be the tail (smallest value) of a pile (an increasing sequence)
+        tails = []
 
+        for num in nums:
+            idx = bisect.bisect_left(tails, num)
+            if idx == len(tails):           # creating a new pile
+                tails.append(num)
+            else:                           # append tail to an existing pile
+                tails[idx] = num
+
+        return len(tails)
 
 
     # ==================================================================================================
@@ -146,7 +234,6 @@ class Solution:
         # (1): If the subproblem for s[:j] satisfied and if s[j:i] in the dict
         # (2): Substring s[0:i] CAN be segmented into a space-separated sequence of one or more dictionary words -> another subproblem satisfied
 
-
     # ==================================================================================================
     # Leetcode 1143. Longest Common Subsequence
     def longestCommonSubsequence(self, text1: str, text2: str) -> int:
@@ -164,7 +251,6 @@ class Solution:
                     dp[i][j] = max( dp[i-1][j], dp[i][j-1] )
 
         return dp[row][col]
-
 
 
     # ==================================================================================================
@@ -328,7 +414,6 @@ class Solution:
 
         return memo[ogStrsLen][n][m]
         
-
     def get_matrix_dimensions(self, matrix):
         depth = len(matrix)
         rows = len(matrix[0]) if depth > 0 else 0
@@ -342,8 +427,6 @@ class Solution:
             for row in matrix[d]:
                 print("  " + " ".join(map(str, row)))  # Nicely formatted rows
             print("-" * 20)  # Separator for layers
-
-
 
 
     # ==================================================================================================
@@ -418,7 +501,47 @@ class Solution:
 
 
         
+        # ------------------------------------------------------------------------------
+    
 
+    # ==================================================================================================
+    # Leetcode 10. Regular Expression Matching (Hard)
+    def isMatch(self, s: str, p: str) -> bool:
+        cache = defaultdict(bool)
+
+        return self.remDfs(s, 0, p, 0, cache)
+
+    def remDfs(self, s: str, i: int, p: str, j: int, cache: defaultdict(bool)) -> bool:
+        # Base case 0: If this node in the tree is already computed
+        if (i,j) in cache: 
+            return cache[(i,j)]
+        # Base case 1: it is a match
+        if i >= len(s) and j >= len(p):
+            return True
+        # Base case 2: not a match
+        if j >= len(p):
+            return False
+        
+        # Check if the first char is a match
+        firstCharMatch = (i < len(s)) and (s[i] == p[j] or p[j] == '.')
+
+        # Case 1: the next char of p is a * -> we have two choices: use or not use p[j]
+        if (j+1 < len(p)) and (p[j+1] == '*'):
+            # 1.1. Not Use * char
+            notUse = self.remDfs(s, i, p, j+2, cache)
+            cache[(i,j+2)] = notUse
+            # 1.2. Use * Char. Only use if the first char is matched
+            use = False
+            if firstCharMatch: 
+                use = self.remDfs(s, i+1, p, j, cache)
+                cache[(i+1,j)] = use
+            return (notUse or (firstCharMatch and use))
+        
+        # Case 2: the next char of p is not a *
+        if (firstCharMatch):
+            return self.remDfs(s, i+1, p, j+1, cache)
+        
+        return False
 
 
 
@@ -467,12 +590,15 @@ if __name__ == "__main__":
     # print(solution.findMaxForm(strs, m, n))
 
     # -------------------- 300 --------------------
-    # print( solution.lengthOfLIS([10,9,2,5,3,7,101,18]) )
+    # print( solution.lengthOfLIS_patienceSort([10,9,2,5,3,7,101,18]) )
 
     # -------------------- 516 --------------------
     # print( solution.longestPalindromeSubseq("cbbd") )
 
-
+    # -------------------- 10 --------------------
+    s = "aaaaaaaaaaaaaaaaaaa"
+    p = "a*a*a*a*a*a*a*a*a*b"
+    print( solution.isMatch(s, p) )
 
 
 
