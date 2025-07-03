@@ -11,7 +11,11 @@ Easy
 2. Leetcode 344: Reverse String
 ----------------------------------------------------
 3. Leetcode 72. Edit Distance
-4. Leetcode 273. Integer to English Words (Hard)
+
+----------------------------------------------------
+Hard
+4. Leetcode 273. Integer to English Words 
+
 
 
 
@@ -67,7 +71,7 @@ class Solution:
             
         return ''.join(s)
 
-    # ------------------------------------------------------------------------------
+    # ==============================================================================
     # (Also a DP problem)
     # Leetcode 72. Edit Distance
     def minDistance(self, word1: str, word2: str) -> int:
@@ -95,7 +99,7 @@ class Solution:
 
         return dp[len2][len1]
 
-    # ------------------------------------------------------------------------------
+    # ==============================================================================
     # Leetcode 273. Integer to English Words (Hard)
     unit = {0: "", 1: "Thousand", 2: "Million", 3: "Billion"}
     first_level_to_str = {0: "", 1: "One ", 2: "Two ", 3: "Three ", 4: "Four ", 5: "Five ", 6: "Six ", 7: "Seven ", 8: "Eight ", 9: "Nine "}
@@ -167,15 +171,9 @@ class Solution:
 
 
 
-
-
-
-
-
 if __name__ == "__main__":
     leetcode = Solution()
 
-    # --------------------------- 15 ---------------------------
 
 
 

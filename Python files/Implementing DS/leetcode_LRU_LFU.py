@@ -11,7 +11,6 @@ I can later tackle Leetcode challenges with more confidence.
      
 2. Leetcode 895. Maximum Frequency Stack (Hard)
 3. Leetcode 460: LFU Cache (Hard)
-Leetcode 588. Design In-Memory File System
 
 """
 
@@ -387,26 +386,6 @@ class LFUCache:
         self.size += 1 # update LFU's size
         self.minFreq = 1 # update self.minFreq
 
-
-
-# Leetcode 588. Design In-Memory File System ------------------------------------------------------------------------------
-class FileSystem:
-
-    def __init__(self):
-        
-
-    def ls(self, path: str) -> List[str]:
-        
-
-    def mkdir(self, path: str) -> None:
-        
-
-    def addContentToFile(self, filePath: str, content: str) -> None:
-        
-
-    def readContentFromFile(self, filePath: str) -> str:
-
-        
 
 
 

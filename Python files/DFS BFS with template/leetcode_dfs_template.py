@@ -17,11 +17,13 @@ DFS on grid/ matrix
     2. Leetcode 1020. Number of Enclaves
     3. Leetcode 529. Minesweeper
     4. Leetcode 695. Max Area of Island
+    9. Leetcode 827. Making A Large Island (Hard - very similar to 695)
     5. Leetcode 1254. Number of Closed Islands
     6. Leetcode 130. Surrounded Regions
     7. Leetcode 1306. Jump Game III
     8. Leetcode 934. Shortest Bridge ??
-    9. Leetcode 827. Making A Large Island (Hard - very similar to 695)
+    Leetcode 79. Word Search
+    
 """
 
 import queue
@@ -29,6 +31,11 @@ from typing import List
 from collections import Counter
 from collections import defaultdict
 from math import factorial
+
+class TrieNode:
+    def __init__(self):
+        self.children = defaultdict(TrieNode)
+        self.isEnd = False
 
 class Solution:
     # Helper print function
@@ -786,8 +793,120 @@ class Solution:
 
 
 
+    # --------------------------------------------------------------------------------------------
+    # Leetcode 79. Word Search
+    def exist(self, board: List[List[str]], word: str) -> bool:
+        if not board: return False
+
+        # Optimization: if the last char frequency is less than first char frequency, reverse word so less path to explore
+        wordCounter = Counter(word)
+        if wordCounter[word[-1]] < wordCounter[word[0]]:
+            word = word[::-1]
+
+        # Create an expanded board to hold a bool for each cell, which represents if the cell is visited or not
+        expandedBoarded = [ [[] for _ in range (len(board[0]))] for _ in range (len(board)) ]
+        # print(expandedBoarded)
+        for r in range (len(board)):
+            for c in range (len(board[0])):
+                expandedBoarded[r][c] = [board[r][c], False]
+
+        result = False
+
+        # Initialize DFS
+        for r in range (len(expandedBoarded)):
+            for c in range (len(expandedBoarded[0])):
+                if expandedBoarded[r][c][0] == word[0]:
+                    result = result or self.dfs([r,c], expandedBoarded, word, 0)
+                    # Optimization: exit early if needed
+                    if result: 
+                        return True
+
+        return result
+
+    def dfs (self, coordinate: List[int], board: List[List[str]], word: str, idx: int) -> bool:
+        r,c = coordinate
+
+        # Base case 1: This base case has to be put first in checking order
+        if idx == len(word):
+            return True
+        # Base case 2:
+        if r < 0 or c < 0 or r >= len(board) or c >= len(board[0]): 
+            return False
+        # Base case 3:
+        if board[r][c][0] != word[idx] or board[r][c][1]:
+            return False
+
+        # mark the cell as visited
+        board[r][c][1] = True
+        # dfs
+        left = self.dfs([r,c-1], board, word, idx+1)
+        up = self.dfs([r-1,c], board, word, idx+1)
+        right = self.dfs([r,c+1], board, word, idx+1)
+        down = self.dfs([r+1,c], board, word, idx+1)
+        # backtracking
+        board[r][c][1] = False
+
+        return (left or up or right or down)
 
 
+    # --------------------------------------------------------------------------------------------
+    # Leetcode 212. Word Search II
+    # Trie + DFS
+    def addWord(self, word: str, root: TrieNode):
+        current = root
+        # loop through each char
+        for c in word:
+            if c not in current.children:
+                # create new node
+                current.children[c] = TrieNode()
+            current = current.children[c]
+        
+        # mark the last node as end of the word
+        current.isEnd = True
+
+    def dfs (self, coordinate: List[int], board: List[List[str]], node: TrieNode, visited: set(), result: set(), potential: str):
+        r,c = coordinate
+
+        # Base case 1: out of bounce
+        if r < 0 or c < 0 or r >= len(board) or c >= len(board[0]): 
+            return
+        # Base case 2: char is not a start of any word or cell is already visited
+        if board[r][c] not in node.children or (r,c) in visited:
+            return
+
+        node = node.children[board[r][c]]       # update node
+        visited.add((r,c))                      # mark the cell as visited
+        potential += board[r][c]                # add one more char to the potential
+        if node.isEnd:  
+            result.add(potential)
+            # return  <-- cannot return here
+       
+        # dfs
+        self.dfs([r,c-1], board, node, visited, result, potential)      # left
+        self.dfs([r-1,c], board, node, visited, result, potential)      # up
+        self.dfs([r,c+1], board, node, visited, result, potential)      # right
+        self.dfs([r+1,c], board, node, visited, result, potential)      # down
+        # backtracking
+        visited.remove((r,c))
+
+    def findWords(self, board: List[List[str]], words: List[str]) -> List[str]:
+        # corner cases
+        if not board or not words: return []
+
+        # create DS to store the result: root TrieNodes + sets
+        root = TrieNode()
+        for word in words:
+            self.addWord(word,root)
+        result = set()
+        visited = set()
+
+        # call DFS on each cell
+        for r in range (len(board)):
+            for c in range (len(board[0])):
+                # if char in board[r,c] isnt't a start of any word, this dfs call will simply return right away at base case #2
+                self.dfs([r,c], board, root, visited, result, "")
+
+        return list(result)
 
 
 
@@ -867,7 +986,17 @@ if __name__ == "__main__":
     #         [1,0,0,0],
     #         [1,1,0,0]]
     
-    grid = [[1,1],[1,1]]
+    # grid = [[1,1],[1,1]]
 
-    largeIsland = leetcode.largestIsland(grid)
-    print(largeIsland)
+    # largeIsland = leetcode.largestIsland(grid)
+    # print(largeIsland)
+
+
+    # ------------------------ 79. Word Search -------------------------
+    grid = [["A","B","C","E"],
+            ["S","F","C","S"],
+            ["A","D","E","E"]]
+    word = "ABCCED"
+
+    print(leetcode.exist(grid, word))
+

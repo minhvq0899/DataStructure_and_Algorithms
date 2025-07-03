@@ -5,17 +5,21 @@ This python file is a part of my effort in getting myself refreshed with Data St
 I can later tackle Leetcode challenges with more confidence. 
 
 ============================================== Two Pointers Exercise ==============================================
-1. Leetcode 560. Subarray Sum Equals K
-2. Leetcode 1234: Replace the Substring for Balanced String
-3. Leetcode 845. Longest Mountain in Array
-4. Leetcode 209. Minimum Size Subarray Sum
-5. Leetcode 3. Longest Substring Without Repeating Characters
-6. Leetcode 438. Find All Anagrams in a String
-7. Leetcode 27. Remove Element
-8. Leetcode 26. Remove Duplicates from Sorted Array
-9. 
-   Leetcode 487. Max Consecutive Ones II
-   Leetcode 1004. Max Consecutive Ones III
+
+Leetcode 209. Minimum Size Subarray Sumv
+Leetcode 560. Subarray Sum Equals K  <-- medium version of 209 
+Leetcode 1234: Replace the Substring for Balanced String 
+Leetcode 845. Longest Mountain in Array
+Leetcode 3. Longest Substring Without Repeating Characters 
+Leetcode 438. Find All Anagrams in a String
+Leetcode 27. Remove Element
+Leetcode 26. Remove Duplicates from Sorted Array
+Leetcode 487. Max Consecutive Ones II
+Leetcode 1004. Max Consecutive Ones III
+
+# -----------------------------------------------------------------------------------------------
+(Hard)
+Leetcode 76. Minimum Window Substring
 
 """
 
@@ -23,35 +27,29 @@ from typing import List
 from collections import defaultdict, Counter
 
 
+class Solution:
+    # -----------------------------------------------------------------------------------------------
+    # Leetcode 209. Minimum Size Subarray Sum
+    # Easy Medium: all integers in nums are positive
+    def minSubArrayLen(self, target: int, nums: List[int]) -> int:
+        min_len = float('inf')              # global var to store answer
+        sum = 0                             # global var to store current sum
+        left = 0                            # right pointer
 
-# Leetcode 560. Subarray Sum Equals K
-# Given an array of integers nums and an integer k, return the total number of continuous subarrays whose sum equals to k.
-# Using two pointers, we can reduce from O(n^2) down to O(n)
-
-# 1. Easy: all integers in nums are positive
-# 2. Medium: integers in nums can be negative
-class subarraySumEqualsK:
-    # [1,2,6,3,5,1,8,9] with K = 9
-    def easy(self, nums: List[int], K: int) -> int:
-        i, j = 0, 0
-        sum = 0
-        cnt = 0 # counts of subarray
-        while i < len(nums): 
-            if sum + nums[i] < K:
-                sum += nums[i]
-                i += 1
-            elif sum + nums[i] > K:
-                sum -= nums[j]
-                j += 1
-            else: # this covers for when sum + nums[i] == K  --> we found another subarray
-                cnt += 1
-                sum += nums[i]
-                i += 1
-            
-        return cnt
-
-    # [3,4,7,-2,2,1,4,2] and K=7
-    def medium(self, nums: List[int], k: int) -> int:
+        # basic approach
+        for right in range (len(nums)):
+            sum += nums[right]
+            while sum >= target:
+                min_len = min(min_len, right - left + 1)
+                sum -= nums[left]
+                left += 1
+        
+        return min_len if min_len != float('inf') else 0
+    
+    # -----------------------------------------------------------------------------------------------
+    # Leetcode 560. Subarray Sum Equals K
+    # Hard Medium: integers in nums can be negative
+    def subarraySum(self, nums: List[int], k: int) -> int:
         sum_variable, count, i = 0, 0, 0
         accumulated_sum_dict = defaultdict(int) # dict contains how many time a sum has been recorded before
         
@@ -67,12 +65,9 @@ class subarraySumEqualsK:
             i += 1
 
         return count
-            
-
-
-
-
-class Solution:
+    
+    
+    # -----------------------------------------------------------------------------------------------
     # Leetcode 1234: Replace the Substring for Balanced String
     def balancedString(self, s: str) -> int:
         N = len(s) # length of s
@@ -107,7 +102,7 @@ class Solution:
         return ans
 
 
-    # ==============================================================================================
+    # -----------------------------------------------------------------------------------------------
     # Leetcode 845. Longest Mountain in Array
     def longestMountain(arr: List[int]) -> int:
         i, j = 0, 0
@@ -133,25 +128,10 @@ class Solution:
         return 0
 
 
-    # ==============================================================================================
-    # Leetcode 209. Minimum Size Subarray Sum
-    def minSubArrayLen(self, target: int, nums: List[int]) -> int:
-        min_len = float('inf')              # global var to store answer
-        sum = 0                             # global var to store current sum
-        left = 0                            # right pointer
-
-        for right in range (len(nums)):
-            sum += nums[right]
-            while sum >= target:
-                min_len = min(min_len, right - left + 1)
-                sum -= nums[left]
-                left += 1
-        
-        return min_len if min_len != float('inf') else 0
 
 
 
-    # ==============================================================================================
+    # -----------------------------------------------------------------------------------------------
     # Leetcode 3. Longest Substring Without Repeating Characters
     def lengthOfLongestSubstring(self, s: str) -> int:
         max_len = 0
@@ -171,7 +151,7 @@ class Solution:
         return max_len
 
 
-    # ==============================================================================================
+    # -----------------------------------------------------------------------------------------------
     # Leetcode 438. Find All Anagrams in a String
     def findAnagrams(self, s: str, p: str) -> List[int]:
         if len(s) < len(p): return []
@@ -209,7 +189,7 @@ class Solution:
 
         return ans
 
-    # ==============================================================================================
+    # -----------------------------------------------------------------------------------------------
     # Leetcode 27. Remove Element
     def removeElement(self, nums: List[int], val: int) -> int:
         # two pointers
@@ -221,7 +201,7 @@ class Solution:
         return i
 
 
-    # ==============================================================================================
+    # -----------------------------------------------------------------------------------------------
     # Leetcode 26. Remove Duplicates from Sorted Array
     def removeDuplicates(self, nums: List[int]) -> int:
         # same idea as Leetcode 27
@@ -233,7 +213,7 @@ class Solution:
         return i
     
 
-    # ==============================================================================================
+    # -----------------------------------------------------------------------------------------------
     # Leetcode 487. Max Consecutive Ones II - similar to 1004 below, only diff is that K = 1
     # Leetcode 1004. Max Consecutive Ones III
     def longestOnes(self, nums: List[int], K: int) -> int:
@@ -262,27 +242,71 @@ class Solution:
         
         return final
 
+        # ------------------------------------------------------------------------------
+    
+    # -----------------------------------------------------------------------------------------------
+    # Leetcode 76. Minimum Window Substring
+    def minWindow(self, s: str, t: str) -> str:
+        # Create necessary DS
+        counterS = Counter()                # not initialized yet
+        counterT = Counter(t)
+        need = len(counterT)
+        have = 0
+
+        # Initialize two pointers
+        i, j = 0, 0
+        minLen = float("INF")   
+        resultI, resultJ = -1, -1   
+
+        # Iterate through s using a for loop
+        for j in range (len(s)):            
+            charj = s[j]
+            counterS[charj] += 1
+            # check if including charj satisfy one more 'have'
+            if counterS[charj] == counterT[charj]:
+                have += 1
+                # keep incrementing i while 'have' == 'need'
+                while have == need:
+                    # only update result if it's a better result
+                    if j-i+1 < minLen:
+                        minLen = j-i+1
+                        resultI = i
+                        resultJ = j
+
+                    # update 'have' first, increment i, and remove s[i] from counterS
+                    chari = s[i]
+                    if counterS[chari] == counterT[chari]:
+                        have -= 1                    
+                    i += 1
+                    counterS[chari] -= 1
+
+        return s[resultI:resultJ+1]
+
+
+
 
 if __name__ == "__main__":
-    # subarraySumEqualsKObj = subarraySumEqualsK()
-
-    # nums = [0,0,0,0,0,0,0,0,0,0]
-    # k = 0
-    # print(subarraySumEqualsKObj.medium(nums, k))
-
-    # ================================================================================================
     solution = Solution()
     
+    # -------------------- Leetcode 560 --------------------
+    nums = [3, 4, -7, 1, 3, 3, 1, -4]
+    k = 7
+    print('Answer for 560 is: ', solution.subarraySum(nums, k))
+
     # -------------------- Leetcode 1234 --------------------
     # print('Answer is: ', solution.balancedString('EQRWQQQW'))
                 
     # -------------------- Leetcode 438 --------------------
-    s = "cbaebabacd"
-    p = "abc"
-    print(solution.findAnagrams(s, p))
+    # s = "cbaebabacd"
+    # p = "abc"
+    # print(solution.findAnagrams(s, p))
 
     # -------------------- Leetcode 1004 --------------------
     # nums = [0,0,1,1,0,0,1]
     # print(solution.longestOnes(nums, 3))
 
+    # --------------------------- 76 ---------------------------
+    # s = "a"
+    # t = "aa"
+    # print( solution.minWindow(s,t) )
 
