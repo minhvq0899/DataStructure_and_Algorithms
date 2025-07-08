@@ -6,23 +6,31 @@ I can later tackle Leetcode challenges with more confidence.
 
 ========================================================= DFS with template =========================================================
 DFS down different path: 
-    1. Leetcode 22. Generate Parentheses
-    2. Leetcode 17. Letter Combinations of a Phone Number
-    3. Leetcode 752. Open the Lock
-    4. Leetcode 39. Combination Sum
-    5. Leetcode 377. Combination Sum IV
+    Leetcode 22. Generate Parentheses
+    Leetcode 17. Letter Combinations of a Phone Number
+    Leetcode 752. Open the Lock
+    Combination and Permutation series
+        Leetcode 46. Permutation
+        Leetcode 47. Permutation II
+        Leetcode 267. Palindrome Permutation II
+        Leetcode 39. Combination Sum
+        Leetcode 40. Combination Sum II
+        Leetcode 216. Combination Sum III
+        Leetcode 377. Combination Sum IV
+    Leetcode 1306. Jump Game III
 
 DFS on grid/ matrix
-    1. Leetcode 417. Pacific Atlantic Water Flow
-    2. Leetcode 1020. Number of Enclaves
-    3. Leetcode 529. Minesweeper
-    4. Leetcode 695. Max Area of Island
-    9. Leetcode 827. Making A Large Island (Hard - very similar to 695)
-    5. Leetcode 1254. Number of Closed Islands
-    6. Leetcode 130. Surrounded Regions
-    7. Leetcode 1306. Jump Game III
-    8. Leetcode 934. Shortest Bridge ??
+    Leetcode 200. Number of Islands
+    Leetcode 1254. Number of Closed Islands
+    Leetcode 695. Max Area of Island
+    Leetcode 827. Making A Large Island (Hard - very similar to 695)
+    Leetcode 130. Surrounded Regions
+    Leetcode 417. Pacific Atlantic Water Flow
+    Leetcode 1020. Number of Enclaves
+    Leetcode 529. Minesweeper
+    Leetcode 934. Shortest Bridge ??
     Leetcode 79. Word Search
+    Leetcode 212. Word Search II
     
 """
 
@@ -43,6 +51,7 @@ class Solution:
         for row in grid:
             print(row)
     
+    # -----------------------------------------------------------------------------------------------
     # Leetcode 22. Generate Parentheses
     def generateParenthesis(self, n: int) -> List[str]:
         combinations = []
@@ -207,7 +216,159 @@ class Solution:
         return -1
 
 
+    """ Combination and Permutation series """
+    # ------------------------------------------------------------------------------------------
+    # Leetcode 46. Permutation
+    def permute(self, nums: List[int]) -> List[List[int]]:
+        permSet = set()
+        used = [False] * len(nums)
+        # ----------------------------------------------------------------------------
+        def dfs(potential: List[int]):
+            # base case 1 
+            if len(potential) == len(nums):
+                permSet.add(tuple(potential))
+                return
 
+            # todo: try each unused number
+            for i in range (len(nums)):
+                if used[i]:
+                    continue
+                
+                # choose num[i]
+                used[i] = True
+                potential.append(nums[i])
+
+                # explore further
+                dfs(potential)
+
+                # backtrack
+                potential.pop()
+                used[i] = False
+        # ----------------------------------------------------------------------------
+        dfs([])
+        
+        return list(list(perm) for perm in permSet)
+    
+    """
+    This can be solved with the exact same solution as LC 46. Permutation because in that solution we used a Set to store solution. 
+    However, without the additional pruning logic to avoid re-exploring the dup path, the solution will just take much more time 
+    """
+    # Leetcode 47. Permutation II
+    def permuteUnique(self, nums: List[int]) -> List[List[int]]:
+        nums.sort()
+        permSet = list()
+        used = [False] * len(nums)
+        # ----------------------------------------------------------------------------
+        def dfs(potential: List[int]):
+            # base case 1 
+            if len(potential) == len(nums):
+                permSet.append(list(potential))
+                return
+
+            # todo: try each unused number
+            for i in range (len(nums)):
+                # if i-th num is already used, skip no question asked
+                if used[i]:
+                    continue
+                # if i-th num is a dup AND the previous num (same value) not used
+                if i > 0 and nums[i-1] == nums[i] and not used[i-1]:
+                    continue
+                
+                # choose num[i]
+                used[i] = True
+                potential.append(nums[i])
+
+                # explore further
+                dfs(potential)
+
+                # backtrack
+                potential.pop()
+                used[i] = False
+        # ----------------------------------------------------------------------------
+        dfs([])
+        
+        return permSet
+
+    # Leetcode 267. Palindrome Permutation II
+    def perm(self, charList: List[str]) -> List[List[str]]:
+        answer = set()
+        visited = [False] * len(charList)
+
+        def dfs(potential: List[str]):
+            # base cases:
+            if len(potential) == len(charList):
+                answer.add(tuple(potential))
+                return
+
+            # visit each unvisited char
+            for i in range (len(charList)):
+                if visited[i]:
+                    continue
+                
+                # todo
+                visited[i] = True
+                potential.append(charList[i])
+
+                # dfs
+                dfs(potential)
+
+                # backtrack
+                visited[i] = False
+                potential.pop()
+
+        dfs([])
+
+        return list( list(p) for p in answer )
+
+    def generatePalindromes(self, s: str) -> List[str]:
+        counterS = Counter(s)
+
+        # do simple math to check if a permutation of s can be palindromic
+        numOfOddCountChar = 0
+        oddCountChar = ""
+        charList = []
+        for char, count in counterS.items():
+            if count % 2 == 1:
+                numOfOddCountChar += 1
+                oddCountChar = char
+            else:
+                for _ in range (int(count/2)):
+                    charList.append(char)
+
+        # corner case
+        if len(counterS) == 1: return [s]
+        # permutation of s cannot form a palindrome
+        if numOfOddCountChar > 1: 
+            return []
+        # in case the char with odd frequency has freq more than 1 (3,5,7,etc)
+        if oddCountChar != "":
+            countOddChar = counterS[oddCountChar]
+            if countOddChar > 1:
+                for _ in range (int((countOddChar-1)/2)):
+                    charList.append(oddCountChar)
+
+        # generate all unique permutations of charList
+        permList = self.perm(charList)
+        answer = []
+
+        # add firstHalf + reverse(firsHalf)
+        for halfString in permList:
+            reverseHalfString = halfString[::-1]
+            # if there is one char with odd freq, insert that char in the middle of two half
+            if oddCountChar != "":
+                palindromePerm = halfString + [oddCountChar] + reverseHalfString
+                palindromePerm = "".join(palindromePerm)
+                answer.append(palindromePerm)
+            # else just simply merge two halves together
+            else:
+                palindromePerm = halfString + reverseHalfString
+                palindromePerm = "".join(palindromePerm)
+                answer.append(palindromePerm)
+
+        return answer
+
+
+        
     # ------------------------------------------------------------------------------------------
     # Leetcode 39. Combination Sum
     def combinationSum(self, candidates: List[int], target: int) -> List[List[int]]:
@@ -240,7 +401,7 @@ class Solution:
     def combinationSum_backtrack(self, candidates: List[int], target: int) -> List[List[int]]:
         ans = []
         # ------------------------------------------------------------------------------
-        def subsetCount(tar, potential, start):
+        def dfs(tar, potential, start):
             # base case 1: found a combination
             if tar == 0: 
                 ans.append(list(potential))
@@ -252,11 +413,11 @@ class Solution:
             for i in range (start, len(candidates)):
                 potential.append(candidates[i])
                 # recursive call
-                subsetCount(tar-candidates[i], potential, i)
+                dfs(tar-candidates[i], potential, i)
                 # back track
                 potential.pop()
         # ------------------------------------------------------------------------------
-        subsetCount(target, [], 0)
+        dfs(target, [], 0)
         return ans
 
     def tripletSum_backtrack(self, candidates: List[int], divisor: int) -> int:
@@ -291,6 +452,67 @@ class Solution:
         return len(seenTriplet)
 
 
+    # ------------------------------------------------------------------------------------------
+    # Leetcode 40. Combination Sum II
+    def combinationSum2(self, candidates: List[int], target: int) -> List[List[int]]:
+        candidates.sort()
+        
+        # Step 1: DS to store answer
+        answer = list()
+        # --------------------------------------------------------------------------
+        def dfs(poten, s, tar):
+            # Base cases:
+            if tar == 0:
+                answer.append(list(poten))
+                return 
+            if tar < 0: return 
+            
+            # dfs
+            for i in range (s, len(candidates)):
+                # Skip duplicate. If i > s, it means you’ve moved beyond the first candidate considered at this level
+                # Just think of this as pruning a whole dup tree path before it even starts because it has already been computed before
+                if i > s and candidates[i] == candidates[i-1]: 
+                    continue
+                # try a candidate
+                poten.append( candidates[i] )
+                # dfs
+                dfs(poten, i+1, tar-candidates[i])
+                # backtrack
+                poten.pop() 
+                
+        # --------------------------------------------------------------------------
+        # Step 2: Do DFS/ BFS
+        dfs([], 0, target)
+
+        # Step 3:
+        return answer
+
+    # ------------------------------------------------------------------------------------------
+    # Leetcode 216. Combination Sum III
+    def combinationSum3(self, k: int, n: int) -> List[List[int]]:
+        # Step 1: DS to store answer
+        answer = list()
+        # --------------------------------------------------------------------------------------------------
+        def dfs(poten, s, tar):
+            # Base case:
+            if tar == 0 and len(poten) == k:
+                answer.append(list(poten))
+                return 
+            if not tar > 0: return 
+            
+            # dfs
+            for i in range (s, 10):
+                poten.append( i )
+                dfs(poten, i+1, tar-i)
+                poten.pop() # backtrack
+                
+        # --------------------------------------------------------------------------------------------------
+        # Step 2: Do DFS/ BFS
+        potential = list()
+        dfs(potential, 1, n)
+
+        # Step 3:
+        return answer 
 
     # ------------------------------------------------------------------------------------------
     # Leetcode 377. Combination Sum IV
@@ -339,16 +561,316 @@ class Solution:
         return total_perm
 
 
-    # ================================================================================================================================================================================================================================================================================== 
-    # ================================================================================================================================================================================================================================================================================== 
- 
- 
+    # ------------------------------------------------------------------------
+    # Leetcode 1306. Jump Game III
+    def canReach(self, arr: List[int], start: int) -> bool:
+        reach = []
+        
+        self.dfs_canReach(arr, start, reach)
+        
+        return True if reach else False
+    
+    def dfs_canReach(self, arr: List[int], index: int, reach: List[int]):
+        # base cases
+        if index < 0 or index >= len(arr):
+            return 
+        if arr[index] == 0:
+            reach.append(1)
+            return 
+        if arr[index] < 0: 
+            return 
+        
+        # TO DO
+        arr[index] *= -1
+        
+        # call DFS where needed
+        self.dfs_canReach(arr, index+arr[index], reach)
+        self.dfs_canReach(arr, index-arr[index], reach)
 
 
- 
- 
- 
- 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    # ================================================================================================================================================================================================================================================================================== 
+    # ================================================================================================================================================================================================================================================================================== 
+    # Leetcode 200. Number of Islands
+    def numIslands(self, grid: List[List[str]]) -> int:
+        # create a DS to store all answers
+        count = 0
+        
+        # initialize DFS
+        for r in range (len(grid)):
+            for c in range (len(grid[0])):
+                if grid[r][c] == "1":
+                    count += self.dfs200(grid, r, c)
+        
+        # return 
+        return count
+    
+    def dfs200(self, grid: List[List[str]], r: int, c: int) -> int:
+        r_grid = len(grid)
+        c_grid = len(grid[0])
+        
+        # base cases
+        if r < 0 or c < 0 or r >= r_grid or c >= c_grid or grid[r][c] == "0":
+            return 
+        
+        # process cell
+        grid[r][c] = "0"
+        
+        # call DFS first
+        self.dfs200(grid, r-1, c)
+        self.dfs200(grid, r+1, c)
+        self.dfs200(grid, r, c-1)
+        self.dfs200(grid, r, c+1)
+        
+        # increament 
+        return 1
+    
+         
+    # --------------------------------------------------------------------------------------
+    # Leetcode 1254. Number of Closed Islands
+    def closedIsland(self, grid: List[List[int]]) -> int:
+        # find all islands that touch boundary (they are not closed islands)
+        for r in range (len(grid)): 
+            if grid[r][0] == 0:
+                self.dfs_closedIsland( [r, 0], grid ) # left
+            if grid[r][len(grid[0]) - 1] == 0:
+                self.dfs_closedIsland( [r, len(grid[0])-1], grid ) # right
+
+        for c in range (len(grid[0])):
+            if grid[0][c] == 0:
+                self.dfs_closedIsland( [0, c], grid ) # top
+            if grid[len(grid)-1][c] == 0:
+                self.dfs_closedIsland( [len(grid)-1, c], grid ) # bottom
+
+        # now all islands left are closed islands
+        num_closed = 0
+        for r in range (1, len(grid)-1):
+            for c in range (1, len(grid[0])-1):
+                if grid[r][c] == 0:
+                    num_closed += 1
+                    self.dfs_closedIsland( [r, c], grid ) 
+
+        return num_closed
+        """
+        Time Complexity: O(row * col)
+        Extra Space Complexity: O(1)
+        """
+
+    def dfs_closedIsland(self, coordinate: List[int], grid: List[List[int]]):
+        r, c = coordinate
+        # Base cases
+        if r < 0 or c < 0 or r >= len(grid) or c >= len(grid[0]):
+            return 
+        if grid[r][c] == 1:
+            return 
+
+        # TO DO
+        grid[r][c] = 1
+
+        # Call DFS where needed
+        self.dfs_closedIsland( [r-1, c], grid ) # top
+        self.dfs_closedIsland( [r+1, c], grid ) # down
+        self.dfs_closedIsland( [r, c-1], grid ) # left
+        self.dfs_closedIsland( [r, c+1], grid ) # right
+    
+
+    # --------------------------------------------------------------------------------------
+    # Leetcode 695. Max Area of Island
+    def maxAreaOfIsland(self, grid: List[List[int]]) -> int:
+        if not grid:
+            return 0
+        
+        area = 0
+
+        # call DFS on each grid cell
+        for r in range ( len(grid) ):
+            for c in range ( len(grid[0]) ):
+                if grid[r][c] == 1:
+                    area =  max(area, self.dfs_maxArea( [r,c], grid ) )
+
+        return area
+        """
+        Time Complexity: O(row * cow)
+        Extra Space Complexity: O(1)
+        """
+
+    # Initialize DFS
+    def dfs_maxArea(self, coordinate: List[int], grid: List[List[int]]) -> int:
+        r, c = coordinate
+        # base cases
+        if r < 0 or c < 0 or r >= len(grid) or c >= len(grid[0]):
+            return 0
+        if grid[r][c] == 0:
+            return 0
+        
+        # TO DO
+        grid[r][c] = 0
+        count = 1
+    
+        # call DFS where needed
+        count += self.dfs_maxArea( [r-1,c], grid ) # top
+        count += self.dfs_maxArea( [r+1,c], grid ) # down
+        count += self.dfs_maxArea( [r,c-1], grid ) # left
+        count += self.dfs_maxArea( [r,c+1], grid ) # right
+
+        return count
+        
+
+    # --------------------------------------------------------------------------------------------
+    # Leetcode 827. Making A Large Island
+    def largestIsland(self, grid: List[List[int]]) -> int:
+        if not grid:
+            return 0
+
+        # Ex: 2 (island code) --> 5 (area of island 2)
+        islandCodeToAreaMap = defaultdict(int)
+        islandCode = 2
+        area = 0
+        # call DFS on each grid cell to compute the area of each island and override the value for that island
+        for r in range ( len(grid) ):
+            for c in range ( len(grid[0]) ):
+                if grid[r][c] == 1:
+                    area =  self.dfs_computeArea( [r,c], grid, islandCode)
+                    # self.printMatrix(grid)
+                    islandCodeToAreaMap[islandCode] = area
+                    islandCode += 1
+
+        # self.printMatrix(grid)
+        print(islandCodeToAreaMap)
+
+        # attemp to bridge each 0 cell to find the max area
+        largestArea = area
+        for r in range ( len(grid) ):
+            for c in range ( len(grid[0]) ):
+                if grid[r][c] == 0:
+                    largestArea = max(largestArea, self.bridging([r,c], grid, islandCodeToAreaMap))
+        
+        return largestArea
+        """
+        Time Complexity: O(N^2) 
+        """
+
+    # DFS to compute the area of an island
+    def dfs_computeArea(self, coordinate: List[int], grid: List[List[int]], islandCode: int) -> int:
+        r, c = coordinate
+        # base cases
+        if r < 0 or c < 0 or r >= len(grid) or c >= len(grid[0]):
+            return 0
+        if grid[r][c] != 1:
+            return 0
+        
+        # TO DO: mark cell as islandCode
+        grid[r][c] = islandCode
+        count = 1
+
+        # call DFS on 4 directions to continue computing the area and marking cell as islandCode
+        count += self.dfs_computeArea( [r-1,c], grid, islandCode ) # top
+        count += self.dfs_computeArea( [r+1,c], grid, islandCode ) # down
+        count += self.dfs_computeArea( [r,c-1], grid, islandCode ) # left
+        count += self.dfs_computeArea( [r,c+1], grid, islandCode ) # right
+
+        return count
+
+    def bridging(self, coordinate: List[int], grid: List[List[int]], islandCodeToAreaMap: defaultdict(int)):
+        r, c = coordinate
+        largestArea = 1                 # [r,c] is a 0 cell, that means def have at least area of 1
+        visitedIslands = set()
+
+        # top
+        if r-1 >= 0: 
+            islandCode = grid[r-1][c]
+            visitedIslands.add(islandCode)
+            largestArea += islandCodeToAreaMap[islandCode]
+        # down
+        if r+1 <= (len(grid)-1):
+            islandCode = grid[r+1][c]
+            if islandCode not in visitedIslands:
+                visitedIslands.add(islandCode)
+                largestArea += islandCodeToAreaMap[islandCode]
+        # left
+        if c-1 >= 0:
+            islandCode = grid[r][c-1]
+            if islandCode not in visitedIslands:
+                visitedIslands.add(islandCode)
+                largestArea += islandCodeToAreaMap[islandCode]
+        # right
+        if c+1 <= (len(grid[0]) - 1):
+            islandCode = grid[r][c+1]
+            if islandCode not in visitedIslands:
+                visitedIslands.add(islandCode)
+                largestArea += islandCodeToAreaMap[islandCode]
+
+        return largestArea
+
+    # --------------------------------------------------------------------------------------
+    # Leetcode 130. Surrounded Regions
+    def solve(self, board: List[List[str]]) -> None:
+        """
+        Do not return anything, modify board in-place instead.
+        """
+        if not board: return 
+
+        m = len(board)
+        n = len(board[0])
+
+        # find all the 'O' on boundary and switch them into 'T' (Temporary)
+        for r in range (m): 
+            if board[r][0] == 'O':
+                self.dfs_solve( [r, 0], board ) # left
+            if board[r][n - 1] == 'O':
+                self.dfs_solve( [r, n-1], board ) # right
+
+        for c in range (n):
+            if board[0][c] == 'O':
+                self.dfs_solve( [0, c], board ) # top
+            if board[m - 1][c] == 'O':
+                self.dfs_solve( [m-1, c], board ) # bottom
+
+        # switch all 'O' that don't touch boudary into 'X'
+        for r in range (m):
+            for c in range (n):
+                if board[r][c] == 'O':
+                    board[r][c] = 'X'
+                elif board[r][c] == 'T':
+                    board[r][c] = 'O'
+        
+        """
+        Time Complexity: O(row * col)
+        Extra Space Complexity: O(1)
+        """
+                    
+    def dfs_solve(self, coordinate: List[int], board: List[List[str]]):
+        r, c = coordinate
+        # Base cases
+        if r < 0 or c < 0 or r >= len(board) or c >= len(board[0]):
+            return 
+        if board[r][c] == 'X' or board[r][c] == 'T':
+            return 
+
+        # TO DO
+        board[r][c] = 'T'
+
+        # Call DFS where needed
+        self.dfs_solve( [r-1, c], board ) # top
+        self.dfs_solve( [r+1, c], board ) # down
+        self.dfs_solve( [r, c-1], board ) # left
+        self.dfs_solve( [r, c+1], board ) # right
+
+
+    # --------------------------------------------------------------------------------------
     # Leetcode 417. Pacific Atlantic Water Flow
     def pacificAtlantic(self, matrix: List[List[int]]) -> List[List[int]]:
         """
@@ -461,7 +983,6 @@ class Solution:
     # Time: O(m*n)?
     # Space: O(1)
 
-
     # --------------------------------------------------------------------------------------
     # Leetcode 529. Minesweeper
     def adjacentMines(self, board: List[List[str]], click: List[int]) -> int:
@@ -508,190 +1029,10 @@ class Solution:
                 
         return board
     
-    """
-    Time Complexity: O()
-    Extra Space Complexity: O(1)
-    """
-
-
-    # --------------------------------------------------------------------------------------
-    # Leetcode 695. Max Area of Island
-    def maxAreaOfIsland(self, grid: List[List[int]]) -> int:
-        if not grid:
-            return 0
-        
-        area = 0
-
-        # call DFS on each grid cell
-        for r in range ( len(grid) ):
-            for c in range ( len(grid[0]) ):
-                if grid[r][c] == 1:
-                    area =  max(area, self.dfs_maxArea( [r,c], grid ) )
-
-        return area
-        """
-        Time Complexity: O(row * cow)
-        Extra Space Complexity: O(1)
-        """
-
-    # Initialize DFS
-    def dfs_maxArea(self, coordinate: List[int], grid: List[List[int]]) -> int:
-        r, c = coordinate
-        # base cases
-        if r < 0 or c < 0 or r >= len(grid) or c >= len(grid[0]):
-            return 0
-        if grid[r][c] == 0:
-            return 0
-        
-        # TO DO
-        grid[r][c] = 0
-        count = 1
-    
-        # call DFS where needed
-        count += self.dfs_maxArea( [r-1,c], grid ) # top
-        count += self.dfs_maxArea( [r+1,c], grid ) # down
-        count += self.dfs_maxArea( [r,c-1], grid ) # left
-        count += self.dfs_maxArea( [r,c+1], grid ) # right
-
-        return count
-        
-        
-    # --------------------------------------------------------------------------------------
-    # Leetcode 1254. Number of Closed Islands
-    def closedIsland(self, grid: List[List[int]]) -> int:
-        # find all islands that touch boundary (they are not closed islands)
-        for r in range (len(grid)): 
-            if grid[r][0] == 0:
-                self.dfs_closedIsland( [r, 0], grid ) # left
-            if grid[r][len(grid[0]) - 1] == 0:
-                self.dfs_closedIsland( [r, len(grid[0])-1], grid ) # right
-
-        for c in range (len(grid[0])):
-            if grid[0][c] == 0:
-                self.dfs_closedIsland( [0, c], grid ) # top
-            if grid[len(grid)-1][c] == 0:
-                self.dfs_closedIsland( [len(grid)-1, c], grid ) # bottom
-
-        # now all islands left are closed islands
-        num_closed = 0
-        for r in range (1, len(grid)-1):
-            for c in range (1, len(grid[0])-1):
-                if grid[r][c] == 0:
-                    num_closed += 1
-                    self.dfs_closedIsland( [r, c], grid ) 
-
-        return num_closed
-        """
-        Time Complexity: O(row * col)
-        Extra Space Complexity: O(1)
-        """
-
-    def dfs_closedIsland(self, coordinate: List[int], grid: List[List[int]]):
-        r, c = coordinate
-        # Base cases
-        if r < 0 or c < 0 or r >= len(grid) or c >= len(grid[0]):
-            return 
-        if grid[r][c] == 1:
-            return 
-
-        # TO DO
-        grid[r][c] = 1
-
-        # Call DFS where needed
-        self.dfs_closedIsland( [r-1, c], grid ) # top
-        self.dfs_closedIsland( [r+1, c], grid ) # down
-        self.dfs_closedIsland( [r, c-1], grid ) # left
-        self.dfs_closedIsland( [r, c+1], grid ) # right
-    
-
-    # --------------------------------------------------------------------------------------
-    # Leetcode 130. Surrounded Regions
-    def solve(self, board: List[List[str]]) -> None:
-        """
-        Do not return anything, modify board in-place instead.
-        """
-        if not board: return 
-
-        m = len(board)
-        n = len(board[0])
-
-        # find all the 'O' on boundary and switch them into 'T' (Temporary)
-        for r in range (m): 
-            if board[r][0] == 'O':
-                self.dfs_solve( [r, 0], board ) # left
-            if board[r][n - 1] == 'O':
-                self.dfs_solve( [r, n-1], board ) # right
-
-        for c in range (n):
-            if board[0][c] == 'O':
-                self.dfs_solve( [0, c], board ) # top
-            if board[m - 1][c] == 'O':
-                self.dfs_solve( [m-1, c], board ) # bottom
-
-        # switch all 'O' that don't touch boudary into 'X'
-        for r in range (m):
-            for c in range (n):
-                if board[r][c] == 'O':
-                    board[r][c] = 'X'
-                elif board[r][c] == 'T':
-                    board[r][c] = 'O'
-        
-        """
-        Time Complexity: O(row * col)
-        Extra Space Complexity: O(1)
-        """
-                    
-
-    def dfs_solve(self, coordinate: List[int], board: List[List[str]]):
-        r, c = coordinate
-        # Base cases
-        if r < 0 or c < 0 or r >= len(board) or c >= len(board[0]):
-            return 
-        if board[r][c] == 'X' or board[r][c] == 'T':
-            return 
-
-        # TO DO
-        board[r][c] = 'T'
-
-        # Call DFS where needed
-        self.dfs_solve( [r-1, c], board ) # top
-        self.dfs_solve( [r+1, c], board ) # down
-        self.dfs_solve( [r, c-1], board ) # left
-        self.dfs_solve( [r, c+1], board ) # right
-
-
-
-    # ------------------------------------------------------------------------
-    # Leetcode 1306. Jump Game III
-    def canReach(self, arr: List[int], start: int) -> bool:
-        reach = []
-        
-        self.dfs_canReach(arr, start, reach)
-        
-        return True if reach else False
-    
-        
-    def dfs_canReach(self, arr: List[int], index: int, reach: List[int]):
-        # base cases
-        if index < 0 or index >= len(arr):
-            return 
-        if arr[index] == 0:
-            reach.append(1)
-            return 
-        if arr[index] < 0: 
-            return 
-        
-        # TO DO
-        arr[index] *= -1
-        
-        # call DFS where needed
-        self.dfs_canReach(arr, index+arr[index], reach)
-        self.dfs_canReach(arr, index-arr[index], reach)
-
+    # Time Complexity: O()
+    # Extra Space Complexity: O(1)
 
     # ------------------------------------------------------------------------------------------
-
-
     # # Leetcode 934. Shortest Bridge
     # def shortestBridge(self, A: List[List[int]]) -> int:
     #     pass
@@ -703,94 +1044,6 @@ class Solution:
     #     if r < 0 or c < 0 or r >= len(A) or c >= len(A[0]):
     #         return 0
     #     if 
-
-
-    # --------------------------------------------------------------------------------------------
-    # Leetcode 827. Making A Large Island
-    def largestIsland(self, grid: List[List[int]]) -> int:
-        if not grid:
-            return 0
-
-        # Ex: 2 (island code) --> 5 (area of island 2)
-        islandCodeToAreaMap = defaultdict(int)
-        islandCode = 2
-        area = 0
-        # call DFS on each grid cell to compute the area of each island and override the value for that island
-        for r in range ( len(grid) ):
-            for c in range ( len(grid[0]) ):
-                if grid[r][c] == 1:
-                    area =  self.dfs_computeArea( [r,c], grid, islandCode)
-                    # self.printMatrix(grid)
-                    islandCodeToAreaMap[islandCode] = area
-                    islandCode += 1
-
-        # self.printMatrix(grid)
-        print(islandCodeToAreaMap)
-
-        # attemp to bridge each 0 cell to find the max area
-        largestArea = area
-        for r in range ( len(grid) ):
-            for c in range ( len(grid[0]) ):
-                if grid[r][c] == 0:
-                    largestArea = max(largestArea, self.bridging([r,c], grid, islandCodeToAreaMap))
-        
-        return largestArea
-        """
-        Time Complexity: O(N^2) 
-        """
-
-    # DFS to compute the area of an island
-    def dfs_computeArea(self, coordinate: List[int], grid: List[List[int]], islandCode: int) -> int:
-        r, c = coordinate
-        # base cases
-        if r < 0 or c < 0 or r >= len(grid) or c >= len(grid[0]):
-            return 0
-        if grid[r][c] != 1:
-            return 0
-        
-        # TO DO: mark cell as islandCode
-        grid[r][c] = islandCode
-        count = 1
-
-        # call DFS on 4 directions to continue computing the area and marking cell as islandCode
-        count += self.dfs_computeArea( [r-1,c], grid, islandCode ) # top
-        count += self.dfs_computeArea( [r+1,c], grid, islandCode ) # down
-        count += self.dfs_computeArea( [r,c-1], grid, islandCode ) # left
-        count += self.dfs_computeArea( [r,c+1], grid, islandCode ) # right
-
-        return count
-
-    def bridging(self, coordinate: List[int], grid: List[List[int]], islandCodeToAreaMap: defaultdict(int)):
-        r, c = coordinate
-        largestArea = 1                 # [r,c] is a 0 cell, that means def have at least area of 1
-        visitedIslands = set()
-
-        # top
-        if r-1 >= 0: 
-            islandCode = grid[r-1][c]
-            visitedIslands.add(islandCode)
-            largestArea += islandCodeToAreaMap[islandCode]
-        # down
-        if r+1 <= (len(grid)-1):
-            islandCode = grid[r+1][c]
-            if islandCode not in visitedIslands:
-                visitedIslands.add(islandCode)
-                largestArea += islandCodeToAreaMap[islandCode]
-        # left
-        if c-1 >= 0:
-            islandCode = grid[r][c-1]
-            if islandCode not in visitedIslands:
-                visitedIslands.add(islandCode)
-                largestArea += islandCodeToAreaMap[islandCode]
-        # right
-        if c+1 <= (len(grid[0]) - 1):
-            islandCode = grid[r][c+1]
-            if islandCode not in visitedIslands:
-                visitedIslands.add(islandCode)
-                largestArea += islandCodeToAreaMap[islandCode]
-
-        return largestArea
-
 
 
     # --------------------------------------------------------------------------------------------
@@ -974,11 +1227,18 @@ if __name__ == "__main__":
 
 
     # ------------------------- 39. Combination Sum -------------------------
-    # candidates = [5,5,0,1,8,3]
-    # divisor = 3
-    # ans = leetcode.tripletSum_backtrack(candidates, divisor)
+    # candidates = [2,3,6,7]
+    # ans = leetcode.combinationSum_backtrack(candidates)
     # print(ans)
 
+    # candidates = [10,1,2,7,6,1,5]
+    # print( leetcode.combinationSum2(candidates, 8) )
+
+
+    # ------------------------- Permutation -------------------------
+    # nums = [1,2,3]
+    # ans = leetcode.permute(nums)
+    # print(ans)
 
     # ------------------------ 827. Making A Large Island -------------------------
     # grid = [[0,0,1,1],
@@ -993,10 +1253,16 @@ if __name__ == "__main__":
 
 
     # ------------------------ 79. Word Search -------------------------
-    grid = [["A","B","C","E"],
-            ["S","F","C","S"],
-            ["A","D","E","E"]]
-    word = "ABCCED"
+    # grid = [["A","B","C","E"],
+    #         ["S","F","C","S"],
+    #         ["A","D","E","E"]]
+    # word = "ABCCED"
 
-    print(leetcode.exist(grid, word))
+    # print(leetcode.exist(grid, word))
 
+
+    s = "hello"
+    sList = list(s)
+    print(list(reversed(sList)))
+    sList.insert(1, "1")
+    print(sList)

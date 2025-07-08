@@ -5,27 +5,32 @@ This python file is a part of my effort in getting myself refreshed with Data St
 I can later tackle Leetcode challenges with more confidence. 
 
 =========================================================  Linked Lists  =========================================================
-1. Leetcode 206. Reverse Linked List
+(Easy)
+Leetcode 206. Reverse Linked List
     Input: 1->2->3->4->5->NULL
     Output: 5->4->3->2->1->NULL
-2. Leetcode 876. Middle of the Linked List
-3. Leetcode 160. Intersection of Two Linked Lists
-4. Leetcode 234. Palindrome Linked List
-5. Leetcode 21. Merge Two Sorted Listss
-6. Leetcode 445. Add Two Numbers II
-7. Leetcode 1836. Remove Duplicates From an Unsorted Linked List 
-=========================================================
-Leetcode template:
-8. Leetcode 19. Remove Nth Node From End of List
-9. Leetcode 24. Swap Nodes in Pairs
-10. Leetcode 86. Partition List
-11. Leetcode 141 + 142. Linked List Cycle
-12. Leetcode 237. Delete Node in a Linked List
-13. Leetcode 2. Add Two Numbers
+Leetcode 876. Middle of the Linked List
+Leetcode 160. Intersection of Two Linked Lists
+Leetcode 234. Palindrome Linked List
+Leetcode 21. Merge Two Sorted Lists
+
+(Medium)
+Leetcode 445. Add Two Numbers II
+Leetcode 1836. Remove Duplicates From an Unsorted Linked List 
+Leetcode 19. Remove Nth Node From End of List
+Leetcode 24. Swap Nodes in Pairs
+Leetcode 86. Partition List
+Leetcode 141 + 142. Linked List Cycle
+Leetcode 237. Delete Node in a Linked List
+Leetcode 2. Add Two Numbers
+
+(Hard)
+Leetcode 23. Merge k Sorted Lists
 
 """
 from linkedlist import * 
 from typing import List
+import heapq
 
 
 # Definition for singly-linked list
@@ -37,6 +42,7 @@ class ListNode:
 
 # Leetcode exercises
 class Solution:
+    # This helper fn helps print a LinkedList
     def printLinkedList(self, head: ListNode): 
         current = head 
         while (current): 
@@ -45,7 +51,7 @@ class Solution:
 
         print("\n")
 
-    # This fn is to prepare a head Node for input param
+    # This helper fn is to prepare a head Node for input param
     def prepareInput(self, nums: List[int]) -> ListNode:
         head = ListNode(nums[0])
         current = head
@@ -86,7 +92,6 @@ class Solution:
 
         self.printLinkedList(prev)
         return prev
-        
 
     # recursive
     def reverseList_recursive(self, head: ListNode) -> ListNode:
@@ -108,7 +113,6 @@ class Solution:
     
 
     # ----------------------------------------------------------------------------------------------------------
-
     # Leetcode 876. Middle of the Linked List
     def middleNode(self, head: ListNode) -> ListNode:
         mid = head
@@ -121,7 +125,6 @@ class Solution:
         return mid
 
     # ----------------------------------------------------------------------------------------------------------
-
     # Leetcode 160. Intersection of Two Linked Lists
     def getIntersectionNode(self, headA: ListNode, headB: ListNode) -> ListNode:
         # ===== Step 1 =====
@@ -150,7 +153,6 @@ class Solution:
             
 
     # ----------------------------------------------------------------------------------------------------------
-
     # Leetcode 234. Palindrome Linked List
     def isPalindrome(self, head: ListNode) -> bool:
         if not head or not head.next: return True
@@ -181,7 +183,6 @@ class Solution:
         return True
 
     # ----------------------------------------------------------------------------------------------------------
-
     # Leetcode 21. Merge Two Sorted Lists
     def mergeTwoLists(self, l1: ListNode, l2: ListNode) -> ListNode:
         # in case one the the two list is empty
@@ -215,8 +216,8 @@ class Solution:
         
         return head
 
+    # ==========================================================================================================
     # ----------------------------------------------------------------------------------------------------------
-    
     # Leetcode 445. Add Two Numbers II
     def addTwoNumbers(self, l1: ListNode, l2: ListNode) -> ListNode:
         # turn l1 and l2 into int: O(n)
@@ -247,7 +248,6 @@ class Solution:
 
 
     # ----------------------------------------------------------------------------------------------------------
-        
     # Leetcode 1836. Write code to remove duplicates from an unsorted linked list.
     # FOLLOW UP
     # How would you solve this problem if a temporary buffer is not allowed? 
@@ -259,7 +259,7 @@ class Solution:
 
         while h: 
             if h.val in dups: 
-                prev.next = h.next
+                prev.next = h.next  # skip h
             else:
                 dups.add(h.val)
                 prev = prev.next
@@ -267,9 +267,7 @@ class Solution:
             h = h.next
         
         return head
-
-    # ===================================================================================================
-    # Leetcode template:         
+     
     # Leetcode 19. Remove Nth Node From End of List
     # Given the head of a linked list, remove the nth node from the end of the list and return its head.
     def removeNthFromEnd(self, head: ListNode, n: int) -> ListNode:
@@ -457,35 +455,36 @@ class Solution:
         # ========== Step 3 ==========
         return dummy.next
 
-        
 
+    # ---------------------------------------------------------------    
+    # Leetcode 23. Merge k Sorted Lists
+    def mergeKLists(self, lists: List[ListNode]) -> ListNode:
+        # if not lists: return []
+        # ----------------------------------------------
+        class Wrapper():
+            def __init__(self, node):
+                self.node = node
+            def __lt__(self, other):
+                return self.node.val < other.node.val
+        # ----------------------------------------------
+        # create a heap and add all heads 
+        heap = []
+        for node in lists:      # O(n)
+            if node:
+                heapq.heappush(heap, Wrapper(node))
 
-
-
-    def partition_test(self, head: ListNode, x: int) -> ListNode:
-        self.printLinkedList(head)
-        current = head
-        left_head, right_head = ListNode(), ListNode()
-        left_current, right_current = left_head, right_head
-
-        while (current != None):
-            if current.val < x:
-                left_current.next = current
-                left_current = left_current.next
-            else:
-                right_current.next = current
-                right_current = right_current.next
+        dummy = ListNode()      # to keep track of the head
+        current = dummy
+        # keep popping the heap 
+        while len(heap) != 0:
+            node = heapq.heappop(heap).node
+            current.next = node
             current = current.next
-        
-        self.printLinkedList(left_head)
-        self.printLinkedList(right_head)
-        self.printLinkedList(left_current)
-        left_current.next = right_head.next
-        right_current.next = None
-        self.printLinkedList(left_head)
+            # if node is not the last node in its list, add node.next to the heap
+            # this way the heap will always have size of n, with n is the number of LinkedLists
+            if node and node.next: heapq.heappush(heap, Wrapper(node.next))
 
-        return left_head.next
-
+        return dummy.next
 
 
 if __name__ == "__main__":

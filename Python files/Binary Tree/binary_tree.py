@@ -71,6 +71,7 @@ def inOrder(root):
 
 
 # Level Order Traversal of a Binary Tree
+# Use BFS - queue
 def levelByLevel(root):
     level_order_traversal = []
     if not root: return level_order_traversal

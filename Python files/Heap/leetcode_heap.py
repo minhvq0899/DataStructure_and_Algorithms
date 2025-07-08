@@ -12,9 +12,12 @@ I can later tackle Leetcode challenges with more confidence.
 Template: 
 5. Leetcode 347. Top K Frequent Elements
 6. Leetcode 23. Merge k Sorted Lists
-0. Leetcode 295. Find Median from Data Stream (Hard)
 7. Leetcode 973. K Closest Points to Origin
 8. Leetcode 659. Split Array into Consecutive Subsequences
+9. Leetcode 692. Top K Frequent Words
+
+(Hard)
+10. Leetcode 295. Find Median from Data Stream 
 
 """
 
@@ -27,6 +30,20 @@ class ListNode:
         self.val = val
         self.next = next
 
+"""
+Why is it important that the max heap will always have equal or more element than min heap?
+1. Median Calculation Depends on Heap Sizes
+    - If both heaps are the same size → Median is the average of the two roots.
+    - If bottom_heap has one more element → Median is the root of bottom_heap.
+    Maintaining this structure simplifies findMedian() logic to just check sizes and access the root(s).
+2. Correctly Reflects Value Distribution
+    - All values in bottom_heap must be ≤ all values in top_heap.
+    - Keeping the larger half slightly smaller ensures the lower half stays dominant when total count is odd, so the true median lies in the max heap.
+3. Efficient Updates
+    - Inserting a new value and rebalancing lets us avoid sorting the entire data stream.
+    - Each addNum() takes O(log n) time thanks to the reheap operations.
+
+"""
 # Leetcode 295. Find Median from Data Stream
 class MedianFinder:
     def __init__(self):
@@ -36,8 +53,10 @@ class MedianFinder:
     def addNum(self, num: int) -> None:
         # we will set up in the way that the max heap will always have equal or more element than min heap
         heapq.heappush(self.bottom_heap, (-1)*num)
-        heapq.heappush(self.top_heap, (-1)*heapq.heappop(self.bottom_heap))
+        popBottom = heapq.heappop(self.bottom_heap)
+        heapq.heappush(self.top_heap, (-1)*popBottom)
 
+        # maintain the right size for two heaps
         if len(self.bottom_heap) < len(self.top_heap):
             heapq.heappush( self.bottom_heap, (-1)*heapq.heappop(self.top_heap) )
 
@@ -55,6 +74,7 @@ class Solution:
         aList = nums[:k]
         heapq.heapify(aList)
         
+        # O( (N-K)logK )
         for i in range (k, len(nums)):
             heapq.heappush(aList, nums[i])
             heapq.heappop(aList)
@@ -71,7 +91,7 @@ class Solution:
         for x in set(S):
             pq.append( (-S.count(x), x) )
 
-        print(pq)
+        # print(pq)
 
         # organized by frequency
         heapq.heapify(pq)
@@ -91,7 +111,7 @@ class Solution:
 
             # add those 2 char to the end of ans string
             ans.extend( [char1, char2] )
-            # since we just used them 2, decrease the frequency
+            # since we just used them 2, decrease the frequency (frq is negative so adding 1 means decrease here)
             count1 += 1
             count2 += 1
             # if there is still some of that char left, push it back into the heap
@@ -120,6 +140,32 @@ class Solution:
 
         return -1 * k_heap[0]
 
+    # Could you solve the problem with a constant memory (i.e., O(1) memory complexity)?
+    def kthSmallest_follow_up(self, matrix, k):
+        n = len(matrix)
+        left, right = matrix[0][0], matrix[-1][-1]
+
+        # a way to traverse NxN matrix in O(N) (instead of O(N^2))
+        def countLessEqual(mid):
+            count = 0
+            row, col = n - 1, 0
+            while row >= 0 and col < n:
+                if matrix[row][col] <= mid:
+                    count += row + 1
+                    col += 1
+                else:
+                    row -= 1
+            return count
+
+        # binary search on the smallest and largest element of the array
+        while left < right:
+            mid = (left + right) // 2
+            if countLessEqual(mid) < k:
+                left = mid + 1
+            else:
+                right = mid
+        return left
+    
 
     # --------------------------------------------------------------------------------
     # Leetcode 373. Find K Pairs with Smallest Sums
@@ -140,7 +186,7 @@ class Solution:
         pairs = [ ( nums1[i] + nums2[0], i, 0) for i in range (l1) ]
 
         # create a heap
-        heapq.heapify(pairs) # O(n)
+        heapq.heapify(pairs) # O( l1 )
 
         # bring back the old Kth largest/smallest problem
         ans = []
@@ -213,11 +259,14 @@ class Solution:
     # Leetcode 973. K Closest Points to Origin
     def kClosest(self, points: List[List[int]], k: int) -> List[List[int]]:
         heap = []
+        
+        # compute distance between point and origin and add it to the heap
         for i, point in enumerate(points):
             x, y = point
             distance = ((x**2) + (y**2))**(1/2)
             heapq.heappush( heap, (distance, i) )
         
+        # retrieve the k closest points to origin
         ans = []
         for c in range(k):
             dis, ind = heapq.heappop(heap)
@@ -232,6 +281,31 @@ class Solution:
 
     #     return True
 
+    # --------------------------------------------------------------------------------    
+    # Leetcode 692. Top K Frequent Words
+    def topKFrequent(self, words, k):
+        # Step 1: Count frequency of each word
+        freq = collections.Counter(words)  # Dictionary-like object: {word: count}
+
+        # Step 2: Define a custom comparator using a tuple
+        # Python's heapq is a min-heap, so we invert frequency to simulate max-heap behavior
+        # We use (-count, word) so that:
+        #   - Higher frequency comes first (because of negative count)
+        #   - Lexicographically smaller word comes first in case of tie
+        heap = []
+
+        for word, count in freq.items():
+            heapq.heappush(heap, (-count, word))
+            # Optional: If you want to limit heap size to k (like in C++), use:
+            # if len(heap) > k:
+            #     heapq.heappop(heap)
+
+        # Step 3: Extract top k elements from the heap
+        result = []
+        for _ in range(k):
+            result.append(heapq.heappop(heap)[1])  # Only take the word part
+
+        return result
 
 
 
@@ -260,9 +334,23 @@ if __name__ == "__main__":
     # print(kpairs_smallest)
 
     # --------------------------------------------------------------------------------
-    nums = [3,2,1,5,6,4]
-    k = 2
-    leetcode.findKthLargest(nums, k)
+    # nums = [3,2,1,5,6,4]
+    # k = 2
+    # leetcode.findKthLargest(nums, k)
 
-
+    # --------------------------------------------------------------------------------
+    medianFinder = MedianFinder()
+    medianFinder.addNum(1)    
+    medianFinder.addNum(2)  
+    medianFinder.findMedian()
+    medianFinder.addNum(3)
+    medianFinder.findMedian()
+    medianFinder.addNum(4)
+    medianFinder.addNum(5)
+    medianFinder.addNum(6)
+    medianFinder.addNum(7)
+    medianFinder.addNum(8)
+    medianFinder.addNum(9)
+    medianFinder.addNum(10)
+    medianFinder.findMedian()
 

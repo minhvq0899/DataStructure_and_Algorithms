@@ -5,9 +5,15 @@ This python file is a part of my effort in getting myself refreshed with Data St
 I can later tackle Leetcode challenges with more confidence. 
 
 =========================================================  Binary Search  =========================================================
-1. Leetcode 875. Koko Eating Bananas
-2. Leetcode 35. Search Insert Position
-3. Leetcode 2468. Split Message Based on Limit (Hard) - Not a working solution, only pass 86/94 test cases
+(Easy)
+Leetcode 35. Search Insert Position
+
+(Medium)
+Leetcode 875. Koko Eating Bananas
+Leetcode 1011. Capacity To Ship Packages Within D Days
+
+(Hard)
+Leetcode 2468. Split Message Based on Limit (Hard) - Not a working solution, only pass 86/94 test cases
 
 """
 
@@ -15,6 +21,24 @@ from typing import List, Tuple
 
 
 class Solution:
+    # ------------------------------------------------------------------------------
+    # Leetcode 35. Search Insert Position
+    def searchInsert(self, nums: List[int], target: int) -> int:
+        left = 0
+        right = len(nums) - 1
+        
+        while left <= right:
+            mid = left + (right - left) // 2
+            if nums[mid] == target:
+                return mid
+            elif nums[mid] < target:
+                left = mid + 1
+            else: 
+                right = mid - 1
+        
+        return left
+
+    # ------------------------------------------------------------------------------
     # Leetcode 875. Koko Eating Bananas
     def minEatingSpeed(self, piles: List[int], h: int) -> int:
         # helper function to decide if possible to eat all bananas with k 
@@ -43,23 +67,6 @@ class Solution:
                 left = mid + 1
             
         return ans
-
-    # ------------------------------------------------------------------------------
-    # Leetcode 35. Search Insert Position
-    def searchInsert(self, nums: List[int], target: int) -> int:
-        left = 0
-        right = len(nums) - 1
-        
-        while left <= right:
-            mid = left + (right - left) // 2
-            if nums[mid] == target:
-                return mid
-            elif nums[mid] < target:
-                left = mid + 1
-            else: 
-                right = mid - 1
-        
-        return left
 
     # ------------------------------------------------------------------------------
     # Leetcode 1011. Capacity To Ship Packages Within D Days

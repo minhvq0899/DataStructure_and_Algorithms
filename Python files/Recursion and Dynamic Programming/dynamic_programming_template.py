@@ -6,26 +6,32 @@ I can later tackle Leetcode challenges with more confidence.
 
 ========================================= Template for Dynamic Programming =========================================
 
-Easy
+(Easy)
 Leetcode 263: Ugly Number
+
 # ------------------------------------------------
+(Medium)
+Leetcode 70: Climbing Stairs
+Leetcode 322. Coin Change
+Leetcode 300. Longest Increasing Subsequence
+Leetcode 139. Word Break
 
-0. Leetcode 53. Maximum Subarray
-
-1. Leetcode 70: Climbing Stairs
-2. Leetcode 322. Coin Change
-3. Leetcode 300. Longest Increasing Subsequence
-4. Leetcode 139. Word Break
-5. Leetcode 1143. Longest Common Subsequence
-6. Leetcode 516. Longest Palindromic Subsequence
-7. Leetcode 5. Longest Palindromic Substring
-8. Leetcode 647. Palindromic Substrings
-9. Classic 0/1 Knapsack Problem
+Leetcode 1143. Longest Common Subsequence
+Leetcode 516. Longest Palindromic Subsequence
+Leetcode 5. Longest Palindromic Substring
+Leetcode 647. Palindromic Substrings
+Classic 0/1 Knapsack Problem
    Similar idea: Leetcode 474. Ones and Zeroes
-10. Leetcode 198. House Robber
-    Leetcode 213. House Robber II
-    Leetcode 337. House Robber III
-11. Leetcode 10. Regular Expression Matching (Hard)
+Leetcode 198. House Robber
+Leetcode 213. House Robber II
+Leetcode 337. House Robber III
+
+Leetcode 53. Maximum Subarray
+Leetcode 152: Maximum Product Subarray
+
+# ------------------------------------------------
+(Hard)    
+Leetcode 10. Regular Expression Matching (Hard)
 
 """
 import bisect
@@ -41,27 +47,7 @@ class TreeNode:
 
 
 class Solution:
-    # Leetcode 53. Maximum Subarray
-    # Kadane’s Algorithm
-    def maxSubArray(self, nums):
-        # Initialize current subarray sum and overall maximum with the first element
-        max_ending_sum = nums[0]
-        result = nums[0]
-
-        # Should I keep adding to the current subarray, or start fresh from here?
-        for i in range(1, len(nums)):
-            # 1. Starting fresh from nums[i] gives a better sum
-            if max_ending_sum + nums[i] < nums[i]:
-                max_ending_sum = nums[i]
-            # 2. Extending the existing subarray gives a better or equal result
-            else:
-                max_ending_sum += nums[i]
-
-            result = max(result, max_ending_sum)        # Update result if we've found a new maximum
-
-        return result
-    
-    # ==================================================================================================
+    # --------------------------------------------------------------------------------------------------
     # Leetcode 263: Ugly Number
     def nthUglyNumber(self, n: int) -> int:
         '''
@@ -108,7 +94,7 @@ class Solution:
         
         return ugly[-1]
     
-    # ==================================================================================================
+    # --------------------------------------------------------------------------------------------------
     # leetcode 70: Climbing Stairs
     # -------- top down solution --------
     def climbStairs_top_down(self, n: int) -> int:
@@ -149,7 +135,8 @@ class Solution:
         return n_substract_1 + n_substract_2
 
 
-    # ==================================================================================================
+    # =======================================================================================================================
+    # --------------------------------------------------------------------------------------------------
     # Leetcode 322. Coin Change
     # -------- bottom_up solution --------
     # Time: O(amount * len(coins))
@@ -167,7 +154,7 @@ class Solution:
         # return the last element
         return memo[amount] if memo[amount] != float('inf') else -1
 
-    # ==================================================================================================
+    # --------------------------------------------------------------------------------------------------
     # Leetcode 300. Longest Increasing Subsequence
     # Note: Current solution's time complexity is O(N^2) in worst case. This can be solved in O(NlogN) using Binary Search and Patience Sorting
     def lengthOfLIS(self, nums: List[int]) -> int:
@@ -204,7 +191,7 @@ class Solution:
         return len(tails)
 
 
-    # ==================================================================================================
+    # --------------------------------------------------------------------------------------------------
     # Leetcode 139. Word Break
     """
     Given a string s and a dictionary of strings wordDict, return true if s can be segmented into a 
@@ -234,7 +221,9 @@ class Solution:
         # (1): If the subproblem for s[:j] satisfied and if s[j:i] in the dict
         # (2): Substring s[0:i] CAN be segmented into a space-separated sequence of one or more dictionary words -> another subproblem satisfied
 
-    # ==================================================================================================
+
+    # =======================================================================================================================
+    # --------------------------------------------------------------------------------------------------
     # Leetcode 1143. Longest Common Subsequence
     def longestCommonSubsequence(self, text1: str, text2: str) -> int:
         # Most DP problems dealing with 2 strings can be solved with a 2d array
@@ -253,7 +242,7 @@ class Solution:
         return dp[row][col]
 
 
-    # ==================================================================================================
+    # --------------------------------------------------------------------------------------------------
     # Leetcode 516. Longest Palindromic Subsequence
     def longestPalindromeSubseq(self, s: str) -> int:
         # Most DP problems dealing with 2 strings can be solved with a 2d array
@@ -276,7 +265,7 @@ class Solution:
         return dp[0][len(s)-1]
 
 
-    # ==================================================================================================
+    # --------------------------------------------------------------------------------------------------
     # Leetcode 5. Longest Palindromic Substring
     def longestPalindrome(self, s: str) -> str:
         s_length = len(s)
@@ -308,7 +297,7 @@ class Solution:
         return s[start : (start+answer_len)]
         
 
-    # ==================================================================================================
+    # --------------------------------------------------------------------------------------------------
     # Leetcode 647. Palindromic Substrings
     """
     The idea is very similar to the above problem: Leetcode 5. Longest Palindromic Substring (even easier
@@ -342,15 +331,16 @@ class Solution:
         return count
 
 
-    # ==================================================================================================
+    # --------------------------------------------------------------------------------------------------
     # Classic 0/1 Knapsack problem
     def solveKnapsack(self, value: List[int], weights: List[int], capacity: int) -> Tuple[int, List[int]]:
         if not weights or not value: return 0
         
+        # Info this memo will hold: each column represents the optimal solution at each capacity
         ogWeightsLen = len(weights)
         memo = [[0] * (capacity+1) for _ in range (ogWeightsLen + 1)]
 
-        # Add
+        # Add 0-th index to value and weights so it's easier to fill the 2D array memo
         newValueList = [0] + value
         newWeightsList = [0] + weights
         print(newValueList)
@@ -429,7 +419,7 @@ class Solution:
             print("-" * 20)  # Separator for layers
 
 
-    # ==================================================================================================
+    # --------------------------------------------------------------------------------------------------
     # Leetcode 198. House Robber ------------------------------------------
     def rob(self, nums: List[int]) -> int:
         if not nums: return 0
@@ -472,8 +462,8 @@ class Solution:
     # Leetcode 337. House Robber III ------------------------------------------
     def rob3(self, root: TreeNode) -> int:
         if not root: return 0
-        mydict = dict()
-        return self.helper_337(root, mydict)
+        cache = dict()
+        return self.helper_337(root, cache)
 
     def helper_337(self, root:TreeNode, mydict:dict) -> int:
         # base case 1
@@ -504,8 +494,54 @@ class Solution:
         # ------------------------------------------------------------------------------
     
 
-    # ==================================================================================================
-    # Leetcode 10. Regular Expression Matching (Hard)
+    # =======================================================================================================================
+    # --------------------------------------------------------------------------------------------------
+    # Leetcode 53. Maximum Subarray
+    # Kadane’s Algorithm
+    def maxSubArray(self, nums):
+        # Initialize current subarray sum and overall maximum with the first element
+        max_ending_sum = nums[0]
+        result = nums[0]
+
+        # Should I keep adding to the current subarray, or start fresh from here?
+        for i in range(1, len(nums)):
+            # 1. Starting fresh from nums[i] gives a better sum
+            if max_ending_sum + nums[i] < nums[i]:
+                max_ending_sum = nums[i]
+            # 2. Extending the existing subarray gives a better or equal result
+            else:
+                max_ending_sum += nums[i]
+
+            result = max(result, max_ending_sum)        # Update result if we've found a new maximum
+
+        return result
+    
+
+    # ------------------------------------------------------------------------------
+    # Also use a variation of Kadane's algorithms
+    # Leetcode 152. Maximum Product Subarray
+    def maxProduct(self, nums: List[int]) -> int:
+        res = max(nums)
+        currentMin, currentMax = 1, 1       # the idea is to store both the max and min products at each step
+
+        for n in nums:
+            # reset the prod calculations because multiply by 0 eliminates any prior product contribution
+            if n == 0: 
+                currentMin, currentMax = 1, 1
+                continue
+            
+            # as long as n != 0, multiply n will guarantee to increase the absolute value of the product.
+            # we just have to worry about the sign
+            tmp = currentMax * n
+            currentMax = max(currentMax * n, currentMin * n, n)
+            currentMin = min(tmp, currentMin * n, n)
+            res = max(res, currentMax)
+
+        return res
+
+    # =======================================================================================================================
+    # --------------------------------------------------------------------------------------------------
+    #   
     def isMatch(self, s: str, p: str) -> bool:
         cache = defaultdict(bool)
 

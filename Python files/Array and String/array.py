@@ -6,20 +6,25 @@ I can later tackle Leetcode challenges with more confidence.
 
 ========================================================= Leetcode Array =========================================================
 
-1. Leetcode 15: 3Sum
+Leetcode 15: 3Sum
     a) Approach 1: Two pointer -> sort needed
     b) Approach 2: Hashset but sort needed
     c) Approach 3: Hashset but sort isn't needed
-2. 
-    (Easy) Leetcode 448. Find All Numbers Disappeared in an Array
-    (Medium) Leetcode 442. Find All Duplicates in an Array
-    (Hard) Leetcode 41. First Missing Positive
-3. Leetcode 152: Maximum Product Subarray
-4. Leetcode 238. Product of Array Except Self
-5. Leetcode 567. Permutation in String
-6. Leetcode 128: Longest Consecutive Sequence
-7. Leetcode 252: Meeting Rooms (Easy)
-8. Leetcode 253: Meeting Rooms II
+Leetcode 18. 4Sum
+Leetcode 454. 4Sum II
+ 
+(Easy) Leetcode 448. Find All Numbers Disappeared in an Array
+(Medium) Leetcode 442. Find All Duplicates in an Array
+(Hard) Leetcode 41. First Missing Positive
+Leetcode 287. Find the Duplicate Number 
+Leetcode 457: Circular Array Loop
+Leetcode 1060. Missing Element in Sorted Array
+
+Leetcode 238. Product of Array Except Self
+Leetcode 567. Permutation in String
+Leetcode 128: Longest Consecutive Sequence
+Leetcode 252: Meeting Rooms (Easy)
+Leetcode 253: Meeting Rooms II
 
 """
 
@@ -31,6 +36,9 @@ class Solution:
     # ------------------------------------------------------------------------------
     # Leetcode 15. 3Sum
     # Aprroach 1: Two pointer -> sort the array
+    # 1. Sort the array.
+    # 2. Fix the first element of the triplet using a loop.
+    # 3. For the remaining array to the right of the fixed element, use two pointers (left, right) to find pairs that sum to -nums[i]
     def threeSum1(self, nums: List[int]) -> List[List[int]]:
         # Step 1: Sort the array
         nums.sort() 
@@ -41,6 +49,7 @@ class Solution:
 
             # Ex: if 2sum is 1, then we are looking for -1 to make the sum as 0. 
             while lo < hi:
+                # nums is sorted, so can perform two-pointer now
                 if nums[lo] + nums[hi] < -nums[i]:
                     lo += 1
                 elif nums[lo] + nums[hi] > -nums[i]:
@@ -48,56 +57,122 @@ class Solution:
                 else:
                     ans.append([nums[i], nums[lo], nums[hi]])
                     lo += 1
+                    # skip all dup
                     while lo < hi and nums[lo] == nums[lo-1]:
                         lo += 1
         # ------------------------------------------------------------------------
-        # O(N^2)
+        # Step 2: Fix the first element of the triplet using a loop
         for i, val in enumerate(nums):
-            if val > 0: break # since we are looking for triplet with sum 0, if the smallest item is > 0 already, then no triplet possible
+            # Optimization: since we are looking for triplet with sum 0, if the smallest item is > 0 already, then no triplet possible
+            if val > 0: break 
+
+            # Step 3: For the remaining array to the right of the fixed element, use two pointers (left, right) to find pairs that sum to -nums[i]
             if i == 0 or nums[i] != nums[i-1]:
                 helper2Sum(i)
         
         return ans
 
     # Aprroach 2: Hashset but sort needed
+    # 1. Sort the array for consistency and duplicate control.
+    # 2. For each index i, track all complements of target = -nums[i] using a HashSet.
+    # 3. Avoid duplicates using a seen set and triplet deduplication logic.
+
     def threeSum2(self, nums: List[int]) -> List[List[int]]:
-        # Sort: O(nlog(n))
+        # 1. Sort the array for consistency and duplicate control ( O(nlog(n)) )
+        nums.sort()
+        solution = set()
+
+        # 2. For each index i, track all complements of target = -nums[i] using a HashSet. ( O(n^2) )
+        for i, val_i in enumerate (nums):
+            # Optimization: since we are looking for triplet with sum 0, if the smallest item is > 0 already, then no triplet possible
+            if val_i > 0: break 
+
+            target = 0 - val_i
+            seen = set()
+
+            for j in range (i+1, len(nums)):
+                complement = target - nums[j]
+                if complement in seen:
+                    solution.add((nums[i], complement, nums[j]))
+
+                # 3. Avoid duplicates using a seen set and triplet deduplication logic.
+                seen.add(nums[j])
+                    
+        return list(list(s) for s in solution)
+
+    # Generalize for kSum
+    def kSum(self, nums: List[int], target: int, k: int) -> List[int]:
+        # -------------------------------------------
+        def ksum(start, target, k):
+            res = []
+
+            # Base case: solve 2Sum using the two-pointer technique
+            if k == 2:
+                left, right = start, len(nums) - 1
+                while left < right:
+                    sum_ = nums[left] + nums[right]
+                    if sum_ == target:
+                        # Found a valid pair
+                        res.append([nums[left], nums[right]])
+
+                        # Skip duplicate values for both pointers
+                        left += 1
+                        right -= 1
+                        while left < right and nums[left] == nums[left - 1]:
+                            left += 1
+                        while left < right and nums[right] == nums[right + 1]:
+                            right -= 1
+                    elif sum_ < target:
+                        # Move left pointer to increase sum
+                        left += 1
+                    else:
+                        # Move right pointer to decrease sum
+                        right -= 1
+            # Recursive case: fix one number and solve (k - 1)Sum
+            else:
+                for i in range(start, len(nums) - k + 1):
+                    # Prune early: skip duplicate fixed elements
+                    if i > start and nums[i] == nums[i - 1]:
+                        continue
+
+                    # Prune impossible cases: smallest possible sum is too big
+                    if nums[i] * k > target:
+                        break
+
+                    # Prune impossible cases: largest possible sum is too small
+                    if nums[-1] * k < target:
+                        break
+
+                    # Recursive call: solve (k - 1)Sum for remaining target
+                    subsets = ksum(i + 1, target - nums[i], k - 1)
+                    for subset in subsets:
+                        # Combine fixed element with all subsets of size k - 1
+                        res.append([nums[i]] + subset)
+
+            return res
+        # -------------------------------------------
+
+        # Sort the array to enable two-pointer search and duplicate skipping
         nums.sort()
 
-        # O(n^2)
-        solution = []
-        for i, val_i in enumerate (nums):
-            target = 0 - val_i
-            print("target: ", target)
-            complement_dict = dict()
-            seen = set()
-            for k, val_k in enumerate (nums):
-                if k != i and k not in seen:
-                    seen.add(k)
-                    complement = target - val_k
-                    if val_k in complement_dict:
-                        other = complement_dict[val_k]
-                        solution.append([nums[i], nums[k], nums[other]])
-                    else:
-                        complement_dict[complement] = k
-                    print(complement_dict)
-                    print(solution)
-                    
-        return solution
+        # Kick off recursion from index 0
+        return ksum(0, target, k)
 
     # ------------------------------------------------------------------------------
     # Leetcode 442. Find All Duplicates in an Array
     def findDuplicates(self, nums: List[int]) -> List[int]:
         ans = []
+        # loop through each element
         for i in range (len(nums)):
-            nums[abs(nums[i])-1] *= -1 
+            # mark nums[i] as visited by flipping the sign at (i-1)-th index
+            nums[abs(nums[i])-1] *= -1  
             if nums[abs(nums[i])-1] > 0:
                 ans.append(abs(nums[i]))
             
         return ans
     
     # ------------------------------------------------------------------------------
-    # Leetcode 41. First Missing Positive
+    # Leetcode 41. First Missing Positive (Hard)
     # Observation: If n = len(nums), then the ans to this problem can only be in range [1,n+1]
     # Corner case: nums[1,2,3,4] -> ans = 5
     def firstMissingPositive(self, nums: List[int]) -> int:
@@ -118,31 +193,108 @@ class Solution:
             if i+1 != nums[i]: return i+1
 
         return n+1
-        
-    # ------------------------------------------------------------------------------
-    # Leetcode 152. Maximum Product Subarray
-    def maxProduct(self, nums: List[int]) -> int:
-        res = max(nums)
-        currentMin, currentMax = 1, 1
 
-        for n in nums:
-            if n == 0: 
-                currentMin, currentMax = 1, 1
-                continue
+    # ------------------------------------------------------------------------------    
+    # Leetcode 287. Find the Duplicate Number 
+    # (must solve the problem without modifying the array nums and using only constant extra space)
+    # treat array as a linked list
+    def findDuplicate(self, nums: List[int]) -> int:
+        # Step 1: Initialize two pointers
+        slow = nums[0]
+        fast = nums[0]
 
-            tmp = currentMax * n
-            currentMax = max(currentMax * n, currentMin * n, n)
-            currentMin = min(tmp, currentMin * n, n)
-            res = max(res, currentMax)
+        # Step 2: Move slow by 1 step, fast by 2 steps until they meet
+        while True:
+            slow = nums[slow]          # move 1 step
+            fast = nums[nums[fast]]    # move 2 steps
+            if slow == fast:
+                break  # cycle detected
 
-        return res
+        # Step 3: Reset one pointer to the start
+        slow = nums[0]
 
+        # Step 4: Move both pointers 1 step at a time
+        # They will meet at the cycle entrance — the duplicate
+        while slow != fast:
+            slow = nums[slow]
+            fast = nums[fast]
+
+        return slow
+
+    # ------------------------------------------------------------------------------    
+    # Leetcode 457: Circular Array Loop
+    def circularArrayLoop(self, nums: List[int]) -> bool:
+        n = len(nums)
+
+        # Helper to get the next index in circular fashion
+        def next_index(i):
+            return (i + nums[i]) % n
+
+        for i in range(n):
+            if nums[i] == 0:
+                continue  # Already visited or invalid
+
+            direction = nums[i] > 0  # True for forward, False for backward
+            slow, fast = i, next_index(i)
+
+            # Move slow by 1 step, fast by 2 steps
+            while (
+                nums[fast] != 0 and
+                nums[next_index(fast)] != 0 and
+                (nums[fast] > 0) == direction and
+                (nums[next_index(fast)] > 0) == direction
+            ):
+                if slow == fast:
+                    # Check for loop length > 1
+                    if slow == next_index(slow):
+                        break
+                    return True
+
+                slow = next_index(slow)
+                fast = next_index(next_index(fast))
+
+            # Mark all visited nodes as 0 to avoid reprocessing
+            j = i
+            while nums[j] != 0 and (nums[j] > 0) == direction:
+                next_j = next_index(j)
+                nums[j] = 0
+                j = next_j
+
+        return False
+    
+    # ------------------------------------------------------------------------------    
+    # Leetcode 1060. Missing Element in Sorted Array
+    def missingElement(self, nums: List[int], k: int) -> int:
+        # Helper to count how many numbers are missing before index i
+        def missing(i):
+            return nums[i] - nums[0] - i
+
+        n = len(nums)
+
+        # If k-th missing number is beyond the last element
+        if k > missing(n - 1):
+            return nums[-1] + k - missing(n - 1)
+
+        # Binary search to find the smallest index where missing(i) >= k
+        left, right = 0, n - 1
+        while left < right:
+            mid = (left + right) // 2
+            if missing(mid) >= k:
+                right = mid
+            else:
+                left = mid + 1
+
+        # The k-th missing number is after nums[left - 1]
+        return nums[left - 1] + k - missing(left - 1)
+    
     # ------------------------------------------------------------------------------
     # Leetcode 238. Product of Array Except Self
     def productExceptSelf(self, nums: List[int]) -> List[int]:
         left = [0] * len(nums)
         l = 1
         left[0] = 1
+
+        # Populate the 'left' array
         for i in range (1, len(left)):
             left[i] = nums[i-1] * l
             l = left[i]
@@ -150,6 +302,7 @@ class Solution:
         right = [0] * len(nums)
         r = 1
         right[len(right)-1] = 1
+        # Populate the 'right' array
         for i in range (len(right)-2, -1, -1):
             right[i] = nums[i+1] * r
             r = right[i]
@@ -271,15 +424,12 @@ if __name__ == "__main__":
     leetcode = Solution()
 
     # --------------------------- 15 ---------------------------
-    # nums = [-1,0,1,2,-1,-4]
-    # print(leetcode.threeSum2(nums))
-
-    # for i in range(128):
-    #     print(f"{i}: {chr(i)}")
+    nums = [-1,0,1,2,-1,-4]
+    print(leetcode.threeSum2(nums))
 
     # --------------------------- 41 ---------------------------
-    nums = [1,1] #[3,4,-1,1]
-    print(leetcode.firstMissingPositive(nums))
+    # nums = [1,1] #[3,4,-1,1]
+    # print(leetcode.firstMissingPositive(nums))
 
     # --------------------------- 152 ---------------------------
     # nums = [2, -3, 4, -1, -2, 1, 5]
