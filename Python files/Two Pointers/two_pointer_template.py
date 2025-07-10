@@ -23,6 +23,7 @@ Leetcode 26. Remove Duplicates from Sorted Array
 # -----------------------------------------------------------------------------------------------
 (Hard)
 [Keep comparing two Counter objects] Leetcode 76. Minimum Window Substring
+Leetcode 42. Trapping Rain Water
 
 """
 
@@ -294,6 +295,16 @@ class Solution:
                     counterS[charL] -= 1
 
         return s[resultL:resultR+1]
+
+    # -----------------------------------------------------------------------------------------------
+    # Leetcode 42. Trapping Rain Water
+    """
+    - Water trapped at index i is determined by: min(max_left[i], max_right[i]) - height[i]
+    - Instead of precomputing max_left and max_right arrays (which takes O(n) space), we use two pointers and update max values on the fly.
+    - Always move the pointer with the smaller max height, because that side limits the water level.
+    """
+
+
 
 
 

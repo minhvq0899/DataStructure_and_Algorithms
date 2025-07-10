@@ -7,7 +7,6 @@ I can later tackle Leetcode challenges with more confidence.
 ========================================================= Bellman-Ford Algorithm =========================================================
 Bellman-Ford class
 Leetcode time
-    1. Leetcode 1334: 
 
 """
 

@@ -18,10 +18,44 @@ Leetcode 496. Next Greater Element I
 Leetcode 856. Score of Parentheses
 Leetcode 1381. Design a Stack With Increment Operation
 
+(Hard)
+Leetcode 224. Basic Calculator
+
 
 """
 
 from typing import List
+
+# ----------------------------------------------------------------------------------------------------------------------------------------
+# Leetcode 1381. Design a Stack With Increment Operation
+class Entry:
+    def __init__(self, value: int, offset: int):
+        self.val = value
+        self.offset = offset
+
+class CustomStack:
+    def __init__(self, maxSize: int):
+        self.stack = list()
+        self.cap = maxSize
+        self.size = 0
+
+    def push(self, x: int) -> None:
+        if self.size < self.cap:
+            self.stack.append( Entry(x, 0) )
+            self.size += 1
+            
+    def pop(self) -> int:
+        top = self.stack.pop()
+        self.size -= 1
+        if self.size != 0:
+            self.stack[-1].offset += top.offset
+
+        return top.val + top.offset
+        
+    def increment(self, k: int, val: int) -> None:
+        k = min(k, self.size)
+        self.stack[k-1].offset += val
+
 
 class Solution:
     # --------------------------------------------------------------------------------------------
@@ -214,9 +248,6 @@ class Solution:
 
         return nums1 
 
-
-
-
     # ----------------------------------------------------------------------------------------------------------------------------------------
     # Leetcode 739. Daily Temperatures
     def dailyTemperatures(self, T: List[int]) -> List[int]:
@@ -242,10 +273,6 @@ class Solution:
 
         return ans
 
-
-
-
-
     # ----------------------------------------------------------------------------------------------------------------------------------------
     # Leetcode 856. Score of Parentheses
     def scoreOfParentheses(self, S: str) -> int:
@@ -259,10 +286,6 @@ class Solution:
                 depth_score[-1] += max(2*prev, 1) # it's either a () or (A)
 
         return depth_score[0]
-
-
-
-
 
     # ----------------------------------------------------------------------------------------------------------------------------------------
     # Leetcode 503. Next Greater Element II  - use Monotonic stack
@@ -284,40 +307,16 @@ class Solution:
             print(stack)
 
         return res
-        
-
 
 
     # ----------------------------------------------------------------------------------------------------------------------------------------
-    # Leetcode 1381. Design a Stack With Increment Operation
-    class Entry:
-        def __init__(self, value: int, offset: int):
-            self.val = value
-            self.offset = offset
-    
-    class CustomStack:
-        def __init__(self, maxSize: int):
-            self.stack = list()
-            self.cap = maxSize
-            self.size = 0
-
-        def push(self, x: int) -> None:
-            if self.size < self.cap:
-                self.stack.append( Entry(x, 0) )
-                self.size += 1
-                
-        def pop(self) -> int:
-            top = self.stack.pop()
-            self.size -= 1
-            if self.size != 0:
-                self.stack[-1].offset += top.offset
-
-            return top.val + top.offset
-            
-        def increment(self, k: int, val: int) -> None:
-            k = min(k, self.size)
-            self.stack[k-1].offset += val
-
+    # Leetcode 224. Basic Calculator
+    """
+    - Stack keeps track of the sign context introduced by parentheses.
+    - When you see a (, you push the current sign.
+    - When you see a ), you pop the sign context.
+    - Numbers are built digit by digit and added to the result with the correct sign.
+    """
 
 
 

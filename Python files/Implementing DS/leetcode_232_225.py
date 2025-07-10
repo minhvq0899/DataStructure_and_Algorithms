@@ -32,6 +32,8 @@ class MyQueue:
         self.stack1.append(x)
 
     def pop(self) -> int:
+        # If stack2 is empty, keep popping from stack1 and appending to stack2 
+        # → reverse the order of all items in stack1
         if not self.stack2:
             while self.stack1:
                 pop1 = self.stack1.pop()
@@ -39,6 +41,8 @@ class MyQueue:
 
         return self.stack2.pop()
 
+    # Stack2 is in the right FIFO order
+    # Stack1 is still LIFO
     def peek(self) -> int:
         if self.stack2: return self.stack2[ len(self.stack2)-1 ]
         elif self.stack1: return self.stack1[0]

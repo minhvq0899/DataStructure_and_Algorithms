@@ -10,11 +10,19 @@ I can later tackle Leetcode challenges with more confidence.
 3. Leetcode 200. Number of Islands 
 4. Leetcode 529. Minesweeper
 5. Leetcode 1466. Reorder Routes to Make All Paths Lead to the City Zero (Hard version: Leetcode 2858)
-
+6. Leetcode 133. Clone Graph
 
 """
  
 from typing import List
+
+# For LC 133. Clone graph
+class Node:
+    def __init__(self, val=0, neighbors=None):
+        self.val = val
+        self.neighbors = neighbors if neighbors is not None else []
+
+
 
 class Solution:
     # Leetcode 17. Letter Combinations of a Phone Number  
@@ -175,6 +183,33 @@ class Solution:
 
         return change
 
+
+    # -------------------------------------------------------------------------------------
+    # Leetcode 133. Clone Graph
+    def cloneGraph(self, node: 'Node') -> 'Node':
+        if not node:
+            return None  # Edge case: empty graph
+
+        # Dictionary to map original nodes to their cloned counterparts
+        cloned = {}
+
+        def dfs(current: 'Node') -> 'Node':
+            # If the node is already cloned, return the clone
+            if current in cloned:
+                return cloned[current]
+
+            # Step 1: Clone the current node (without neighbors for now)
+            copy = Node(current.val)
+            cloned[current] = copy  # Mark this node as cloned
+
+            # Step 2: Recursively clone all neighbors
+            for neighbor in current.neighbors:
+                copy.neighbors.append(dfs(neighbor))
+
+            return copy
+
+        # Start DFS from the given node
+        return dfs(node)
 
 
 

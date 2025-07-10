@@ -23,6 +23,7 @@ Leetcode 86. Partition List
 Leetcode 141 + 142. Linked List Cycle
 Leetcode 237. Delete Node in a Linked List
 Leetcode 2. Add Two Numbers
+Leetcode 138. Copy List with Random Pointer
 
 (Hard)
 Leetcode 23. Merge k Sorted Lists
@@ -39,6 +40,11 @@ class ListNode:
         self.val = val
         self.next = next
 
+class Node138:
+    def __init__(self, val: int, next: 'Node' = None, random: 'Node' = None):
+        self.val = val
+        self.next = next
+        self.random = random
 
 # Leetcode exercises
 class Solution:
@@ -454,6 +460,48 @@ class Solution:
 
         # ========== Step 3 ==========
         return dummy.next
+
+
+    # ---------------------------------------------------------------    
+    # Leetcode 138. Copy List with Random Pointer
+    def copyRandomList(self, head: 'Node138') -> 'Node138':
+        if not head:
+            return None
+
+        # ===== Pass 1: Interleave copied nodes with original nodes =====
+        curr = head
+        while curr:
+            # Create a new node and insert it right after the original
+            copy = Node138(curr.val)
+            copy.next = curr.next
+            curr.next = copy
+            curr = copy.next  # Move to the next original node
+
+        # ===== Pass 2: Assign random pointers to the copied nodes =====
+        curr = head
+        while curr:
+            if curr.random:
+                # curr.next is the copy node
+                # curr.random.next is the copy of the random node
+                curr.next.random = curr.random.next
+            curr = curr.next.next  # Move to the next original node
+
+        # ===== Pass 3: Separate the original and copied lists =====
+        curr = head
+        pseudo_head = Node(0)
+        copy_curr = pseudo_head
+
+        while curr:
+            # Extract the copy node
+            copy = curr.next
+            copy_curr.next = copy
+            copy_curr = copy
+
+            # Restore the original list
+            curr.next = copy.next
+            curr = curr.next
+
+        return pseudo_head.next
 
 
     # ---------------------------------------------------------------    

@@ -118,8 +118,9 @@ class Solution:
 
         # Step 3: Trim leaves
         while numNodes > 2:
+            # Update number of nodes
             numLeaves = len(queue_leaves)
-            numNodes -= numLeaves                       # After trimming all leaves
+            numNodes -= numLeaves                       
             
             print(queue_leaves)
             for _ in range (len(queue_leaves)):

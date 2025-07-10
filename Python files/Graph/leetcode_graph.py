@@ -49,8 +49,6 @@ class Solution:
         return -1
 
 
-
-
     # ---------------------------------------------------------------------------------------
     # Leetcode 1042. Flower Planting With No Adjacent
     def gardenNoAdj(self, n: int, paths: List[List[int]]) -> List[int]:
@@ -85,8 +83,6 @@ class Solution:
             ans[k-1] = v
 
         return ans
-
-
 
 
     # ---------------------------------------------------------------------------------------
@@ -126,8 +122,6 @@ class Solution:
                     stack.append(v)
 
 
-
-
     # ---------------------------------------------------------------------------------------
     # Leetcode 207: Course Schedule - Detect Cycle in Directed Graph
     def canFinish(self, numCourses: int, prerequisites: List[List[int]]) -> bool:
@@ -157,8 +151,6 @@ class Solution:
             cycle(i)
 
         return not hasCycle
-
-
 
 
 
@@ -209,25 +201,37 @@ class Solution:
 
     # -------------------------------------------------------------------------------------
     # Leetcode 6. Leetcode 332. Reconstruct Itinerary
+    # Hierholzer’s algorithm for finding an Eulerian path
     def findItinerary(self, tickets: List[List[str]]) -> List[str]:
-        # ========== Step 1: Set up graph ==========
+        # ========== Step 1: Build the graph ==========
+        # Sort tickets in reverse lex order so we can pop the smallest destination last
         graph = collections.defaultdict(list)
         for ticket in sorted(tickets, reverse=True):
             u, v = ticket
             graph[u].append(v)
-        
-        # ========== Step 2: DFS traversal ==========
-        stack, result = [], []
-        stop = "JFK"
-        while stop: 
+
+        for departure, arrival in enumerate(graph):
+            print("{}: {}".format(departure, arrival))
+
+        # ========== Step 2: DFS traversal using stack ==========
+        stack, result = [], []  # stack for backtracking, result for final itinerary
+        stop = "JFK"            # start from JFK as required
+
+        while stop:
             if not graph[stop]:
+                # No more outgoing flights from this airport
+                # Add to result as part of final itinerary
                 result.append(stop)
-                if not stack: stop = None
-                else: stop = stack.pop()
+
+                # Backtrack to previous airport
+                stop = stack.pop() if stack else None
             else:
+                # Still have destinations to explore
+                # Push current airport to stack and go deeper
                 stack.append(stop)
-                stop = graph[stop].pop()
-                
+                stop = graph[stop].pop()  # pop the lex smallest destination (due to reverse sort)
+
+        # Reverse the result to get the correct order (since we built it post-order)
         return result[::-1]
 
 

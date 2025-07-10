@@ -9,6 +9,7 @@ DFS down different path:
     Leetcode 22. Generate Parentheses
     Leetcode 17. Letter Combinations of a Phone Number
     Leetcode 752. Open the Lock
+    Leetcode 797. All Paths From Source to Target
     Combination and Permutation series
         Leetcode 46. Permutation
         Leetcode 47. Permutation II
@@ -215,6 +216,29 @@ class Solution:
 
         return -1
 
+
+    # ------------------------------------------------------------------------------------------
+    # Leetcode 797. All Paths From Source to Target
+    def allPathsSourceTarget(self, graph: List[List[int]]) -> List[List[int]]:
+        result = []     # Stores all valid paths from source to target
+        path = [0]      # Current path being explored (starts at node 0)
+        # --------------------------------
+        def dfs(node: int):
+            # Base case: if we reach the target node (last node)
+            if node == len(graph) - 1:
+                result.append(list(path))  # Make a copy of the current path
+                return
+
+            # Explore all neighbors of the current node
+            for neighbor in graph[node]:
+                path.append(neighbor)      # Choose: add neighbor to path
+                dfs(neighbor)              # Explore: recurse from neighbor
+                path.pop()                 # Un-choose: backtrack
+        # --------------------------------
+        # Start DFS from node 0
+        dfs(0)
+        return result
+    
 
     """ Combination and Permutation series """
     # ------------------------------------------------------------------------------------------

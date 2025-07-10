@@ -110,35 +110,42 @@ class Solution:
     # ----------------------------------------------------------------------------------------------------
     # Leetcode 787. Cheapest Flights Within K Stops
     def findCheapestPrice(self, n: int, flights: List[List[int]], src: int, dst: int, K: int) -> int:
-        # initialize graph and dist
-        graph = [[] for _ in range (n)]
-        
-        for flight in flights:
-            u, v, weight = flight
-            graph[u].append( (v, weight) )
-        
-        inf = float('inf')
-        dist = [(inf, inf) for _ in range (n)] # [ (weight, k stops), (), ... ]
+        # ========== Step 1: Build the graph ==========
+        # Create an adjacency list where graph[u] = list of (v, cost) pairs
+        graph = [[] for _ in range(n)]
+        for u, v, weight in flights:
+            graph[u].append((v, weight))
 
-        # dijkstra
+        # ========== Step 2: Initialize distance tracking ==========
+        # Each entry in dist[v] will store the minimum cost to reach node v
+        # You could also track stops here, but it's not strictly necessary
+        inf = float('inf')
+        dist = [(inf, inf) for _ in range(n)]  # Optional: not used in logic below
+
+        # ========== Step 3: Priority queue for modified Dijkstra ==========
+        # Each heap entry is a tuple: (total_cost, current_node, stops_used)
+        # We use a min-heap to always expand the cheapest path first
         minHeap = []
-        dist[src] = (0, 0) # traveling from src to src costs $0 and -1 stop
-        heapq.heappush( minHeap, (0, src, 0) ) # src -> src takes -1 stop
+        heapq.heappush(minHeap, (0, src, 0))  # Start from src with cost 0 and 0 stops
+
         while minHeap:
-            u = heapq.heappop(minHeap)
-            uWeight, uID, uStop = u
+            uWeight, uID, uStop = heapq.heappop(minHeap)
+
+            # If we reach the destination, return the cost immediately
             if uID == dst:
                 return uWeight
-            for v in graph[uID]:
-                vID, vWeight = v
-                if uStop <= K:
-                    dist[vID] = (uWeight + vWeight, uStop+1) 
-                    heapq.heappush( minHeap, (uWeight + vWeight, vID, uStop+1) )   
-            
+
+            # If we haven't exceeded the stop limit, explore neighbors
+            if uStop <= K:
+                for vID, vWeight in graph[uID]:
+                    # Push the neighbor into the heap with updated cost and stop count
+                    heapq.heappush(minHeap, (uWeight + vWeight, vID, uStop + 1))
+
+        # If we exhaust the heap without reaching dst within K stops, return -1
         return -1
 
-        # Time: O(V^2 log(V))
-        # Space: O(V^2)
+            # Time: O(V^2 log(V))
+            # Space: O(V^2)
 
 
 

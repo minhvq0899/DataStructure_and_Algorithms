@@ -139,7 +139,7 @@ class Solution:
         for i in range (n):
             if parents[i] == i:
                 group += 1
-        
+
         # If the number of redundant connections is >= number of groups - 1
         # --> Possible
         if len(redundant_connections) >= group-1:
@@ -193,7 +193,30 @@ class Solution:
         return not hasCycle and group == 1
 
 
-# ================================================================================================
+    # ------------------------------------------------------------------------------------- 
+    # Leetcode 947. Most Stones Removed with Same Row or Column
+    def removeStones(self, stones: List[List[int]]) -> int:
+        n = len(stones)
+
+        # Step 1: Assign each stone an index
+        # We'll union stones that share a row or column
+        parent = [i for i in range(n)]
+        rank = [0] * n
+
+        for i in range(n):
+            for j in range(i + 1, n):
+                # If stones share a row or column, union them
+                if stones[i][0] == stones[j][0] or stones[i][1] == stones[j][1]:
+                    self.unionByRank(i, j, parent, rank)
+
+        # Step 2: Count unique parents (connected components)
+        unique_roots = set()
+        for i in range(n):
+            root = self.findSetAndPathCompression(i, parent)
+            unique_roots.add(root)
+
+        # Step 3: Max stones removed = total - number of components
+        return n - len(unique_roots)
 
 
    
