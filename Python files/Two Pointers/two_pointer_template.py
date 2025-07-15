@@ -19,6 +19,7 @@ Leetcode 26. Remove Duplicates from Sorted Array
 [Flipping char/int] Leetcode 487. Max Consecutive Ones II
 [Flipping char/int] Leetcode 1004. Max Consecutive Ones III
 [Wild card] Leetcode 845. Longest Mountain in Array
+Leetcode 1248. Count Number of Nice Subarrays
 
 # -----------------------------------------------------------------------------------------------
 (Hard)
@@ -258,6 +259,62 @@ class Solution:
 
         return longest
 
+
+    # -----------------------------------------------------------------------------------------------
+    # Leetcode 1248. Count Number of Nice Subarrays
+    # Solution 1: exactly_k = at_most_k - at_most_(k - 1)
+    def numberOfSubarrays1(self, nums: List[int], k: int) -> int:
+        # Helper function: count subarrays with at most k odd numbers ---------
+        def at_most(k: int) -> int:
+            left = 0
+            count = 0
+            odd_count = 0
+
+            for right in range(len(nums)):
+                # If current number is odd, increment odd_count
+                if nums[right] % 2 == 1:
+                    odd_count += 1
+
+                # Shrink window from the left if odd_count exceeds k
+                while odd_count > k:
+                    if nums[left] % 2 == 1:
+                        odd_count -= 1
+                    left += 1
+
+                # All subarrays ending at right and starting from left to right are valid
+                count += right - left + 1
+
+            return count
+        # ------------------------------------------------------------------------
+
+        # Subarrays with exactly k odd numbers = at_most(k) - at_most(k - 1)
+        return at_most(k) - at_most(k - 1)
+
+    # solution 2: prefixSum + hash map
+    def numberOfSubarrays2(self, nums: List[int], k: int) -> int:
+        # Initialize a hashmap to count prefix sums of odd numbers
+        # Key: number of odd numbers seen so far
+        # Value: how many times this count has occurred
+        prefix_count = defaultdict(int)
+        prefix_count[0] = 1  # Base case: zero odd numbers seen initially
+
+        odd_total = 0  # Running count of odd numbers seen so far
+        result = 0     # Final count of nice subarrays
+
+        for num in nums:
+            # Convert each number to 1 if odd, 0 if even
+            odd_total += num % 2
+
+            # If we've seen (odd_total - k) before, it means there's a subarray
+            # ending here with exactly k odd numbers
+            result += prefix_count[odd_total - k]
+
+            # Record the current odd_total in the hashmap
+            prefix_count[odd_total] += 1
+
+        return result
+
+    # =================================================================================================
     # -----------------------------------------------------------------------------------------------
     # Leetcode 76. Minimum Window Substring
     def minWindow(self, s: str, t: str) -> str:
@@ -328,6 +385,10 @@ if __name__ == "__main__":
     # -------------------- Leetcode 1004 --------------------
     # nums = [0,0,1,1,0,0,1,1,1,0,1,1,0,0,0,1,1,1,1]
     # print(solution.longestOnes(nums, 3))
+
+    # -------------------- Leetcode 1248 --------------------
+    nums  = [2,2,2,1,2,2,1,2,2,2]
+    solution.numberOfSubarrays2(nums, 2)
 
     # --------------------------- 76 ---------------------------
     # s = "a"

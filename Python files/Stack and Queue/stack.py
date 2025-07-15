@@ -17,6 +17,7 @@ Leetcode 739. Daily Temperatures
 Leetcode 496. Next Greater Element I
 Leetcode 856. Score of Parentheses
 Leetcode 1381. Design a Stack With Increment Operation
+Leetcode 71. Simplify Path
 
 (Hard)
 Leetcode 224. Basic Calculator
@@ -319,6 +320,28 @@ class Solution:
     """
 
 
+    # ----------------------------------------------------------------------------------------------------------------------------------------
+    # Leetcode 71. Simplify Path
+    def simplifyPath(self, path: str) -> str:
+        stack = []  # Stack to hold valid directory names
+
+        # Split the path by '/' to isolate components
+        parts = path.split('/')
+
+        for part in parts:
+            if part == '' or part == '.':
+                # Skip empty strings and '.' (current directory)
+                continue
+            elif part == '..':
+                # '..' means go up one level — pop from stack if possible
+                if stack:
+                    stack.pop()
+            else:
+                # Valid directory name — push onto stack
+                stack.append(part)
+
+        # Join stack contents with '/' and prepend root slash
+        return '/' + '/'.join(stack)
 
 
 

@@ -7,12 +7,11 @@ I can later tackle Leetcode challenges with more confidence.
 ========================================================= Topological Sorting Algorithm =========================================================
 TopologicalSorting class
 Leetcode time
-    1. Leetcode 207:
-    2. Leetcode 210. Course Schedule II
-    3. Leetcode 269: 
-    4. Leetcode 310: Minimum Height Trees
-    5. Leetcode 444:
-    6. Leetcode 1136:
+    Leetcode 210. Course Schedule II 
+    Leetcode 310: Minimum Height Trees 
+    Leetcode 444. Sequence Reconstruction (Premium)
+    Leetcode 1136: Parallel Courses (Premium)
+    Leetcode 269. Alien Dictionary (Premium + Hard)
 
 """
 

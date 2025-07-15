@@ -8,11 +8,13 @@ I can later tackle Leetcode challenges with more confidence.
 1. Leetcode 690. Employee Importance
 2. Leetcode 1129. Shortest Path with Alternating Colors
 3. Leetcode 752. Open the Lock
+4. Leetcode 994. Rotting Oranges
 
 """
 
 from typing import List
 import queue
+from collections import deque
 
 # Definition for Employee.
 class Employee:
@@ -102,7 +104,6 @@ class Solution:
         # Extra Space Complexity: O(E) 
 
     # --------------------------------------------------------------------
-
     # Leetcode 752. Open the Lock
     def openLock(self, deadends: List[str], target: str) -> int:
         # if each time you checks for deadends, you have to iterates through a list, it will be O(n)
@@ -185,8 +186,47 @@ class Solution:
         return neighbors_list
     
 
+    # --------------------------------------------------------------------
+    # Leetcode 994. Rotting Oranges 
+    def orangesRotting(self, grid: List[List[int]]) -> int:
+        rows, cols = len(grid), len(grid[0])
+        queue = deque()       # Queue for BFS: stores (row, col) of rotten oranges
+        fresh_count = 0       # Total number of fresh oranges
 
+        # ========== Step 1: Initialize queue and count fresh oranges ==========
+        for r in range(rows):
+            for c in range(cols):
+                if grid[r][c] == 2:
+                    queue.append((r, c))  # Rotten orange
+                elif grid[r][c] == 1:
+                    fresh_count += 1     # Fresh orange
 
+        # Early exit: no fresh oranges to rot
+        if fresh_count == 0:
+            return 0
+
+        # ========== Step 2: BFS to simulate rotting process ==========
+        minutes_passed = 0
+        directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]  # Right, Left, Down, Up
+
+        while queue and fresh_count > 0:
+            minutes_passed += 1  # One minute passes
+
+            for _ in range(len(queue)):
+                r, c = queue.popleft()
+
+                # Check all 4 adjacent cells
+                for dr, dc in directions:
+                    nr, nc = r + dr, c + dc
+
+                    # If neighbor is a fresh orange, rot it
+                    if 0 <= nr < rows and 0 <= nc < cols and grid[nr][nc] == 1:
+                        grid[nr][nc] = 2         # Mark as rotten
+                        fresh_count -= 1         # One less fresh orange
+                        queue.append((nr, nc))   # Add to queue for next minute
+
+        # ========== Step 3: Return result ==========
+        return minutes_passed if fresh_count == 0 else -1
 
 
 

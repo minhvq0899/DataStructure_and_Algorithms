@@ -10,6 +10,8 @@ I can later tackle Leetcode challenges with more confidence.
 2. Leetcode 56. Merge Intervals
 3. Leetcode 1710. Maximum Units on a Truck
 4. Leetcode 1029. Two City Scheduling
+5. Leetcode 45 Jump Game II
+
 
 """
 
@@ -30,7 +32,7 @@ class Solution:
             
         return max_profit
 
-
+    # -------------------------------------------------------------------------
     # Leetcode 56. Merge Intervals
     def merge(self, intervals: List[List[int]]) -> List[List[int]]:
         res = []
@@ -54,7 +56,7 @@ class Solution:
         
         return res
 
-    
+    # -------------------------------------------------------------------------
     # Leetcode 1710. Maximum Units on a Truck
     def maximumUnits(self, boxTypes: List[List[int]], truckSize: int) -> int:
         boxTypes.sort( key=lambda x: -x[1] )
@@ -72,7 +74,7 @@ class Solution:
         
         return max_units
 
-
+    # -------------------------------------------------------------------------
     # Leetcode 1029. Two City Scheduling
     def twoCitySchedCost(self, costs: List[List[int]]) -> int:
         """
@@ -101,6 +103,21 @@ class Solution:
 
         return mincost
 
+    # -------------------------------------------------------------------------
+    # Leetcode 45 Jump Game II
+    def jump(self, nums: List[int]) -> int:
+        jumps = 0         # Total jumps made
+        farthest = 0      # Furthest index reachable in current window
+        end = 0           # End of current jump window
+
+        for i in range(len(nums) - 1):  # No need to jump from last index
+            farthest = max(farthest, i + nums[i])  # Update furthest reach
+
+            if i == end:
+                jumps += 1       # Time to jump
+                end = farthest   # Update window
+
+        return jumps
 
 
 
@@ -108,9 +125,9 @@ if __name__ == "__main__":
     leetcode = Solution()
 
     # --------------------------------------------------------------------
-    costs = [[515,563],[451,713],[537,709],[343,819],[855,779],[457,60],[650,359],[631,42]]
-    mincost = leetcode.twoCitySchedCost(costs)
-    print("\nMin cost: ", mincost)
+    # costs = [[515,563],[451,713],[537,709],[343,819],[855,779],[457,60],[650,359],[631,42]]
+    # mincost = leetcode.twoCitySchedCost(costs)
+    # print("\nMin cost: ", mincost)
 
 
 
