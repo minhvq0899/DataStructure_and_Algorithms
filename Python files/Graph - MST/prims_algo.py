@@ -5,21 +5,26 @@ This python file is a part of my effort in getting myself refreshed with Data St
 I can later tackle Leetcode challenges with more confidence. 
 
 ========================================================= MST Algorithm =========================================================
-Prim class
+Prims class
+
 Leetcode time
+    Leetcode 1135. Connecting Cities With Minimum Cost
+    Leetcode 1584. Min Cost to Connect All Points
+    Leetcode 1631. Path With Minimum Effort
+
 
 
 """
 
 from typing import List
-from collections import defaultdict, deque
+from collections import defaultdict
 import heapq
 
 class Prims:
     def __init__(self, graph: defaultdict(list), V: int):
-        self.graph = graph  # Directed graph: node -> list of (neighbors, weight)
-        self.V = V          # Number of vertices
-        self.visited = [False] * V
+        self.graph = graph                  # Directed graph: node -> list of (neighbors, weight)
+        self.V = V                          # Number of vertices
+        self.visited = [False] * (V+1)      # (V+1) for any problem that node labeled from 1->n. If it's labeled from 0->(n-1), then V should be sufficient
         self.heap = []
 
     def mst(self, start: int) -> bool:
@@ -29,6 +34,8 @@ class Prims:
         self.addEdge(start)
 
         # greedy algorithms: keep looking at the "cheapest" out-going edge
+        # if solution exists, this while loop runs for exactly E number of time. each time it runs heappop, which is log(E)
+        # --> Time complexity: E * log(E)
         while self.heap and edgeCount != numEdges:
             weight, nodeIndex, neighborIndex = heapq.heappop(self.heap)
 
@@ -51,8 +58,6 @@ class Prims:
         print(mstEdges)
         return (mstCost, mstEdges)
 
-
-
     def addEdge(self, nodeIndex: int):
         # Mark the current node as visited
         self.visited[nodeIndex] = True
@@ -65,21 +70,67 @@ class Prims:
             if not self.visited[neighborIndex]:
                 heapq.heappush(self.heap, (weight, nodeIndex, neighborIndex))
 
-        
-
-        
-
 
 
 # Leetcode time
-# class Solution: 
-    # Leetcode 
+class Solution: 
+    # Leetcode 1135. Connecting Cities With Minimum Cost
+    def minimumCost(self, n: int, connections: List[List[int]]) -> int:
+        graph = defaultdict(list)
+
+        # graph representation
+        for conn in connections: 
+            u, v, w = conn
+            graph[u].append((v, w))
+            graph[v].append((u, w))
+
+        primsClass = Prims(graph, n)
+        mstCost, mstEdges = primsClass.mst(1)
+
+        return mstCost if mstCost != None else -1
+        
+    # -----------------------------------------------------------
+    # Leetcode 1584. Min Cost to Connect All Points
+    def minCostConnectPoints(self, points: List[List[int]]) -> int:
+        graph = defaultdict(list)
+
+        # prepare weights and graph repre
+        for i in range (len(points)):
+            pointI = points[i]
+            for j in range (i+1, len(points)):
+                pointJ = points[j]
+                weight = self.computeCost(pointI, pointJ)
+                graph[i].append((j, weight))
+                graph[j].append((i, weight))
+
+        primsClass = Prims(graph, len(points))
+        mstCost, mstEdges = primsClass.mst(0)
+
+        return mstCost
+
+    def computeCost(self, pointA: List[int], pointB: List[int]) -> int:
+        Ax, Ay = pointA
+        Bx, By = pointB
+
+        return abs(Ax - Bx) + abs(Ay - By)
+        
+    
+    # -----------------------------------------------------------
+    # Leetcode 1631. Path With Minimum Effort
+    def minimumEffortPath(self, heights: List[List[int]]) -> int:
+        
 
 
 
 
 
-if __name__ == "__main__":    
+
+
+
+
+
+if __name__ == "__main__":  
+    """
     # Example usage
     V = 8                                  # Number of vertices
     graph = defaultdict(list)
@@ -94,10 +145,14 @@ if __name__ == "__main__":
     
     mstPrim = Prims(graph = graph, V = 8)
     mstPrim.mst(0)
-    
+    """
 
     # =====================================================================
-    # leetcode = Solution()
+    leetcode = Solution()
+
+    # ----------------------------------------------------------
+    points = [[0,0],[2,2],[3,10],[5,2],[7,0]]
+    print(leetcode.minCostConnectPoints(points))
     
 
 

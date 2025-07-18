@@ -7,14 +7,21 @@ I can later tackle Leetcode challenges with more confidence.
 ========================================================= Leetcode Array =========================================================
 
 Easy
-1. Leetcode 345: Reverse Vowels of a String
-2. Leetcode 344: Reverse String
+Leetcode 345: Reverse Vowels of a String
+Leetcode 344: Reverse String
+
 ----------------------------------------------------
-3. Leetcode 72. Edit Distance
+(KMP algorithm)
+Leetcode 1408. String Matching in an Array (using KMP algorithm makes it a Medium)
+Leetcode 214. Shortest Palindrome
+Leetcode 1392. Longest Happy Prefix
+
+
+Leetcode 72. Edit Distance
 
 ----------------------------------------------------
 Hard
-4. Leetcode 273. Integer to English Words 
+Leetcode 273. Integer to English Words 
 
 
 
@@ -71,6 +78,7 @@ class Solution:
             
         return ''.join(s)
 
+
     # ==============================================================================
     # (Also a DP problem)
     # Leetcode 72. Edit Distance
@@ -95,9 +103,122 @@ class Solution:
                 if word1[c-1] == word2[r-1]:
                     dp[r][c] = dp[r-1][c-1]
                 else:
-                    dp[r][c] = subproblem + 1
+                    dp[r][c] = subproblem + 1       # it takes one additional operation
 
         return dp[len2][len1]
+
+
+    # -------------------------------------------------------------------------------
+    # Leetcode 1408. String Matching in an Array (using KMP algorithm makes it a Medium)
+    def stringMatching(self, words: List[str]) -> List[str]:
+        res = []
+        for i, word1 in enumerate(words):
+            for j, word2 in enumerate(words):
+                if i != j and self.kmp_search(word2, word1):
+                    res.append(word1)
+                    break
+        return res
+
+    def build_lps(self, pattern: str) -> List[int]:
+        # Longest Prefix Suffix array
+        lps = [0] * len(pattern)
+        length = 0                      # length of the previous longest prefix suffix
+
+        for i in range(1, len(pattern)):
+            # Up to index ith, the longest prefix suffix seen in pattern[:i] was length
+            # Meaning the first length number of chars are the same as the last length number of chars
+            # So when we see an unmatching char between pattern[i] and pattern[length], we need to look at the longest prefix suffix of (length-1) 
+            # Example: if length is currently 3, meaning the first 3 chars of pattern match with the last 3 chars leading up to i-th (excluding pattern[i]) 
+            # So if pattern[i] != pattern[length], we go back one step to see if the first 2 chars of pattern match with the last 2 chars (including pattern[i])
+            while length > 0 and pattern[i] != pattern[length]:
+                length = lps[length - 1]
+            # If it matches, simply keep increasing
+            if pattern[i] == pattern[length]:
+                length += 1
+                lps[i] = length
+        return lps
+
+    def kmp_search(self,text: str, pattern: str) -> bool:
+        lps = self.build_lps(pattern)
+        i = j = 0  # i for text, j for pattern
+
+        # This while loop logic is similar to the logic in building lps
+        # We also iterate i from 0 to len(text)
+        while i < len(text):
+            if text[i] == pattern[j]:
+                i += 1
+                j += 1
+                if j == len(pattern):
+                    return True  # match found
+            # If unmatch, we go back one step to see if the first (j-1) chars of pattern match with the last (j-1) chars (including text[i])
+            else:
+                if j > 0:
+                    j = lps[j - 1]
+                else:
+                    i += 1
+        return False
+    
+
+    # -------------------------------------------------------------------------------
+    # Leetcode 214. Shortest Palindrome
+    # Idea: we want to find the longest palindromic prefix of the string. Once we know that, we can reverse the remaining suffix and prepend it
+    def shortestPalindrome(self, s: str) -> str:
+        # ------------------------------------------------
+        def build_lps(pattern: str) -> List[int]:
+            lps = [0] * len(pattern)
+            length = 0      # length of longest previous prefix suffix
+
+            for i in range (1, len(lps)):
+                while length > 0 and pattern[i] != pattern[length]:
+                    length = lps[length - 1]
+                
+                if pattern[i] == pattern[length]:
+                    length += 1
+                    lps[i] = length
+
+            return lps
+        # ------------------------------------------------
+        reversed_s = s[::-1]                    # reversed s
+        combined = s + "#" + reversed_s         # combined s + reversed_s to find the longest palindromic prefix (lpp)
+
+        lps = build_lps(combined)               # after building lps on the combined str, the lpp wil be the value at lps[-1] 
+        # print(combined)
+        # print(lps)
+        lpp = lps[-1]
+        toAdd = s[lpp:][::-1]
+
+        return toAdd + s
+
+
+    # -------------------------------------------------------------------------------
+    # Leetcode 1392. Longest Happy Prefix
+    def longestPrefix(self, s: str) -> str:
+        # -------------------------------------------------
+        def build_lps(pattern: str) -> List[int]:
+            lps = [0] * len(pattern)
+            length = 0      # length of previous longest prefix suffix
+
+            for i in range (1, len(lps)):
+                while length > 0 and pattern[i] != pattern[length]:
+                    length = lps[length - 1]
+                
+                if pattern[i] == pattern[length]:
+                    length += 1
+                    lps[i] = length
+            
+            return lps
+        # -------------------------------------------------
+        lps = build_lps(s)
+        print(lps)
+        lengthOfLps = lps[-1]
+
+        return s[:lengthOfLps]
+    
+
+
+
+
+
 
     # ==============================================================================
     # Leetcode 273. Integer to English Words (Hard)
@@ -161,21 +282,23 @@ class Solution:
 
 
 
-
-
-
-
-
-
-
-
-
-
 if __name__ == "__main__":
     leetcode = Solution()
 
+    # ------------------ LC 72: Edit Distance ------------------
+    # word1 = "horse"
+    # word2 = "ros"
+    # leetcode.minDistance(word1, word2)
 
+    # ------------------ LC 1408. String Matching in an Array ------------------
+    # pattern = "ACACAAAC"
+    # print(leetcode.build_lps(pattern))
 
+    # ------------------ LC 214 ------------------
+    # s = "abcd"
+    # print(leetcode.shortestPalindrome(s))
 
-
+    # ------------------ LC 1392 ------------------
+    s = "ababab"
+    print(leetcode.longestPrefix(s))
 

@@ -6,15 +6,16 @@ I can later tackle Leetcode challenges with more confidence.
 
 ========================================================= Leetcode Graph =========================================================
 
-1. Leetcode 997. Find the Town Judge
-2. Leetcode 1042. Flower Planting With No Adjacent
-==========================================
+Leetcode 997. Find the Town Judge
+Leetcode 1042. Flower Planting With No Adjacent
+=========================================
 Graph Template
-3. Leetcode 323. Number of CC in an Undirected Graph
-4. Leetcode 207. Course Schedule - Detect Cycle in Directed Graph
-5. Leetcode 261. Graph Valid Tree - Detect Cycle in Undirected Graph
+Leetcode 323. Number of CC in an Undirected Graph
+Leetcode 207. Course Schedule - Detect Cycle in Directed Graph
+Leetcode 261. Graph Valid Tree - Detect Cycle in Undirected Graph
     Helper function to detect cycle in undirected graph using DFS
-6. Leetcode 332. Reconstruct Itinerary
+Leetcode 1361. Validate Binary Tree Nodes (Same approach as 261)
+Leetcode 332. Reconstruct Itinerary
 
 """
 
@@ -157,7 +158,7 @@ class Solution:
     # -------------------------------------------------------------------------------------
     # Leetcode 261: Graph Valid Tree - Detect Cycle in Undirected Graph
     # Write a function that returns true if a given undirected graph is tree and false otherwise
-    # An undirected graph is tree if it has following properties. 
+    # An undirected graph is tree if it has following properties: 
     #       1) There is no cycle. 
     #       2) The graph is connected.
     def graphValidTree(self, n: int, edges: List[List[int]]) -> bool:
@@ -188,16 +189,77 @@ class Solution:
 
         for v in graph[vertice]:
             if visited[v] == False:
+                # go deeper to explore all neighbors of v, with vertive as parent
                 if self.cycle_undirected_dfs(graph, visited, v, vertice): 
                     return True
+            # exclude the case where we dfs back to parent (go up)
             elif v != parent: 
                 return True
     
         return False
 
 
+    # -------------------------------------------------------------------------------------
+    # Leetcode 1361. Validate Binary Tree Nodes
+    # Same idea as above problem 261, a valid Binary Tree should have the following properties:
+    #   1) DAG - Directed Acyclic Graph
+    #   2) Graph is connected
+    #   3) Each node has at most one parent
+    #   4) Only one node doesn't have a parent (root) => must have exactly one root
+    def validateBinaryTreeNodes(self, n: int, leftChild: List[int], rightChild: List[int]) -> bool:
+        # Graph repre and track parent count
+        graph = collections.defaultdict(list)
+        inDegree = [0] * n
+        for parent in range (n):
+            for child in ( [leftChild[parent], rightChild[parent]] ):
+                if child == -1: continue
 
+                graph[parent].append(child)
+                
+                # Increment the number of node pointing to child
+                inDegree[child] += 1
+                # Validate 3) Each node has at most one parent
+                if inDegree[child] > 1:     
+                    return False
+        print(graph)
 
+        # Validate 4) must have exactly one root
+        roots = [i for i in range (len(inDegree)) if inDegree[i] == 0]
+        if len(roots) != 1: 
+            return False
+        root = roots[0]
+
+        # Validate 1) No cycle
+        visited = [0] * n
+        cycle = False
+        # Just have to DFS from root
+        cycle = cycle or self.detectCycleInDirectedGraph(graph, root, visited)
+        
+        if cycle: 
+            return False
+
+        # After DFS from root, if there is a node that is still unvisited, then it's from a different component
+        for i in range (len(visited)):
+            if not visited[i]: return False
+        
+        return True
+    
+
+    def detectCycleInDirectedGraph(self, graph, start, visited) -> bool:
+        # mark start as visiting
+        visited[start] = 1
+
+        for neighbor in graph[start]:
+            if visited[neighbor] == 0:
+                self.detectCycleInDirectedGraph(graph, neighbor, visited)
+            elif visited[neighbor] == 1:
+                return True
+            
+        # complete eximining 
+        visited[start] = 2
+        return False
+
+        
 
     # -------------------------------------------------------------------------------------
     # Leetcode 6. Leetcode 332. Reconstruct Itinerary
@@ -265,16 +327,20 @@ if __name__ == "__main__":
     # print( leetcode.countComponents(N, edges) )
 
     # ------------------------------------------------------------------
-    N = 12
-    edges = [ [0,1],[1,2],[2,3],[0,6],[2,4],[1,5],[0,7],[7,8],[8,9],[7,11],[11,10] ]
-    print(leetcode.graphValidTree(N, edges)) # True
+    # N = 12
+    # edges = [ [0,1],[1,2],[2,3],[0,6],[2,4],[1,5],[0,7],[7,8],[8,9],[7,11],[11,10] ]
+    # print(leetcode.graphValidTree(N, edges)) # True
 
     # ------------------------------------------------------------------
     # N = 10
     # edges = [ [0,1],[1,2],[1,5],[2,3],[3,4],[4,2],[4,6],[7,8],[8,9] ]
     # print(leetcode.countComponents_test(N,edges))
 
-
+    # ------------------------------------------------------------------
+    n = 4
+    leftChild = [1,0,3,-1]
+    rightChild = [-1,-1,-1,-1]
+    print(leetcode.validateBinaryTreeNodes(n, leftChild, rightChild))
 
 
 

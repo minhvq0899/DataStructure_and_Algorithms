@@ -6,11 +6,14 @@ I can later tackle Leetcode challenges with more confidence.
 
 ========================================================= Leetcode Greedy =========================================================
 
-1. Leetcode 121. Best Time to Buy and Sell Stock
-2. Leetcode 56. Merge Intervals
-3. Leetcode 1710. Maximum Units on a Truck
-4. Leetcode 1029. Two City Scheduling
-5. Leetcode 45 Jump Game II
+Leetcode 121. Best Time to Buy and Sell Stock
+Leetcode 56. Merge Intervals
+Leetcode 1710. Maximum Units on a Truck
+Leetcode 1029. Two City Scheduling
+Leetcode 45 Jump Game II
+
+(Hard)
+Leetcode 135. Candy
 
 
 """
@@ -118,6 +121,34 @@ class Solution:
                 end = farthest   # Update window
 
         return jumps
+
+    # -------------------------------------------------------------------------
+    # Leetcode 135. Candy
+    def candy(self, ratings: List[int]) -> int:
+        # Make use of two additional array: L and R
+        n = len(ratings)
+        left = [1] * n
+        right = [1] * n
+
+        # For L array, we traverse rating from left-> right. If rating[i] > rating[i-1] then L[i] = L[i+1]
+        for L in range (1, n):
+            if ratings[L] > ratings[L-1]:
+                left[L] = left[L-1] + 1
+
+        # Opposite for R array
+        for R in range (n-1, 0, -1):
+            if ratings[R-1] > ratings[R]:
+                right[R-1] = right[R] + 1
+
+        # Final candy distributed to each person will be max(L[i], R[i])
+        candy = [1] * n
+        for i in range (len(candy)):
+            candy[i] = max(left[i], right[i])
+
+        print(candy)
+        return sum(candy)
+
+
 
 
 

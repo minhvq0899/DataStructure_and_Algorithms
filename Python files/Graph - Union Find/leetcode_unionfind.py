@@ -5,19 +5,46 @@ This python file is a part of my effort in getting myself refreshed with Data St
 I can later tackle Leetcode challenges with more confidence. 
 
 ========================================================= Union Find =========================================================
-0. Union Find
+Union Find
     def findSetAndPathCompression(self, u: int, parent: List[int]):
     def unionByRank(self, u: int, v: int, parent: int, rank: List[int]):
 
-1. Leetcode 547. Number of Provinces
-2. Leetcode 684. Redundant Connection
-3. Leetcode 1319. Number of Operations to Make Network Connected
-4. Leetcode 261: Graph Valid Tree - Detect Cycle in Undirected Graph
+Leetcode 547. Number of Provinces
+Leetcode 684. Redundant Connection
+Leetcode 1319. Number of Operations to Make Network Connected
+Leetcode 261: Graph Valid Tree - Detect Cycle in Undirected Graph
+Leetcode 947. Most Stones Removed with Same Row or Column
+Leetcode 1361. Validate Binary Tree Nodes
 
 """
 
 from union_find import *
 import collections
+
+class UnionFind1361:
+    def __init__(self, n: int):
+        self.parents = [i for i in range (0, n)]
+        # self.rank = [0] * n
+
+    def findParentAndPathCompression(self, u):
+        if self.parents[u] != u:
+            self.parents[u] = self.findParentAndPathCompression(self.parents[u])
+
+        return self.parents[u]
+
+    def union(self, u: int, v: int) -> bool:
+        u_parent = self.findParentAndPathCompression(u)
+        v_parent = self.findParentAndPathCompression(v)
+
+        # Case 1: if they share a parent -> Cycle detected
+        if u_parent == v_parent:
+            return False
+
+        # Case 2: if they don't share a parent -> just pick u
+        self.parents[v_parent] = u_parent
+        return True
+
+
 
 class Solution:
     # Union Find
@@ -218,7 +245,32 @@ class Solution:
         # Step 3: Max stones removed = total - number of components
         return n - len(unique_roots)
 
+    
+    # ------------------------------------------------------------------------------------- 
+    # Leetcode 1361. Validate Binary Tree Nodes
+    def validateBinaryTreeNodes(self, n: int, leftChild: List[int], rightChild: List[int]) -> bool:
+        ufClass = UnionFind1361(n)
+        has_parent = [False] * n                                # Track if a node already has a parent
 
+        for parent in range (n):
+            # print(ufClass.parents)
+            for child in (leftChild[parent], rightChild[parent]):
+                if child != -1:
+                    if has_parent[child]:                       # Multiple parents 
+                        return False                
+
+                    has_parent[child] = True
+
+                    if not ufClass.union(parent, child):            # Cycle detected
+                        return False
+
+        # A valid tree must have nodes with only one parent and exactly one node with no parent
+        # Count nodes with no parent — should be exactly one (the root)
+        root_count = has_parent.count(False)
+
+        # Here, we don't have to check if the rest of the node share the same parent 0, because we are sure they do
+        # If one of them have a different parent, that parent will be another node without a parent, meaning root_count should be 2 in this case
+        return root_count == 1
    
 
 
@@ -270,11 +322,15 @@ if __name__ == "__main__":
     # print(combinations)
 
     # ------------------------------
-    N = 12
-    edges = [ [0,1],[1,2],[2,3],[0,6],[2,4],[1,5],[0,7],[7,8],[8,10],[8,9],[7,11],[11,10] ]
-    print(leetcode.graphValidTree(N, edges)) # True
+    # N = 12
+    # edges = [ [0,1],[1,2],[2,3],[0,6],[2,4],[1,5],[0,7],[7,8],[8,10],[8,9],[7,11],[11,10] ]
+    # print(leetcode.graphValidTree(N, edges)) # True
         
-
+    # ------------------------------
+    n = 4
+    leftChild = [1,-1,3,2]
+    rightChild = [2,3,-1,-1]
+    print(leetcode.validateBinaryTreeNodes(n, leftChild, rightChild))
 
 
 

@@ -26,11 +26,15 @@ Leetcode 128: Longest Consecutive Sequence
 Leetcode 252: Meeting Rooms (Easy)
 Leetcode 253: Meeting Rooms II
 
+(Boyer-Moore majority vote algorithm)
+
+Leetcode 229. Majority Element II
 """
 
 from typing import List
 from collections import Counter
 import copy
+import math
 
 class Solution:
     # ------------------------------------------------------------------------------
@@ -403,12 +407,57 @@ class Solution:
         return res
 
 
+    # ------------------------------------------------------------------------------
+    # Leetcode 169. Majority Element I
+    def majorityElement1(self, nums: List[int]) -> int:
+        # Boyer–Moore majority vote algorithm
+        count = 0
+        candidate = None
+        
+        for num in nums:
+            # that means before this index, all candidates have the same frequency
+            if count == 0: 
+                candidate = num
+            count += (1 if candidate == num else -1)
+        
+        # Here we are returning candidate right away because the problem stated
+        # "You may assume that the majority element always exists in the array"
+        return candidate
+    
 
+    # ------------------------------------------------------------------------------
+    # Leetcode 229. Majority Element II
+    # If len(nums) == n, and we are looking for all elements that appear more than n/3 times, than there can only be at max 2 elements satisfy this condition.
+    # Generalization for [n/k] threshold -> there can only be at max (k-1) elements. 
+    # Similarly to LC 169, but this time create (k-1) 'candidates' and 'counts'
+    # Idea is similar to keeping count in Counter/Hashmap (space complxity will be O(n)), but here we are only keeping count 
+    # of the top (k-1) elemenents (space complexity will be O(1))
+    def majorityElement2(self, nums: List[int]) -> List[int]:
+        n = len(nums)
+        count1, count2 = 0, 0
+        candidate1, candidate2 = None, None
 
-
-
-
-
+        for num in nums:
+            # If num is one of the candidates
+            if num == candidate1:
+                count1 += 1
+            elif num == candidate2:
+                count2 += 1
+            # if one of the count is reset -> reset the candidate
+            elif count1 == 0:
+                candidate1 = num
+                count1 = 1
+            elif count2 == 0: 
+                candidate2 = num
+                count2 = 1
+            # else, decrement the freq of candidate1 and candidate2
+            else:
+                count1 -= 1
+                count2 -= 1
+        
+        # Here, there can be AT MAX (k-1) result elements, but it doens't HAVE TO be (k-1)
+        # So we need to validate
+        return [x for x in (candidate1, candidate2) if nums.count(x) > n/3]
 
 
 
@@ -424,8 +473,8 @@ if __name__ == "__main__":
     leetcode = Solution()
 
     # --------------------------- 15 ---------------------------
-    nums = [-1,0,1,2,-1,-4]
-    print(leetcode.threeSum2(nums))
+    # nums = [-1,0,1,2,-1,-4]
+    # print(leetcode.threeSum2(nums))
 
     # --------------------------- 41 ---------------------------
     # nums = [1,1] #[3,4,-1,1]
@@ -443,6 +492,11 @@ if __name__ == "__main__":
     # s1 = "ab"
     # s2 = "bc"
     # print(leetcode.checkInclusion(s1, s2))
+
+    # --------------------------- 169 + 229 ---------------------------
+    nums = [1,2]
+    result = leetcode.majorityElement2(nums)
+    print(result)
 
 
 
