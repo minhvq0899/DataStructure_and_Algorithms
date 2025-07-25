@@ -18,10 +18,12 @@ Leetcode 1392. Longest Happy Prefix
 
 
 Leetcode 72. Edit Distance
+Leetcode 1347. Minimum Number of Steps to Make Two Strings Anagram (simply use Counter - don't overthink)
 
 ----------------------------------------------------
 Hard
 Leetcode 273. Integer to English Words 
+Leetcode 68. Text Justification
 
 
 
@@ -31,6 +33,7 @@ Leetcode 273. Integer to English Words
 from typing import List
 from collections import Counter, defaultdict
 import copy
+import math
 
 class Solution:
     # Leetcode 345: Reverse Vowels of a String
@@ -189,7 +192,6 @@ class Solution:
 
         return toAdd + s
 
-
     # -------------------------------------------------------------------------------
     # Leetcode 1392. Longest Happy Prefix
     def longestPrefix(self, s: str) -> str:
@@ -214,9 +216,6 @@ class Solution:
 
         return s[:lengthOfLps]
     
-
-
-
 
 
 
@@ -278,6 +277,92 @@ class Solution:
 
         return result.rstrip()
 
+    
+    # -------------------------------------------------------------------------------
+    # Leetcode 68. Text Justification
+    # Ex: eachResultWord = ["This", "is", "an"], whiteSpaceLen = 8  ---> return "This    is    an"
+    def prepareNewLine(self, line_words, whiteSpace_len) -> str: 
+        gaps = len(line_words) - 1
+        space, extra = divmod(whiteSpace_len, gaps)
+        result = ""
+
+        # Case 1: If whiteSpace_len can be divided evenly between each word
+        if extra == 0: 
+            for i in range(gaps):
+                result += line_words[i]
+                result += (" " * space)
+            result += line_words[-1]        # Add last word without extra space
+        # Case 2: 
+        else:
+            for i in range(gaps):
+                result += line_words[i]
+                # This means for each extra space we have, we evenly divide them into each left-most space
+                real_space = space + (1 if i < extra else 0)
+                result += (" " * real_space)
+            result += line_words[-1]        # Add last word without extra space
+
+        return result   
+
+    def fullJustify(self, words: List[str], maxWidth: int) -> List[str]:
+        i = 0
+        result = []
+
+        while i < len(words):
+            # reset
+            line_words = []
+            line_len = 0
+
+            # Greedily pack words into the current line
+            while i < len(words):
+                word_len = len(words[i])
+                # len(line_words) == number of white space
+                if line_len + len(line_words) + word_len > maxWidth:
+                    break
+                line_words.append(words[i])
+                line_len += word_len
+                i += 1
+
+            # Determine if this is the last line
+            is_last_line = (i == len(words))
+
+            # Case 1: Last word or line_words has len 1
+            if is_last_line or len(line_words) == 1:
+                # Left-justified: words separated by single space, pad end 
+                line = " ".join(line_words)
+                line += (" " * (maxWidth-len(line)))
+            # Case 2: Fully justified - distribute spaces evenly
+            else:
+                # Compute how many white space between each word
+                whiteSpace_len = maxWidth - line_len
+                line = self.prepareNewLine(line_words, whiteSpace_len)
+
+            result.append(line)
+                
+        print(result)
+        return result
+                
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -299,6 +384,11 @@ if __name__ == "__main__":
     # print(leetcode.shortestPalindrome(s))
 
     # ------------------ LC 1392 ------------------
-    s = "ababab"
-    print(leetcode.longestPrefix(s))
+    # s = "ababab"
+    # print(leetcode.longestPrefix(s))
 
+    # ------------------ LC 68 ------------------
+    words = ["Science","is","what","we","understand","well","enough","to","explain","to","a","computer.","Art","is","everything","else","we","do"]
+    maxWidth = 20
+    leetcode.fullJustify(words, maxWidth)
+    # print( leetcode.prepareNewWord( ["Science","is","what","we"], 20) )

@@ -21,18 +21,22 @@ Leetcode 457: Circular Array Loop
 Leetcode 1060. Missing Element in Sorted Array
 
 Leetcode 238. Product of Array Except Self
+Leetcode 713. Subarray Product Less Than K
 Leetcode 567. Permutation in String
 Leetcode 128: Longest Consecutive Sequence
 Leetcode 252: Meeting Rooms (Easy)
 Leetcode 253: Meeting Rooms II
 
 (Boyer-Moore majority vote algorithm)
-
+Leetcode 169. Majority Element I
 Leetcode 229. Majority Element II
+
+
 """
 
 from typing import List
 from collections import Counter
+from collections import defaultdict
 import copy
 import math
 
@@ -317,6 +321,31 @@ class Solution:
         return left
 
     # ------------------------------------------------------------------------------
+    # Leetcode 713. Subarray Product Less Than K
+    # Use two pointer + sliding window technique
+    def numSubarrayProductLessThanK(self, nums: List[int], k: int) -> int:
+        # corner case
+        if k <= 1: return 0
+
+        count = 0
+        product = 1
+        left = 0
+
+        for right in range (len(nums)):
+            product *= nums[right]
+
+            # while the condition is still met
+            if product >= k:
+                while product >= k and left < len(nums):
+                    product /= nums[left]
+                    left += 1                
+
+            count += right - left + 1
+        
+        print(count)
+        return count
+    
+    # ------------------------------------------------------------------------------
     # Leetcode 567. Permutation in String
     def checkInclusion(self, s1: str, s2: str) -> bool:
         if len(s1) > len(s2): return False
@@ -494,11 +523,14 @@ if __name__ == "__main__":
     # print(leetcode.checkInclusion(s1, s2))
 
     # --------------------------- 169 + 229 ---------------------------
-    nums = [1,2]
-    result = leetcode.majorityElement2(nums)
-    print(result)
+    # nums = [1,2]
+    # result = leetcode.majorityElement2(nums)
+    # print(result)
 
-
+    # --------------------------- 713 ---------------------------
+    nums = [10,5,2,6]
+    k = 100
+    leetcode.numSubarrayProductLessThanK(nums, k)
 
 
 

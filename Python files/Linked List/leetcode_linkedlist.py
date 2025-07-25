@@ -25,6 +25,7 @@ Leetcode 141 + 142. Linked List Cycle
 Leetcode 237. Delete Node in a Linked List
 Leetcode 2. Add Two Numbers
 Leetcode 138. Copy List with Random Pointer
+Leetcode 430. Flatten a Multilevel Doubly Linked List
 
 (Hard)
 Leetcode 23. Merge k Sorted Lists
@@ -46,6 +47,14 @@ class Node138:
         self.val = val
         self.next = next
         self.random = random
+
+class Node430:
+    def __init__(self, val, prev, next, child):
+        self.val = val
+        self.prev = prev
+        self.next = next
+        self.child = child
+
 
 # Leetcode exercises
 class Solution:
@@ -503,6 +512,50 @@ class Solution:
             curr = curr.next
 
         return pseudo_head.next
+
+
+    # ---------------------------------------------------------------    
+    # Leetcode 430. Flatten a Multilevel Doubly Linked List
+    def flatten(self, head: Node430) -> Node430:
+        if not head: return None
+        self.dfs(head)
+
+        return head
+
+    # This fn will always return the tail of the flatten list
+    def dfs(self, head):
+        # Track 'current' and tail of the flatten list
+        current = head
+        tail = head
+
+        # Todo: loop through current
+        while current:
+            nextNode = current.next
+            # If there is a child, flatten it first
+            if current.child:
+                childHead = current.child
+                childTail = self.dfs(childHead)
+
+                # Insert the child node flattened between current and last of next_node
+                current.next = childHead
+                childHead.prev = current
+
+                # Connect child tail to next_node if next_node exists
+                if nextNode:
+                    childTail.next = nextNode
+                    nextNode.prev = childTail
+
+                # Nullify the child pointer
+                current.child = None
+                tail = childTail
+            else:
+                tail = current
+
+            current = nextNode
+
+        # Return the tail of the flatten list
+        return tail
+        
 
 
     # ---------------------------------------------------------------    

@@ -32,12 +32,14 @@ Leetcode 152: Maximum Product Subarray
 # ------------------------------------------------
 (Hard)    
 Leetcode 10. Regular Expression Matching (Hard)
+Leetcode 2472. Maximum Number of Non-overlapping Palindrome Substrings (Hard)
 
 """
 import bisect
 from typing import List, Tuple
 from array import *
 from collections import defaultdict
+from functools import lru_cache
 
 class TreeNode:
     def __init__(self, val=0, left=None, right=None):
@@ -540,8 +542,7 @@ class Solution:
         return res
 
     # =======================================================================================================================
-    # --------------------------------------------------------------------------------------------------
-    #   
+    # Leetcode 10. Regular Expression Matching (Hard)  
     def isMatch(self, s: str, p: str) -> bool:
         cache = defaultdict(bool)
 
@@ -580,8 +581,78 @@ class Solution:
         return False
 
 
+    # --------------------------------------------------------------------------------------------------
+    # Leetcode 2472. Maximum Number of Non-overlapping Palindrome Substrings (Hard)
+    def print_bool_matrix(self, matrix):
+        if not matrix or not matrix[0]:
+            print("Empty matrix")
+            return
 
+        rows, cols = len(matrix), len(matrix[0])
 
+        # Print column indices
+        header = "     " + " ".join(f"{j:2}" for j in range(cols))
+        print(header)
+        print("    " + "---" * cols)
+
+        for i in range(rows):
+            row_str = f"{i:2} |"  # Row index with separator
+            for j in range(cols):
+                cell = "T" if matrix[i][j] else "_"
+                row_str += f"  {cell}"
+            print(row_str)
+
+    def maxPalindromes(self, s: str, k: int) -> int:
+        # Step 1: compute the Palindrome substring 2d array
+        memo = self.computePalindromeSubstringArray(s)
+        # self.print_bool_matrix(memo)
+
+        # Step 2: Call dfs to count the maximum number of substrings
+        # -----------------------------------------------------------
+        @lru_cache(None)
+        def dfsMaxPalindrome(start) -> int:
+            # Base case: no more char
+            if start >= len(s): return 0
+
+            # Option 1: skip 'start' index
+            op1 = dfsMaxPalindrome(start+1)
+            
+            # Option 2: include all palindrome substrings starting at 'start'
+            op2 = 0
+            for end in range (start+k-1, len(s)):
+                # if substring s[start:end] is a palindrome
+                if memo[start][end]:
+                    op2 = max(op2, 1 + dfsMaxPalindrome(end+1))
+
+            return max(op1, op2)
+        # -----------------------------------------------------------
+
+        return dfsMaxPalindrome(0)
+    
+    
+
+    def computePalindromeSubstringArray(self, s: str) -> List[bool]:
+        memo = [[False for _ in range (len(s))] for _ in range (len(s))]
+
+        # Case 1: each char is a palindrome
+        for i in range (len(s)):
+            memo[i][i] = True
+        
+        # Case 2: substring of len 2
+        for i in range (len(s) - 1):
+            if s[i] == s[i+1]:
+                memo[i][i+1] = True
+
+        # Case 3: fill out the rest of memo
+        for width in range (3, len(s) + 1):
+            for start in range (len(s)):
+                end = start + width - 1
+                if end >= len(s): continue
+
+                if s[start] == s[end] and memo[start+1][end-1]:
+                    memo[start][end] = True
+
+        return memo
 
 
 
@@ -632,10 +703,12 @@ if __name__ == "__main__":
     # print( solution.longestPalindromeSubseq("cbbd") )
 
     # -------------------- 10 --------------------
-    s = "aaaaaaaaaaaaaaaaaaa"
-    p = "a*a*a*a*a*a*a*a*a*b"
-    print( solution.isMatch(s, p) )
+    # s = "aaaaaaaaaaaaaaaaaaa"
+    # p = "a*a*a*a*a*a*a*a*a*b"
+    # print( solution.isMatch(s, p) )
 
-
+    # -------------------- 2472 --------------------
+    s = "iqqibcecvrbxxj"
+    print(solution.maxPalindromes(s, 1))
 
 

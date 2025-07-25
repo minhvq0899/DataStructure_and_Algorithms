@@ -8,6 +8,7 @@ I can later tackle Leetcode challenges with more confidence.
 
 Leetcode 3508. Implement Router
 Leetcode 676. Implement Magic Dictionary
+Leetcode 380. Insert Delete GetRandom O(1)
 
 """
 
@@ -15,6 +16,7 @@ import collections
 from typing import List
 import queue
 import bisect
+import random
 
 # --------------------------------------------------------------------------------------------------------------------
 # Leetcode 3508. Implement Router
@@ -84,22 +86,45 @@ class Router:
     
 
 
+# --------------------------------------------------------------------------------------------------------------------
+# Leetcode 380. Insert Delete GetRandom O(1)
+class RandomizedSet:
+    def __init__(self):
+        pass
+
+    def insert(self, val: int) -> bool:
+        pass
+
+    def remove(self, val: int) -> bool:
+        pass
+
+    def getRandom(self) -> int:
+        pass
+
+
+
+
+
+
+
+
 if __name__ == "__main__":
     # -----------------------------------------------------
     # Leetcode 3508. Implement Router
-    router = Router(3)
-    router.addPacket(1,4,90)
-    router.addPacket(2,5,90)
-    router.addPacket(1,4,90)
-    router.addPacket(3,5,95)
-    router.addPacket(4,5,105)
-    router.forwardPacket()
-    router.addPacket(5,2,110)
-    router.getCount(5,100,110)
+    # router = Router(3)
+    # router.addPacket(1,4,90)
+    # router.addPacket(2,5,90)
+    # router.addPacket(1,4,90)
+    # router.addPacket(3,5,95)
+    # router.addPacket(4,5,105)
+    # router.forwardPacket()
+    # router.addPacket(5,2,110)
+    # router.getCount(5,100,110)
 
-
-
-
+    # -----------------------------------------------------
+    # Leetcode 380. Insert Delete GetRandom O(1)
+    nums = [0,1,2,3,4,5,6]
+    print(random.choice(nums))
 
 
 

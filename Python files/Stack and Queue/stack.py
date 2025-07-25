@@ -6,18 +6,22 @@ I can later tackle Leetcode challenges with more confidence.
 
 ============================================================ Stack ============================================================
 
+(Easy)
 Leetcode 20. Valid Parentheses
     isValid_easy
     isValid_medium
 Leetcode 1047. Remove All Adjacent Duplicates In String
+Leetcode 1544. Make The String Great
+Leetcode 496. Next Greater Element I
+
+(Medium)
 Leetcode 443. String Compression
 Leetcode 394. Decode String
-Leetcode 1544. Make The String Great
 Leetcode 739. Daily Temperatures
-Leetcode 496. Next Greater Element I
 Leetcode 856. Score of Parentheses
 Leetcode 1381. Design a Stack With Increment Operation
 Leetcode 71. Simplify Path
+Leetcode 735. Asteroid Collision
 
 (Hard)
 Leetcode 224. Basic Calculator
@@ -309,17 +313,45 @@ class Solution:
 
         return res
 
-
     # ----------------------------------------------------------------------------------------------------------------------------------------
-    # Leetcode 224. Basic Calculator
-    """
-    - Stack keeps track of the sign context introduced by parentheses.
-    - When you see a (, you push the current sign.
-    - When you see a ), you pop the sign context.
-    - Numbers are built digit by digit and added to the result with the correct sign.
-    """
+    # Leetcode 735. Asteroid Collision
+    def asteroidCollision(self, asteroids: List[int]) -> List[int]:
+        stack = []
 
+        for asteroid in asteroids:
+            # Only collide if asteroid is going left and there's a right-moving one on top
+            # Case 1: stack is empty 
+            #   1.1. asteroid is left-flying -> simply add asteroid to stack (in the if statement below)
+            #   1.2. asteroid is right-flying -> simply add asteroid to stack (in the if statement below)
 
+            # Only start going into while loop if asteroid is left-flying and stack is non-empty
+            while stack and asteroid < 0 and stack[-1] > 0:
+                # Case 2: stack is not empty -> there might be collision
+                top = stack[-1]
+                
+                # Case 2.1: left-flying wins
+                if top < abs(asteroid):
+                    # Right-moving asteroid explodes; keep checking
+                    stack.pop()
+                    continue
+                # Case 2.2: Ties
+                elif top == abs(asteroid):
+                    # Both explode
+                    stack.pop()
+                    asteroid = 0  # mark current left-flying asteroid as destroyed
+                    break
+                # Case 2.3: right-flying wins
+                else:
+                    # Current asteroid destroyed
+                    asteroid = 0
+                    break
+
+            # Add asteroid only if it survived all collisions
+            if asteroid != 0:
+                stack.append(asteroid)
+
+        return stack
+    
     # ----------------------------------------------------------------------------------------------------------------------------------------
     # Leetcode 71. Simplify Path
     def simplifyPath(self, path: str) -> str:
@@ -342,6 +374,16 @@ class Solution:
 
         # Join stack contents with '/' and prepend root slash
         return '/' + '/'.join(stack)
+
+
+    # ========================================================================================================================================
+    # Leetcode 224. Basic Calculator
+    """
+    - Stack keeps track of the sign context introduced by parentheses.
+    - When you see a (, you push the current sign.
+    - When you see a ), you pop the sign context.
+    - Numbers are built digit by digit and added to the result with the correct sign.
+    """
 
 
 

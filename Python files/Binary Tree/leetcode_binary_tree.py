@@ -35,6 +35,8 @@ than pre-order, in-order and post-order
 19.Leetcode 106. Construct Binary Tree from Inorder and Postorder Traversal
 20.Leetcode 889. Construct Binary Tree from Preorder and Postorder Traversal
 
+(Hard)
+Leetcode 297. Serialize and Deserialize Binary Tree
 """
 
 
@@ -89,9 +91,10 @@ class Node:
 
 
 
-
-
-class Solution:
+"""
+(Easy)
+"""
+class Solution:    
     # Leetcode 104. Maximum Depth of Binary Tree
     def maxDepth(self, root: Node) -> int:
         if not root: return 0
@@ -175,6 +178,9 @@ class Solution:
     
 
     # ======================================================================================================
+    """
+    (Medium)
+    """
     # --------------------------------------------------------------------
     # Leetcode 1315. Sum of Nodes with Even-Valued Grandparent
     def sumEvenGrandparent(self, root: Node) -> int:
@@ -253,6 +259,9 @@ class Solution:
 
 
     # ======================================================================================================
+    """
+    Problems involve path finding: given a tree, find a path that optimizes the sub criteria
+    """
     # --------------------------------------------------------------------
     # Leetcode 112: Path Sum
     def hasPathSum(self, root: Node, targetSum: int) -> bool:
@@ -427,6 +436,9 @@ class Solution:
 
 
     # ======================================================================================================
+    """
+    Problems involve tree traversal: explore all nodes in the tree, usually in some unique ways other 
+    """
     # --------------------------------------------------------------------
     # Leetcode 102. Binary Tree Level Order Traversal    
     def levelOrder(self, root: Node) -> List[List[int]]:
@@ -640,13 +652,130 @@ class Solution:
 
 
 
-
-
-
-
-
 # ====================================================================================================================
 # ====================================================================================================================
+
+
+"""
+(Hard)
+"""
+# --------------------------------------------------------------------
+# Leetcode 297. Serialize and Deserialize Binary Tree
+class TreeNode():
+    def __init__(self, x):
+        self.val = x
+        self.left = None
+        self.right = None
+
+
+class Codec:
+    def serialize(self, root):
+        """Encodes a tree to a single string using bracketed DFS format."""
+        result = self.dfs(root)
+        print(result)
+
+        return result 
+
+    def dfs(self, root) -> str:
+        if not root:
+            return "[None]"
+
+        left_serialized = self.dfs(root.left)
+        right_serialized = self.dfs(root.right)
+
+        return f"[{root.val} {left_serialized} {right_serialized}]"
+
+    def deserialize(self, data):
+        """Decodes the bracketed string back into a binary tree."""
+        tokens = self.tokenize(data)
+        print(tokens)
+        index = 0
+        # -----------------------------------------------------------------
+        def parse():
+            nonlocal index
+            if index >= len(tokens) or tokens[index] != "[":
+                return None
+
+            index += 1  # Skip '['
+
+            val = tokens[index]
+            index += 1
+
+            if val == "None":
+                # Skip to closing bracket
+                while index < len(tokens) and tokens[index] != "]":
+                    index += 1
+                index += 1  # Skip ']'
+                return None
+
+            node = TreeNode(int(val))
+            node.left = parse()
+            node.right = parse()
+
+            index += 1  # Skip ']'
+            return node
+        # ----------------------------------------------------------------------
+
+        return parse()
+
+    def tokenize(self, data) -> list:
+        """Splits the serialized string into meaningful tokens."""
+        tokens = []
+        i = 0
+        while i < len(data):
+            if data[i] in "[]":
+                tokens.append(data[i])
+                i += 1
+            elif data[i].isspace():
+                i += 1
+            else:
+                token = ""
+                while i < len(data) and (data[i].isalnum() or data[i] == "-"):
+                    token += data[i]
+                    i += 1
+                tokens.append(token)
+        return tokens
+
+    def print_tree(self, root: TreeNode, level: int = 0):
+        """Pretty-prints the tree structure."""
+        indent = "  " * level
+        if not root:
+            print(f"{indent}- None")
+            return
+        print(f"{indent}- {root.val}")
+        self.print_tree(root.left, level + 1)
+        self.print_tree(root.right, level + 1)
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -677,6 +806,25 @@ if __name__ == "__main__":
     # print( leetcode.longestConsecutive(root) )
 
     # ---------------------  1315  ---------------------
-    array = [6,7,8,2,7,1,3,9,None,1,4,None,None,None,5]
-    root = tree.buildTree(array)
-    print( "Sum: ", leetcode.sumEvenGrandparent(root) )
+    # array = [6,7,8,2,7,1,3,9,None,1,4,None,None,None,5]
+    # root = tree.buildTree(array)
+    # print( "Sum: ", leetcode.sumEvenGrandparent(root) )
+
+    # ---------------------  297  ---------------------
+    root = TreeNode(1)
+    node2 = TreeNode(2)
+    node3 = TreeNode(3)
+    node4 = TreeNode(4)
+    node5 = TreeNode(5)
+    node6 = TreeNode(6)
+    root.left = node2
+    root.right = node3
+    node3.left = node4
+    node3.right = node5
+    node2.right = node6
+
+    codec = Codec()
+    codec.print_tree(root)
+    s = codec.serialize(root)
+    rootDeserialized = codec.deserialize(s)
+    codec.print_tree(rootDeserialized)
