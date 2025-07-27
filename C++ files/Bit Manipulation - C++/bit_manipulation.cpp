@@ -8,6 +8,8 @@ I can later tackle Leetcode challenges with more confidence.
 1) Check if a given number is a power of 2 
     Leetcode 231. Power of Two
 2)  Count the number of ones in the binary representation of the given number
+    Leetcode 191. Number of 1 Bits
+    Leetcode 338. Counting Bits
     O(K) where K is the number of 1s 
 3) Hamming Distance
     Leetcode 461. Hamming Distance
@@ -32,7 +34,8 @@ public:
     }
 
 
-    //  Count the number of ones in the binary representation of the given number.
+    // Count the number of ones in the binary representation of the given number.
+    // Leetcode 191. Number of 1 Bits
     int count_one (int n)
     {
         int count = 0; 
@@ -55,7 +58,7 @@ public:
 
     // Leetcode 477. Total Hamming Distance
     // Idea: Loop through each bit, count # of 1s and 0s for that bit for every number
-    // the total HD for that bit will be (# 1s * # 0s)
+    // the total HD for THAT BIT will be (# 1s * # 0s)
     int totalHammingDistance(std::vector<int>& nums) {
         int total = 0; 
         for (int i = 0; i<32; i++){
