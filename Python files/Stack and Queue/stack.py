@@ -5,6 +5,8 @@ This python file is a part of my effort in getting myself refreshed with Data St
 I can later tackle Leetcode challenges with more confidence. 
 
 ============================================================ Stack ============================================================
+(Monotonic stack implementation)
+monotonicStack()
 
 (Easy)
 Leetcode 20. Valid Parentheses
@@ -19,6 +21,7 @@ Leetcode 443. String Compression
 Leetcode 394. Decode String
 Leetcode 739. Daily Temperatures
 Leetcode 856. Score of Parentheses
+Leetcode 503. Next Greater Element II  - use Monotonic stack
 Leetcode 1381. Design a Stack With Increment Operation
 Leetcode 71. Simplify Path
 Leetcode 735. Asteroid Collision
@@ -30,6 +33,7 @@ Leetcode 224. Basic Calculator
 """
 
 from typing import List
+from collections import defaultdict
 
 # ----------------------------------------------------------------------------------------------------------------------------------------
 # Leetcode 1381. Design a Stack With Increment Operation
@@ -63,6 +67,33 @@ class CustomStack:
 
 
 class Solution:
+    # --------------------------------------------------------------------------------------------
+    # Monotonic Stack
+    # Used to solve NGE problems
+    def monotonicStack(self, nums: List[int]):
+        monotonicStack = []
+        answer = [-1 for _ in range (len(nums))]
+        
+        for i in range (len(nums)-1, -1, -1):
+            # Maintain the order
+            while monotonicStack and monotonicStack[-1] <= nums[i]:
+                monotonicStack.pop()
+
+            # Find answer for NGE
+            if len(monotonicStack) == 0:
+                answer[i] = -1
+            else:
+                answer[i] = monotonicStack[-1]
+
+            # Push the element into the stack as we know the order is maintained
+            monotonicStack.append(nums[i])
+        
+        print(answer)
+        return answer
+                
+
+
+
     # --------------------------------------------------------------------------------------------
     # Leetcode 20
     # first just take it easy
@@ -188,95 +219,66 @@ class Solution:
 
         return "".join(stack)
 
-        """
-        i = 0
-        s_final = ''
-
-        while s_final != s: 
-            while i < len(s):
-                # if the char is uppercase
-                if 64 < ord(s[i]) < 91:
-                    # check previous char 
-                    prev = stack.pop() if i != 0 else ' ' # aware of the possible out of range index if i == 0
-                    print(prev)
-                    if ord(prev) - 32 == ord(s[i]): # if previous char is the lowercase of s[i]
-                        i += 1
-                    elif i <= len(s) - 2 ord(s[i]) + 32 == ord(s[i+1]): # check following char
-                        if prev != ' ': stack.append(prev)
-                        i += 2  
-                    else: # if it's an uppercase but there isn't any lowercase infront or behind it then append that uppercase into stack
-                        if prev != ' ': stack.append(prev)
-                        stack.append(s[i])
-                        i += 1
-                else: # if the char is lowercase
-                    stack.append(s[i])
-                    i += 1
-            
-                print(stack)
-            
-            s = "".join(stack)
-
-        return s_final
-        """
-
     # ----------------------------------------------------------------------------------------------------------------------------------------
     # Leetcode 496. Next Greater Element I
     def nextGreaterElement(self, nums1: List[int], nums2: List[int]) -> List[int]:
-        # we will find the NGE of all elements in nums 2 and store them into this dict
-        mapping = {}
-        # this stack will be sorted: largest will be in the bottom
-        stack = []
-        # first append the first element of nums2 into stack
-        stack.append(nums2[0]) 
+        # Step 1: Compute the NGE for all elements in nums2
+        stack = []                          # monotonic stack
+        nge = [-1 for _ in range (len(nums2))]
 
-        # iteration
-        for i in range (1, len(nums2)):
-            pop = stack.pop()
-            # compare the current element each element in stack until find the larger element
-            while nums2[i] > pop: 
-                mapping.update({pop: nums2[i]})
-                if not stack: break 
-                else: pop = stack.pop()
+        for i in range (len(nums2)-1, -1, -1):
+            # Make sure the stack is in right order
+            while stack and stack[-1] < nums2[i]:
+                stack.pop()
 
-            if pop > nums2[i]: 
-                stack.append(pop)
+            # Compute the NGE for nums2[i]
+            if stack:
+                nge[i] = stack[-1]
+            else:
+                nge[i] = -1
 
-            stack.append(nums2[i])     
+            # Append nums2[i] to stack
+            stack.append(nums2[i])
 
-        # the NGEs for all elements left in the stack is -1
-        for item in stack:
-            mapping.update({item: -1})       
+        print(nge)
 
-        # return only NGE of elements in nums1
-        for i in range (len(nums1)):
-            nums1[i] = mapping.get(nums1[i])
+        # Step 2: Store nums2 element and its NGE in a dict for fast look up later
+        ngeDict = defaultdict(int)
+        for i, num in enumerate(nums2):
+            ngeDict[num] = nge[i]
 
-        return nums1 
+        # Step 3: Prepare the nge list for nums1
+        ngeNums1 = [-1 for _ in range (len(nums1))]
+        for i, num in enumerate(nums1):
+            ngeNums1[i] = ngeDict[num]
+
+        return ngeNums1
 
     # ----------------------------------------------------------------------------------------------------------------------------------------
     # Leetcode 739. Daily Temperatures
     def dailyTemperatures(self, T: List[int]) -> List[int]:
-        ans = []
-        stack = []
-        stack.append([T[0], 0])
+        # We will compute the NGE of each element in T
+        stack = []      # monotonic stack that contains (temp, index)
+        nge = [ 0 for _ in range (len(T)) ]
+    
+        for i in range (len(T)-1, -1, -1):
+            tem = T[i]
 
-        for i in range (1, len(T)):
-            prev = stack.pop()
-            if T[i] <= prev[0]: 
-                stack.append(prev)
-            else:
-                while T[i] > prev[0]:    
-                    ans[prev[1]] = i - prev[1]
-                    if not stack: break
-                    else: prev = stack.pop() 
-            # always finish with appending the current element into the stack
-            stack.append([T[i], i])
+            # Maintain the order of the stack
+            while stack and stack[-1][0] <= tem:
+                stack.pop()
+
+            # Compute the NGE
+            if stack:
+                indexOfNGE = stack[-1][1]    
+                days = indexOfNGE - i
+                nge[i] = days
+            # else: nge[i] = 0
+
+            # Add tem to stack
+            stack.append((tem, i))
         
-        # for elements left in the stack, they have no NGE
-        for item in stack:
-            ans[item[1]] = 0
-
-        return ans
+        return nge
 
     # ----------------------------------------------------------------------------------------------------------------------------------------
     # Leetcode 856. Score of Parentheses
@@ -296,22 +298,31 @@ class Solution:
     # Leetcode 503. Next Greater Element II  - use Monotonic stack
     def nextGreaterElements(self, nums: List[int]) -> List[int]:
         # we will iterate over the array two times to make it circular
-        stack = []
-        res = [-1] * len(nums)
-        for i in reversed(range(2*len(nums))):
-            index_nums = i % len(nums)
-            # our stack will have this order: largest at the bottom, 
-            # smaller on top (peek)
-            while len(stack) != 0 and stack[-1][0] <= nums[index_nums]:
+        circularNums = nums + nums
+        print(circularNums)
+
+        # compute the nge for circularNums
+        stack = []          # monotonic stack (largest at the bottom)
+        ngeCircularNums = [-1 for _ in range (len(circularNums))]
+        for i in range (len(circularNums)-1, -1, -1):
+            # Maintain the order
+            while stack and stack[-1] <= circularNums[i]:
                 stack.pop()
-            
-            if len(stack) != 0: res[index_nums] = stack[-1][0] # this is stack peek
 
-            stack.append([nums[index_nums], index_nums])
-        
-            print(stack)
+            # Get the NGE for element i-th
+            if stack:
+                ngeCircularNums[i] = stack[-1]
+            # else: nge[i] is already -1
 
-        return res
+            # Add element i-th to the stack
+            stack.append(circularNums[i])
+
+        # The NGE of i-th element in nums will be the same as the NGE of i-th element in circularNums
+        ngeNums = [-1 for _ in range (len(nums))]
+        for i in range (len(ngeNums)):
+            ngeNums[i] = ngeCircularNums[i]
+
+        return ngeNums
 
     # ----------------------------------------------------------------------------------------------------------------------------------------
     # Leetcode 735. Asteroid Collision
@@ -418,12 +429,15 @@ if __name__ == "__main__":
     # lc1544 = "ABbcCa"
     # lc496_nums2 = [1,3,4,2] 
     # lc496_nums1 = [4,1,2]
-    # lc739 = [73,74,75,71,69,72,76,73]
+    lc739 = [73,74,75,71,69,72,76,73]
     # lc856 = "(()(()))"
-    lc503 = [1,2,3,4,3]
+    # lc503 = [1,2,3,4,3]
 
     # -----------------------------------------------------------
     leetcode = Solution()
+
+    # leetcode.monotonicStack(lc496_nums2)
+
     #easy = isValid.isValid_easy(s) 
     #print('Easy: ', easy)
 
@@ -441,13 +455,13 @@ if __name__ == "__main__":
 
     # print(leetcode.nextGreaterElement(lc496_nums1, lc496_nums2))
 
-    # daily_temp = leetcode.dailyTemperatures(lc739)
-    # print(daily_temp)
+    daily_temp = leetcode.dailyTemperatures(lc739)
+    print(daily_temp)
 
     # print("Score of this parentheses is ", leetcode.scoreOfParentheses(lc856))
 
-    nge_medium = leetcode.nextGreaterElements(lc503)
-    print(nge_medium)
+    # nge_medium = leetcode.nextGreaterElements(lc503)
+    # print(nge_medium)
 
 
 

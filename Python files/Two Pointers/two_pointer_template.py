@@ -12,14 +12,13 @@ Leetcode 26. Remove Duplicates from Sorted Array
 # -----------------------------------------------------------------------------------------------
 (Medium)
 [Basic] Leetcode 209. Minimum Size Subarray Sum
-[Wild card] Leetcode 560. Subarray Sum Equals K  <-- medium version of 209 
 [Basic + flipping char] Leetcode 1234: Replace the Substring for Balanced String 
 [Basic] Leetcode 3. Longest Substring Without Repeating Characters 
 [Keep comparing two Counter objects] Leetcode 438. Find All Anagrams in a String
 [Flipping char/int] Leetcode 487. Max Consecutive Ones II
 [Flipping char/int] Leetcode 1004. Max Consecutive Ones III
-[Wild card] Leetcode 845. Longest Mountain in Array
 Leetcode 1248. Count Number of Nice Subarrays
+Leetcode 658. Find K Closest Elements
 
 # -----------------------------------------------------------------------------------------------
 (Hard)
@@ -73,31 +72,7 @@ class Solution:
         
         return min_len if min_len != float('inf') else 0
     
-    # -----------------------------------------------------------------------------------------------
-    # Leetcode 560. Subarray Sum Equals K
-    # Hard Medium: integers in nums can be negative
-    def subarraySum(self, nums: List[int], k: int) -> int:
-        sum_variable, count, i = 0, 0, 0
-        # dict contains how many time a sum has been recorded before
-        # sum -> freq
-        accumulated_sum_dict = defaultdict(int) 
-        
-        while i < len(nums):
-            sum_variable += nums[i]
-
-            # basic case
-            if sum_variable == k: 
-                count += 1
-            # if sum_variable != k, then we are checking in the dict to see if there has been another 'sumPrev' recorded before
-            # if there is, then removing this subarray(that sums to 'sumPrev') will give us another subarray that sums to k
-            if (sum_variable - k) in accumulated_sum_dict: 
-                count += accumulated_sum_dict[sum_variable - k]
-            
-            accumulated_sum_dict[sum_variable] += 1
-            i += 1
-
-        return count
-    
+   
     # -----------------------------------------------------------------------------------------------
     # Leetcode 1234: Replace the Substring for Balanced String
     def balancedString(self, s: str) -> int:
@@ -194,6 +169,29 @@ class Solution:
 
     # -----------------------------------------------------------------------------------------------
     # Leetcode 487. Max Consecutive Ones II - similar to 1004 below, only diff is that K = 1
+    def findMaxConsecutiveOnes(self, nums: List[int]) -> int:
+        counter = [0, 0]            # keep count of 0s and 1s in the sliding window
+        maxLen = 0
+        R, L = 0, 0
+
+        # We need to append a 0 in the end before the while loop because we compute the maxLen BEFORE incrementing R
+        nums.append(0)              
+        while R < len(nums):
+            # Only compute the maxLen if number of 0s is smaller than or equals to K (1 in this case)
+            if counter[0] <= 1:
+                # Keep incrementing R and computing the max len
+                maxLen = max(maxLen, counter[0] + counter[1])
+                counter[nums[R]] += 1   
+                R += 1
+            # If number of 0s is more than 1 now, we need to increment L
+            else:
+                counter[nums[L]] -= 1
+                L += 1
+        
+        print(maxLen)
+        return maxLen
+
+    # -----------------------------------------------------------------------------------------------
     # Leetcode 1004. Max Consecutive Ones III
     def longestOnes(self, nums: List[int], K: int) -> int:
         """
@@ -203,7 +201,6 @@ class Solution:
         Neu so luong so 0 lon hon K
             Ta cu tang j
         """
-        
         L, R = 0, 0
         counter = [0, 0] # counter number of 0s and 1s IN SUBSTRING
         final = 0
@@ -222,42 +219,6 @@ class Solution:
                 L += 1
         
         return final
-    
-    # -----------------------------------------------------------------------------------------------
-    # Leetcode 845. Longest Mountain in Array
-    def longestMountain(self, arr: List[int]) -> int:
-        # start both pointer at 0
-        i, j = 0, 0
-        longest = 0
-        
-        # only go into while loop when i < len(arr) - 2 because 
-        # a mountain has to have a length of at least 3
-        while i < len(arr) - 2:
-            # a earliest mountain can only start when arr[i] < arr[i+1] 
-            while i < len(arr) - 1 and arr[i] >= arr[i+1]: 
-                i += 1
-                j += 1
-            
-            # find the left side of mountain
-            while i < len(arr) - 1 and arr[i] < arr[i+1]:
-                i += 1
-            
-            # now find the right side of the mountain
-            # however, there are many possibilities can happen
-            
-            # account for when there is only 1 side of the mountain 
-            if i == len(arr) - 1: break # end of array
-            elif arr[i] == arr[i+1]: # not a mountain
-                i += 1
-                j = i
-            else: # else it's a mountain
-                while i < len(arr) - 1 and arr[i] > arr[i+1]:
-                    i += 1
-                longest = max(longest, i - j + 1)
-                # set i and j back together
-                j = i
-
-        return longest
 
 
     # -----------------------------------------------------------------------------------------------
@@ -290,29 +251,42 @@ class Solution:
         # Subarrays with exactly k odd numbers = at_most(k) - at_most(k - 1)
         return at_most(k) - at_most(k - 1)
 
-    # solution 2: prefixSum + hash map
-    def numberOfSubarrays2(self, nums: List[int], k: int) -> int:
-        # Initialize a hashmap to count prefix sums of odd numbers
-        # Key: number of odd numbers seen so far
-        # Value: how many times this count has occurred
-        prefix_count = defaultdict(int)
-        prefix_count[0] = 1  # Base case: zero odd numbers seen initially
+    
+    # -----------------------------------------------------------------------------------------------
+    # Leetcode 658. Find K Closest Elements
+    # Helper fn that returns True if a is closer to x than b
+    def closer(self, a: int, b: int, x: int) -> bool:
+        diffA = abs(a - x)
+        diffB = abs(b - x)
 
-        odd_total = 0  # Running count of odd numbers seen so far
-        result = 0     # Final count of nice subarrays
+        if diffA < diffB: 
+            return True
+        elif diffA > diffB:
+            return False
+        else:
+            if a < b: 
+                return True
+            else: 
+                return False
 
-        for num in nums:
-            # Convert each number to 1 if odd, 0 if even
-            odd_total += num % 2
+    def findClosestElements(self, arr: List[int], k: int, x: int) -> List[int]:
+        # Corner case: X is not in range [arr[0], arr[-1]]
+        if x < arr[0]:
+            return arr[:k]
+        elif x > arr[-1]:
+            return arr[len(arr)-k:]
+        
+        # If X is within range [arr[0], arr[-1]]
+        left, right = 0, len(arr) - 1
+        while (right - left + 1) > k:       # while the len of window is bigger than k
+            # if element at left is closer to X than element at right -> move right down
+            if self.closer(arr[left], arr[right], x):
+                right -= 1
+            else:
+                left += 1
+        
+        return arr[left : right + 1]
 
-            # If we've seen (odd_total - k) before, it means there's a subarray
-            # ending here with exactly k odd numbers
-            result += prefix_count[odd_total - k]
-
-            # Record the current odd_total in the hashmap
-            prefix_count[odd_total] += 1
-
-        return result
 
     # =================================================================================================
     # -----------------------------------------------------------------------------------------------
@@ -360,6 +334,50 @@ class Solution:
     - Instead of precomputing max_left and max_right arrays (which takes O(n) space), we use two pointers and update max values on the fly.
     - Always move the pointer with the smaller max height, because that side limits the water level.
     """
+    # This solution takes O(n) of space complexity
+    def trap(self, height: List[int]) -> int:
+        n = len(height)
+        max_left, max_right = [0 for _ in range (n)], [0 for _ in range (n)]
+
+        # Initialize max_left and max_right array separately
+        for L in range (1, n):
+            max_left[L] = max(height[L-1], max_left[L-1])
+
+        for R in range (n-2, -1, -1):
+            max_right[R] = max(height[R+1], max_right[R+1])
+
+        # print(max_left)
+        # print(max_right)
+
+        # Compute rainTrap array separately
+        rainTrap = [0 for _ in range (n)]
+        for i in range (n):
+            rainTrap[i] = max( min(max_left[i], max_right[i]) - height[i] , 0 )
+
+        print(rainTrap)
+        return sum(rainTrap)
+    
+
+    # This solution takes O(1) of space complexity
+    def trap2(self, height: List[int]) -> int:
+        L, R = 0, len(height) - 1
+        max_L, max_R = 0, 0
+        rain = 0
+
+        # Since we only cares about the min between max_L and max_R, we don't have to precompute max_L and max_R beforehand. 
+        # If max_L < local max_R, it will definitely be smaller the global max_R
+        while L <= R:
+            if max_L < max_R:
+                rain += max( max_L - height[L], 0 )
+                max_L = max(max_L, height[L])
+                L += 1
+            else:
+                rain += max( max_R - height[R], 0 )
+                max_R = max(max_R, height[R])
+                R -= 1
+
+        print(rain)
+        return rain
 
 
 
@@ -368,11 +386,6 @@ class Solution:
 
 if __name__ == "__main__":
     solution = Solution()
-    
-    # -------------------- Leetcode 560 --------------------
-    # nums = [3, 4, -7, 1, 3, 3, 1, -4]
-    # k = 7
-    # print('Answer for 560 is: ', solution.subarraySum(nums, k))
 
     # -------------------- Leetcode 1234 --------------------
     # print('Answer is: ', solution.balancedString('EQRWQQQW'))
@@ -382,16 +395,24 @@ if __name__ == "__main__":
     # p = "abc"
     # print(solution.findAnagrams(s, p))
 
+    # -------------------- Leetcode 487 --------------------
+    nums = [1,1,0,1]
+    solution.findMaxConsecutiveOnes(nums)
+
     # -------------------- Leetcode 1004 --------------------
     # nums = [0,0,1,1,0,0,1,1,1,0,1,1,0,0,0,1,1,1,1]
     # print(solution.longestOnes(nums, 3))
 
     # -------------------- Leetcode 1248 --------------------
-    nums  = [2,2,2,1,2,2,1,2,2,2]
-    solution.numberOfSubarrays2(nums, 2)
+    # nums  = [2,2,2,1,2,2,1,2,2,2]
+    # solution.numberOfSubarrays1(nums, 2)
 
     # --------------------------- 76 ---------------------------
     # s = "a"
     # t = "aa"
     # print( solution.minWindow(s,t) )
+
+    # --------------------------- 42 ---------------------------
+    # height = [0,1,0,2,1,0,1,3,2,1,2,1]
+    # solution.trap2(height)
 

@@ -9,6 +9,8 @@ I can later tackle Leetcode challenges with more confidence.
 2. Leetcode 1129. Shortest Path with Alternating Colors
 3. Leetcode 752. Open the Lock
 4. Leetcode 994. Rotting Oranges
+5. Leetcode 785. Is Graph Bipartite?
+6. Leetcode 909. Snakes and Ladders
 
 """
 
@@ -229,9 +231,98 @@ class Solution:
         return minutes_passed if fresh_count == 0 else -1
 
 
+    # --------------------------------------------------------------------
+    # Leetcode 785. Is Graph Bipartite?
+    def isBipartite(self, graph: List[List[int]]) -> bool:
+        # Initialize DS
+        visited = [0 for _ in range (len(graph))]       # visited can have 3 values: -1, 0, 1
+        queue = deque([])
+
+        # Initialize BFS from each unvisited node to cover all CC
+        for node in range (len(graph)):
+            # If we haven't visited node, add it to the queue and start bfs with color 1
+            if visited[node] == 0:
+                queue.append(node)
+                visited[node] = 1
+
+                while queue:
+                    u = queue.popleft()
+                    uColor = visited[u]
+
+                    # Check all vertices connected to u
+                    for neighbor in graph[u]:
+                        # if neighbor is not visited yet -> simply color the opposite color for neighbor
+                        if visited[neighbor] == 0:
+                            visited[neighbor] = -uColor
+                            queue.append(neighbor)
+                        else:
+                            neighborColor = visited[neighbor]
+                            if uColor == neighborColor:
+                                return False
+
+        return True
 
 
+    # --------------------------------------------------------------------
+    # Leetcode 909. Snakes and Ladders
+    def snakesAndLadders(self, board: List[List[int]]) -> int:
+        # Reverse the board so it's less confusing to represent a graph
+        n = len(board)
+        reversedBoard = []
+        for r in range (n-1, -1, -1):
+            reversedBoard.append(board[r])
 
+        # Create a directed graph representation
+        graph = [[] for _ in range (n*n)]      # each cell is a node
+
+        # Decide which direction will row go. First row in game (last row in board) will go to right
+        goRight = 0             # first row will always go right
+        for r, row in enumerate(reversedBoard):
+            direction = r % 2
+            # Row goes to the right
+            if direction == goRight:
+                for c in range (n):
+                    nodeValue = r*n + c
+                    # Case 1: if cell is a start/mouth of a ladder/snake
+                    if board[r][c] != -1:
+                        graph[nodeValue].append(board[r][c] - 1)    # add snake/ladder
+                        graph[nodeValue].append(board[r][c] - 1)    # add next cells
+                    # Case 2: if cell is the last cell on the row
+                    elif c == n-1:
+                        if r+1 < n: 
+                            nextNodeNumber = (r+1)*n + c 
+                            graph[nodeValue].append(nextNodeNumber)
+                    # Case 3: if cell is in the middle
+                    else:
+                        graph[nodeValue].append(nodeValue+1)
+            # Row goes to the left
+            else:
+                for c in range (n-1, -1, -1):
+                    nodeValue = r*n + c
+                    # Case 1: if cell is a start/mouth of a ladder/snake
+                    if board[r][c] != -1:
+                        graph[nodeValue].append(board[r][c] - 1)
+                    # Case 2: if cell is the last cell on the row
+                    elif c == 0:
+                        if r+1 < n: 
+                            nextNodeNumber = (r+1)*n + c 
+                            graph[nodeValue].append(nextNodeNumber)
+                    # Case 3: if cell is in the middle
+                    else:
+                        graph[nodeValue].append(nodeValue-1)
+
+        print(graph)
+
+        # Start BFS
+        return 0
+
+                
+
+
+            
+
+
+        
 
 
 
@@ -253,11 +344,17 @@ if __name__ == "__main__":
     # print(distance)
 
     # -------------------------------------------
-    deadends = ["0201","0101","0102","1212","2002"] 
-    target = "0202"
+    # deadends = ["0201","0101","0102","1212","2002"] 
+    # target = "0202"
 
-    min_turns = leetcode.openLock(deadends, target)
-    print(min_turns)
+    # min_turns = leetcode.openLock(deadends, target)
+    # print(min_turns)
 
+    # -------------------------------------------
+    # graph = [[],[2,4,6],[1,4,8,9],[7,8],[1,2,8,9],[6,9],[1,5,7,8,9],[3,6,9],[2,3,4,6,9],[2,4,5,6,7,8]]
+    # print(leetcode.isBipartite(graph))
 
+    # Leetcode 909. Snakes and Ladders ------------------------------------
+    board = [[-1,-1,-1,-1,-1,-1],[-1,-1,-1,-1,-1,-1],[-1,-1,-1,-1,-1,-1],[-1,35,-1,-1,13,-1],[-1,-1,-1,-1,-1,-1],[-1,15,-1,-1,-1,-1]]
+    leetcode.snakesAndLadders(board)
 

@@ -96,6 +96,7 @@ class CycleUndirectedGraph:
         self.graph = graph
         self.visited = [False for _ in range(V)]
 
+    # detect a cycle in the WHOLE directed graph
     def detectCycle(self) -> bool:
         # Iterates through all nodes to ensure disconnected components are also checked.
         # Returns True if any component contains a cycle.

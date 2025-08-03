@@ -27,9 +27,27 @@ Leetcode 128: Longest Consecutive Sequence
 Leetcode 252: Meeting Rooms (Easy)
 Leetcode 253: Meeting Rooms II
 
-(Boyer-Moore majority vote algorithm)
+    (Boyer-Moore majority vote algorithm)
 Leetcode 169. Majority Element I
 Leetcode 229. Majority Element II
+
+    (Prefix sum)
+(Easy - try come up with a solution O(1) of space and problem will be Medium)
+Leetcode 724. Find Pivot Index
+(Medium)
+Leetcode 560. Subarray Sum Equals K  <-- medium version of 209 
+Leetcode 974. Subarray Sums Divisible by K
+Leetcode 1248. Count Number of Nice Subarrays
+Leetcode 930. Binary Subarrays With Sum
+Leetcode 437. Path Sum III
+(Hard) 
+Leetcode 1074. Number of Submatrices That Sum to Target
+
+    (Leader in an array algorithm)
+Given an array arr[] of size n, the task is to find all the Leaders in the array. 
+An element is a Leader if it is greater than or equal to all the elements to its right side.
+Note: The rightmost element is always a leader.
+
 
 
 """
@@ -39,6 +57,14 @@ from collections import Counter
 from collections import defaultdict
 import copy
 import math
+
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
+
 
 class Solution:
     # ------------------------------------------------------------------------------
@@ -489,6 +515,264 @@ class Solution:
         return [x for x in (candidate1, candidate2) if nums.count(x) > n/3]
 
 
+    """ Prefix sum """
+    # Leetcode 724. Find Pivot Index
+    def pivotIndex(self, nums: List[int]) -> int:
+        prefixSum = [0 for _ in range (len(nums))]
+        suffixSum = [0 for _ in range (len(nums))]
+
+        for i in range (1, len(nums)):
+            prefixSum[i] = nums[i-1] + prefixSum[i-1]
+        
+        for i in range (len(nums)-2, -1, -1):
+            suffixSum[i] = nums[i+1] + prefixSum[i+1]
+
+        print(prefixSum)
+        print(suffixSum)
+        for i in range (len(nums)):
+            if prefixSum[i] == suffixSum[i]:
+                return i
+            
+        return -1
+    
+    # Use O(1) space
+    # prefixSum[i] + nums[i] + suffixSum[i] == totalSum
+    def pivotIndex(self, nums: List[int]) -> int:
+        totalSum = sum(nums)
+        prefixSum = 0
+
+        # We can compute the prefixSum (thus, also suffixSum) on the flight
+        for i in range (len(nums)):
+            suffixSum = totalSum - prefixSum - nums[i]
+            if prefixSum == suffixSum:
+                return i
+            
+            prefixSum += nums[i]
+            
+        return -1
+
+    # -----------------------------------------------------------------------------------------------
+    # Leetcode 560. Subarray Sum Equals K
+    # Hard Medium: integers in nums can be negative
+    def subarraySum(self, nums: List[int], k: int) -> int:
+        sum_variable, count, i = 0, 0, 0
+        # dict contains how many time a sum has been recorded before
+        # sum -> freq
+        accumulated_sum_dict = defaultdict(int) 
+        
+        while i < len(nums):
+            sum_variable += nums[i]
+
+            # basic case
+            if sum_variable == k: 
+                count += 1
+            # if sum_variable != k, then we are checking in the dict to see if there has been another 'sumPrev' recorded before
+            # if there is, then removing this subarray(that sums to 'sumPrev') will give us another subarray that sums to k
+            if (sum_variable - k) in accumulated_sum_dict: 
+                count += accumulated_sum_dict[sum_variable - k]
+            
+            accumulated_sum_dict[sum_variable] += 1
+            i += 1
+
+        return count
+ 
+
+    # -----------------------------------------------------------------------------------------------
+    # Leetcode 974. Subarray Sums Divisible by K
+    # If two prefix sums have the same remainder modulo k, their difference is divisible by k. So we track frequency of each remainder
+    def subarraysDivByK(self, nums: List[int], k: int) -> int:
+        prefix_sum = defaultdict(int)
+        currentSum = 0
+        count = 0
+
+        for num in nums:
+            currentSum += num
+
+            # Basic case
+            if currentSum % k == 0:
+                count += 1
+            
+            # If two prefix sums have the same remainder modulo k, their difference is divisible by k.
+            remainder = currentSum % k
+            count += prefix_sum[remainder]
+
+            prefix_sum[remainder] += 1
+        
+        return count
+
+
+    # -----------------------------------------------------------------------------------------------
+    # Leetcode 1248. Count Number of Nice Subarrays
+    # solution 2: prefixSum + hash map
+    def numberOfSubarrays2(self, nums: List[int], k: int) -> int:
+        # Initialize a hashmap to count prefix sums of odd numbers
+        # Key: number of odd numbers seen so far
+        # Value: how many times this count has occurred
+        prefix_count = defaultdict(int)
+        prefix_count[0] = 1  # Base case: zero odd numbers seen initially
+
+        odd_total = 0  # Running count of odd numbers seen so far
+        result = 0     # Final count of nice subarrays
+
+        for num in nums:
+            # Convert each number to 1 if odd, 0 if even
+            odd_total += num % 2
+
+            # If we've seen (odd_total - k) before, it means there's a subarray
+            # ending here with exactly k odd numbers
+            result += prefix_count[odd_total - k]
+
+            # Record the current odd_total in the hashmap
+            prefix_count[odd_total] += 1
+
+        return result
+
+
+    # -----------------------------------------------------------------------------------------------
+    # Leetcode 930. Binary Subarrays With Sum
+    def numSubarraysWithSum(self, nums: List[int], goal: int) -> int:
+        prefix_sum_dict = defaultdict(int)
+        prefixSum = 0
+        count = 0
+
+        for num in nums:
+            prefixSum += num
+
+            if prefixSum == goal:
+                count += 1
+            
+            if (prefixSum - goal) in prefix_sum_dict:
+                count += prefix_sum_dict[(prefixSum - goal)]
+
+            prefix_sum_dict[prefixSum] += 1
+
+        return count
+
+
+    # -----------------------------------------------------------------------------------------------
+    # Leetcode 437. Path Sum III
+    # Tree version of prefix sum with hashmap
+    def pathSum(self, root: TreeNode, targetSum: int) -> int:
+        currentSum = 0
+        count = 0
+        prefixSumDict = defaultdict(int)
+
+        # ---------------------------------------------------------
+        def dfs437(root: TreeNode):
+            nonlocal currentSum, count
+
+            # Base case:
+            if not root: return
+
+            # todo: prefix sum basic pattern
+            currentSum += root.val
+            if currentSum == targetSum:
+                count += 1
+
+            complement = currentSum - targetSum
+            if prefixSumDict[complement] != 0:
+                count += prefixSumDict[complement]
+
+            prefixSumDict[currentSum] += 1
+
+            # dfs calls
+            dfs437(root.left)
+            dfs437(root.right)
+            
+            # backtrack
+            prefixSumDict[currentSum] -= 1
+            currentSum -= root.val
+
+        # ---------------------------------------------------------
+        dfs437(root)
+
+        return count
+
+
+    # -----------------------------------------------------------------------------------------------
+    # Leetcode 1074. Number of Submatrices That Sum to Target
+    def print2DMatrix(self, matrix: List[List[int]]):
+        for row in matrix:
+            print(row)
+
+        print("\n")
+    
+    def numSubmatrixSumTarget(self, matrix: List[List[int]], target: int) -> int:
+        prefixSum2D = self.compute2DSubMatrixSum(matrix)
+        count = 0
+
+        self.print2DMatrix(matrix)
+        self.print2DMatrix(prefixSum2D)
+
+        for r1 in range (len(prefixSum2D)):
+            for r2 in range (r1, len(prefixSum2D)):
+                prefixSumDict = defaultdict(int)        # prefixSum -> frequency
+
+                for c in range (len(prefixSum2D[0])):
+                    curr_sum = prefixSum2D[r2][c] - (prefixSum2D[r1-1][c] if r1-1 >= 0 else 0)
+
+                    # basic case
+                    if curr_sum == target:
+                        count += 1
+
+                    diff = curr_sum - target            # compute the complement
+                    count += prefixSumDict[diff]        # add complement freq to the count
+                              
+                    prefixSumDict[curr_sum] += 1        # increment the freq of curr_sum
+                    
+        print(count)   
+        return count
+    
+    # prefixSum[r][c] will represent the sum of all cell within bound (0,r) and (0,c)
+    def compute2DSubMatrixSum(self, matrix: List[List[int]]) -> List[List[int]]:
+        prefixSum = copy.deepcopy(matrix)
+
+        for r in range (len(prefixSum)):
+            for c in range (len(prefixSum[0])):
+                top, left, topleft = 0, 0, 0
+                
+                # topleft
+                if 0 <= r-1 < len(prefixSum) and 0 <= c-1 < len(prefixSum[0]):
+                    topleft = prefixSum[r-1][c-1]
+                # top
+                if 0 <= r-1 < len(prefixSum):
+                    top = prefixSum[r-1][c]
+                # left
+                if 0 <= c-1 < len(prefixSum[0]):
+                    left = prefixSum[r][c-1]
+
+                # fill the cell
+                prefixSum[r][c] = prefixSum[r][c] + top + left - topleft
+
+        return prefixSum
+
+
+    # -----------------------------------------------------------------------------------------------
+    # Function to find the leaders in an array
+    def leaderInAnArray(self, arr: List[int]) -> List[int]:
+        result = []
+        n = len(arr)
+
+        # Start with the rightmost element
+        maxRight = arr[-1]
+
+        # Rightmost element is always a leader
+        result.append(maxRight)
+
+        # Traverse the array from right to left
+        for i in range(n - 2, -1, -1):
+            if arr[i] >= maxRight:
+                maxRight = arr[i]
+                result.append(maxRight)
+
+        # Reverse the result list to maintain
+        # original order
+        result.reverse()
+
+        return result
+
+
+
 
 
 
@@ -528,9 +812,26 @@ if __name__ == "__main__":
     # print(result)
 
     # --------------------------- 713 ---------------------------
-    nums = [10,5,2,6]
-    k = 100
-    leetcode.numSubarrayProductLessThanK(nums, k)
+    # nums = [10,5,2,6]
+    # k = 100
+    # leetcode.numSubarrayProductLessThanK(nums, k)
 
+    # --------------------------- 560 ---------------------------
+    # nums = [3, 4, -7, 1, 3, 3, 1, -4]
+    # k = 7
+    # print('Answer for 560 is: ', solution.subarraySum(nums, k))
 
+    # --------------------------- 974 ---------------------------
+    # nums = [4,5,0,-2,-3,1]
+    # k = 5
+    # print('Answer for 974 is: ', leetcode.subarraysDivByK(nums, k))
 
+    # --------------------------- 1248 ---------------------------
+    # nums = [2,2,2,1,2,2,1,2,2,2]
+    # k = 2
+    # leetcode.numberOfSubarrays2(nums, k)
+
+    # --------------------------- 1074 ---------------------------
+    matrix = [[0,0,0,1,1],[1,1,1,0,1],[1,1,1,1,0],[0,0,0,1,0],[0,0,0,1,1]]
+    target = 0
+    leetcode.numSubmatrixSumTarget(matrix, target)

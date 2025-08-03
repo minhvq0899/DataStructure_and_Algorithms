@@ -9,6 +9,10 @@ I can later tackle Leetcode challenges with more confidence.
 Leetcode 35. Search Insert Position
 
 (Medium)
+    (Monotonic function within the list)
+Leetcode 153. Find Minimum in Rotated Sorted Array
+Leetcode 33. Search in Rotated Sorted Array
+    (Checking possibility of mid)
 Leetcode 875. Koko Eating Bananas
 Leetcode 1011. Capacity To Ship Packages Within D Days
 
@@ -37,6 +41,65 @@ class Solution:
                 right = mid - 1
         
         return left
+
+
+    # ==============================================================================
+    # ------------------------------------------------------------------------------
+    # Leetcode 153. Find Minimum in Rotated Sorted Array
+    def findMin(self, nums: List[int]) -> int:
+        # Monotonic relation of these elements: <= nums[-1]
+        L, R = 0, len(nums) - 1
+
+        while L <= R: 
+            mid = (R + L) // 2
+            
+            # case 1: min element is next to mid to the right
+            if mid+1 < len(nums) and nums[mid] > nums[mid+1]:
+                return nums[mid+1]
+            # case 2: min element is mid
+            if mid-1 >= 0 and nums[mid-1] > nums[mid]:
+                return nums[mid]
+            
+            # look to the left
+            if nums[mid] <= nums[-1]:
+                R = mid - 1
+            # look to the right
+            else:
+                L = mid + 1
+
+        return nums[mid]
+
+
+    # ------------------------------------------------------------------------------
+    # Leetcode 33. Search in Rotated Sorted Array
+    def search(self, nums: List[int], target: int) -> int:
+        # pivot will be nums[-1]
+        # binary search
+        L, R = 0, len(nums)-1
+        while L <= R:
+            mid = (R + L) // 2
+            
+            # Found it
+            if nums[mid] == target:
+                return mid
+            
+            # Case 1: Left halve is sorted
+            if nums[L] <= nums[mid]:
+                # If target belongs to the sorted halve -> look to the left
+                if nums[L] <= target < nums[mid]:
+                    R = mid - 1
+                else: 
+                    L = mid + 1
+            # Case 2: Right halve is sorted
+            else:
+                # If target belongs to the sorted halve -> look to the right
+                if nums[mid] < target <= nums[R]:
+                    L = mid + 1
+                else: 
+                    R = mid - 1
+                
+        return -1
+
 
     # ------------------------------------------------------------------------------
     # Leetcode 875. Koko Eating Bananas
@@ -105,6 +168,8 @@ class Solution:
 
         return cap
 
+
+    # ==============================================================================
     # ------------------------------------------------------------------------------
     # Leetcode 2468. Split Message Based on Limit (Hard) - Not a working solution, only pass 86/94 test cases
     def splitMessage(self, message: str, limit: int) -> List[str]:
@@ -211,6 +276,14 @@ if __name__ == "__main__":
     # idx = leetcode.searchInsert( [1,3,5,6], 2 )
     # print(idx)
 
+    # ---------------------- 153 ----------------------
+    # nums = [4,5,6,7,0,1,2]
+    # print(leetcode.findMin(nums))
+
+    # ---------------------- 33 ----------------------
+    nums = [4,5,6,7,0,1,2]
+    print(leetcode.search(nums, 0))
+
     # ---------------------- 1011 ----------------------
     # print( "Final: ", leetcode.shipWithinDays_test( [3,2,2,4,1,4], 3 ) )
 
@@ -218,6 +291,6 @@ if __name__ == "__main__":
     # print( "Final: ", leetcode.minEatingSpeed( [312884470], 312884469 ) )
 
     # ---------------------- 2468 ----------------------
-    message = "abbababbbaaa aabaa a"
-    limit = 8
-    print( leetcode.splitMessage(message, limit) )
+    # message = "abbababbbaaa aabaa a"
+    # limit = 8
+    # print( leetcode.splitMessage(message, limit) )

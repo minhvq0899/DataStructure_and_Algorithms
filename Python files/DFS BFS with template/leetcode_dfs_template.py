@@ -18,6 +18,7 @@ DFS down different path:
         Leetcode 40. Combination Sum II
         Leetcode 216. Combination Sum III
         Leetcode 377. Combination Sum IV
+        Leetcode 78. Subsets
     Leetcode 1306. Jump Game III
 
 DFS on grid/ matrix
@@ -585,6 +586,30 @@ class Solution:
         return total_perm
 
 
+    # ----------------------------------------------------------------------------------
+    # Leetcode 78. Subsets
+    def subsets(self, nums: List[int]) -> List[List[int]]:
+        result = []
+        self.dfs78(nums, 0, [], result)
+
+        print(result)
+        return result
+
+    def dfs78(self, nums: List[int], index: int, potential: List[int], result: List[List[int]]):
+        # Base case
+        if index == len(nums):
+            result.append(potential.copy())
+            return
+        
+        # Not include
+        self.dfs78(nums, index+1, potential, result)
+
+        # Include
+        potential.append(nums[index])
+        self.dfs78(nums, index+1, potential, result)
+        potential.pop()
+
+    
     # ------------------------------------------------------------------------
     # Leetcode 1306. Jump Game III
     def canReach(self, arr: List[int], start: int) -> bool:
