@@ -12,7 +12,8 @@ Leetcode 15: 3Sum
     c) Approach 3: Hashset but sort isn't needed
 Leetcode 18. 4Sum
 Leetcode 454. 4Sum II
- 
+
+    (Index related)
 (Easy) Leetcode 448. Find All Numbers Disappeared in an Array
 (Medium) Leetcode 442. Find All Duplicates in an Array
 (Hard) Leetcode 41. First Missing Positive
@@ -20,6 +21,7 @@ Leetcode 287. Find the Duplicate Number
 Leetcode 457: Circular Array Loop
 Leetcode 1060. Missing Element in Sorted Array
 
+    (Just general Array problems)
 Leetcode 238. Product of Array Except Self
 Leetcode 713. Subarray Product Less Than K
 Leetcode 567. Permutation in String
@@ -48,7 +50,8 @@ Given an array arr[] of size n, the task is to find all the Leaders in the array
 An element is a Leader if it is greater than or equal to all the elements to its right side.
 Note: The rightmost element is always a leader.
 
-
+(Hard)
+Leetcode 2444. Count Subarrays With Fixed Bounds
 
 """
 
@@ -773,9 +776,33 @@ class Solution:
 
 
 
+    """ Hard """
+    # ===============================================================================================
+    # Leetcode 2444. Count Subarrays With Fixed Bounds
+    # "We're scanning the array and for each position, we ask: what's the earliest point we can start a subarray that ends here and still be valid? 
+    # That subarray must include both minK and maxK, and must not include any out-of-bound values. 
+    # So we track the last time we saw minK, maxK, and any invalid value. The number of valid subarrays ending here is 
+    # the number of valid starting points between the last invalid value and the earlier of the two required values."
+    def countSubarrays(self, nums: List[int], minK: int, maxK: int) -> int:
+        lastMinIndex, lastMaxIndex, lastOobIndex = -1, -1, -1
+        count = 0
 
+        for i in range (len(nums)):
+            if nums[i] < minK or maxK < nums[i]:
+                lastOobIndex = i
+            if nums[i] == minK:
+                lastMinIndex = i
+            if nums[i] == maxK:
+                lastMaxIndex = i
 
+            # The earliest such valid start is:
+            # start = min(last_minK, last_maxK)
+            # But since we want the number of valid subarrays (excluding the oob index), we subtract:
+            # min(last_minK, last_maxK) - last_out_of_bounds
+            # This gives us the number of valid starting points for subarrays ending at i.
+            count += max(0, min(lastMinIndex, lastMaxIndex) - lastOobIndex)
 
+        return count
 
 
 
@@ -832,6 +859,14 @@ if __name__ == "__main__":
     # leetcode.numberOfSubarrays2(nums, k)
 
     # --------------------------- 1074 ---------------------------
-    matrix = [[0,0,0,1,1],[1,1,1,0,1],[1,1,1,1,0],[0,0,0,1,0],[0,0,0,1,1]]
-    target = 0
-    leetcode.numSubmatrixSumTarget(matrix, target)
+    # matrix = [[0,0,0,1,1],[1,1,1,0,1],[1,1,1,1,0],[0,0,0,1,0],[0,0,0,1,1]]
+    # target = 0
+    # leetcode.numSubmatrixSumTarget(matrix, target)
+
+    # ---------------------- 2444 ----------------------
+          # 0,1,2,3,4,5,6,7,8,9,10,11
+    nums = [1,3,5,2,7,4,3,2,5,4,1,4]
+    minK = 1
+    maxK = 5
+    ans2444 = leetcode.countSubarrays(nums, minK, maxK)
+    print(ans2444)

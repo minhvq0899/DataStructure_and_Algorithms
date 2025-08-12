@@ -14,12 +14,12 @@ Leetcode 20. Valid Parentheses
     isValid_medium
 Leetcode 1047. Remove All Adjacent Duplicates In String
 Leetcode 1544. Make The String Great
-Leetcode 496. Next Greater Element I
+Leetcode 496. Next Greater Element I - use Monotonic stack
 
 (Medium)
 Leetcode 443. String Compression
 Leetcode 394. Decode String
-Leetcode 739. Daily Temperatures
+Leetcode 739. Daily Temperatures - use Monotonic stack
 Leetcode 856. Score of Parentheses
 Leetcode 503. Next Greater Element II  - use Monotonic stack
 Leetcode 1381. Design a Stack With Increment Operation
@@ -28,12 +28,15 @@ Leetcode 735. Asteroid Collision
 
 (Hard)
 Leetcode 224. Basic Calculator
+Leetcode 84. Largest Rectangle in Histogram - use Monotonic stack
+Leetcode 85. Maximal Rectangle - use Monotonic stack
+
 
 
 """
 
 from typing import List
-from collections import defaultdict
+from collections import defaultdict, deque
 
 # ----------------------------------------------------------------------------------------------------------------------------------------
 # Leetcode 1381. Design a Stack With Increment Operation
@@ -397,26 +400,74 @@ class Solution:
     """
 
 
+    # ----------------------------------------------------------------------------------------------------------------------------------------
+    # Leetcode 84. Largest Rectangle in Histogram - use Monotonic stack
+    def largestRectangleArea(self, heights: List[int]) -> int:
+        startingIndex_height_stack = []         # pair: (starting index, height)
+        maxArea = 0
+
+        for i, currentHeight in enumerate(heights):
+            start = i
+            # (1) Make sure the stack is in the right order
+            # If height of startingIndex_height_stack[-1] > heights[i] --> Stop, compute maxArea, and pop the stack
+            # Monotonic stack
+            while startingIndex_height_stack and startingIndex_height_stack[-1][1] > currentHeight:
+                startingIndex, height = startingIndex_height_stack.pop()
+                maxArea = max(maxArea, (i-startingIndex)*height)
+                start = startingIndex                   # reset the starting index for currentHeight 
+            
+            # (2) If height of startingIndex_height_stack[-1] <= heights[i] --> Found a new rec to track
+            # Add current bar to the stack
+            startingIndex_height_stack.append( (start, currentHeight) )
+
+        # Compute the rec area of what's left in the stack
+        for i, currentHeight in startingIndex_height_stack:
+            maxArea = max(maxArea, currentHeight*(len(heights) - i))
+
+        return maxArea
 
 
+    # ----------------------------------------------------------------------------------------------------------------------------------------
+    # matrix = [ ["1","0","1","0","0"],
+    #            ["1","0","1","1","1"],
+    #            ["1","1","1","1","1"],
+    #            ["1","0","0","1","0"] ]
+    # 
+    # histograms = [ [1,0,1,0,0],
+    #                [2,0,2,1,1],
+    #                [3,1,3,2,2],
+    #                [4,0,0,3,0] ]
+    # Leetcode 85. Maximal Rectangle
+    def maximalRectangle(self, matrix: List[List[str]]) -> int:
+        # Step 1: Compute all mini histograms
+        histograms = [[0 for _ in range (len(matrix[0]))] for _ in range (len(matrix))]
 
+        for r, row in enumerate(matrix):
+            for c, col in enumerate(row):
+                # Case 0: First row
+                if r == 0:
+                    histograms[r][c] = int(matrix[r][c])
+                # Case 1: matrix[r][c] == "0"
+                elif matrix[r][c] == "0":
+                    histograms[r][c] = 0
+                # Case 2: matrix[r][c] == "1"
+                else:
+                    histograms[r][c] = histograms[r-1][c] + 1
 
+        # print(histograms)
+
+        # Step 2: Compute maxAre for each rec in each mini histograms
+        maxArea = 0
+        for histogram in histograms:
+            maxArea = max(maxArea, self.largestRectangleArea(histogram))
+
+        print("maxArea: ", maxArea)
+        return maxArea
 
 
 
 # =================================================================================================================================================
 # =================================================================================================================================================
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -429,9 +480,14 @@ if __name__ == "__main__":
     # lc1544 = "ABbcCa"
     # lc496_nums2 = [1,3,4,2] 
     # lc496_nums1 = [4,1,2]
-    lc739 = [73,74,75,71,69,72,76,73]
+    # lc739 = [73,74,75,71,69,72,76,73]
     # lc856 = "(()(()))"
     # lc503 = [1,2,3,4,3]
+    # lc84 = [1,0]
+    # matrix85 = [ ["1","0","1","0","0"],
+    #            ["1","0","1","1","1"],
+    #            ["1","1","1","1","1"],
+    #            ["1","0","0","1","0"] ]
 
     # -----------------------------------------------------------
     leetcode = Solution()
@@ -455,14 +511,18 @@ if __name__ == "__main__":
 
     # print(leetcode.nextGreaterElement(lc496_nums1, lc496_nums2))
 
-    daily_temp = leetcode.dailyTemperatures(lc739)
-    print(daily_temp)
+    # daily_temp = leetcode.dailyTemperatures(lc739)
+    # print(daily_temp)
 
     # print("Score of this parentheses is ", leetcode.scoreOfParentheses(lc856))
 
     # nge_medium = leetcode.nextGreaterElements(lc503)
     # print(nge_medium)
 
+    # answer84 = leetcode.largestRectangleArea(lc84)
+    # print(answer84)
+
+    # answer85 = leetcode.maximalRectangle(matrix85)
 
 
 

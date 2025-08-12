@@ -10,6 +10,7 @@ DFS down different path:
     Leetcode 17. Letter Combinations of a Phone Number
     Leetcode 752. Open the Lock
     Leetcode 797. All Paths From Source to Target
+    Leetcode 93. Restore IP Addresses - Backtracking
     Combination and Permutation series
         Leetcode 46. Permutation
         Leetcode 47. Permutation II
@@ -23,6 +24,8 @@ DFS down different path:
 
 DFS on grid/ matrix
     Leetcode 200. Number of Islands
+        DFS solution
+        BFS solution - recommended for interview, showcasing your knowledge about memory usage difference between DFS and BFS
     Leetcode 1254. Number of Closed Islands
     Leetcode 695. Max Area of Island
     Leetcode 827. Making A Large Island (Hard - very similar to 695)
@@ -31,15 +34,19 @@ DFS on grid/ matrix
     Leetcode 1020. Number of Enclaves
     Leetcode 529. Minesweeper
     Leetcode 934. Shortest Bridge ??
+    Leetcode 1219. Path with Maximum Gold
     Leetcode 79. Word Search
-    Leetcode 212. Word Search II
+    Leetcode 212. Word Search II - Hard
+    Leetcode 36. Valid Sudoku
+    Leetcode 37. Sudoku Solver
+    Leetcode 51. N-Queens - follow up of Leetcode 52 - Hard
+    Leetcode 52. N-Queens II - Hard
     
 """
 
 import queue
-from typing import List
-from collections import Counter
-from collections import defaultdict
+from typing import List, Tuple 
+from collections import Counter, defaultdict, deque
 from math import factorial
 
 class TrieNode:
@@ -240,6 +247,44 @@ class Solution:
         dfs(0)
         return result
     
+
+    # ------------------------------------------------------------------------------------------
+    # Leetcode 93. Restore IP Addresses - Backtracking
+    def restoreIpAddresses(self, s: str) -> List[str]:
+        results = []
+        if len(s) > 12: return results
+
+        # -----------------------------------------
+        def placeDot(index: int, numOfDots: int, curIP: str):
+            # Base cases:
+            if numOfDots == 4 and index == len(s):
+                results.append(curIP[:-1])
+                return
+            if numOfDots > 4: 
+                return
+            
+            # Action
+            for j in range (index, min(index+3, len(s))):
+                nextSegment = s[index:j+1]
+
+                if isValidSegment(nextSegment):
+                    # curIP += (nextSegment + ".")
+                    placeDot(j+1, numOfDots+1, curIP + nextSegment + ".")
+
+                # No need for explicit backtracking part here, because we are constructing the nextSegment for each dfs call
+
+        def isValidSegment(segment: str) -> bool:
+            if len(segment) == 1: return True
+            if int(segment) < 256 and segment[0] != "0":
+                return True
+            
+            return False
+        # -----------------------------------------
+        placeDot(0, 0, "")
+
+        # print(results)
+        return results
+
 
     """ Combination and Permutation series """
     # ------------------------------------------------------------------------------------------
@@ -654,6 +699,7 @@ class Solution:
     # ================================================================================================================================================================================================================================================================================== 
     # ================================================================================================================================================================================================================================================================================== 
     # Leetcode 200. Number of Islands
+    """DFS solution"""
     def numIslands(self, grid: List[List[str]]) -> int:
         # create a DS to store all answers
         count = 0
@@ -686,8 +732,72 @@ class Solution:
         
         # increament 
         return 1
+
+
+    """ BFS solution - recommended for interview, showcasing your knowledge about memory usage difference between DFS and BFS """
+    def numIslands(self, grid: List[List[str]]) -> int:
+        visited = set()     # contains (r,c)
+        dq = deque([])
+        count = 0
+        
+        # -------------------------------------
+        def bfs():
+            while dq: 
+                r, c = dq.popleft()
+                    
+                # Loop through all neighbors
+                directions = [(r-1,c), (r,c-1), (r+1,c), (r,c+1)]
+                for direction in directions:
+                    nr, nc = direction
+                    if 0 <= nr < len(grid) and 0 <= nc < len(grid[0]) and grid[nr][nc] == "1" and (nr,nc) not in visited:
+                        visited.add((nr,nc))
+                        dq.append((nr, nc))
+        # -------------------------------------
+        
+        for r in range(len(grid)):
+            for c in range(len(grid[0])):
+                # Only start BFS on an unvisited land cell
+                if grid[r][c] == "1" and (r, c) not in visited:
+                    dq.append((r,c))
+                    visited.add((r,c))
+                    bfs()
+                    count += 1
+        
+        return count 
+
+
+    """ Iterative DFS solution """
+    def numIslands(self, grid: List[List[str]]) -> int:
+        visited = set()     # contains (r,c)
+        stack = []
+        count = 0
+        
+        # -------------------------------------
+        def iterativeDfs():
+            while stack: 
+                r, c = stack.pop()
+                    
+                # Loop through all neighbors
+                directions = [(r-1,c), (r,c-1), (r+1,c), (r,c+1)]
+                for direction in directions:
+                    nr, nc = direction
+                    if 0 <= nr < len(grid) and 0 <= nc < len(grid[0]) and grid[nr][nc] == "1" and (nr,nc) not in visited:
+                        visited.add((nr,nc))
+                        stack.append((nr, nc))
+        # -------------------------------------
+        
+        for r in range(len(grid)):
+            for c in range(len(grid[0])):
+                # Only start DFS on an unvisited land cell
+                if grid[r][c] == "1" and (r, c) not in visited:
+                    stack.append((r,c))
+                    visited.add((r,c))
+                    iterativeDfs()
+                    count += 1
+        
+        return count 
     
-         
+
     # --------------------------------------------------------------------------------------
     # Leetcode 1254. Number of Closed Islands
     def closedIsland(self, grid: List[List[int]]) -> int:
@@ -1077,22 +1187,194 @@ class Solution:
                             self.updateBoard(board, [r, c])
                 
         return board
-    
-    # Time Complexity: O()
-    # Extra Space Complexity: O(1)
 
-    # ------------------------------------------------------------------------------------------
-    # # Leetcode 934. Shortest Bridge
-    # def shortestBridge(self, A: List[List[int]]) -> int:
-    #     pass
+    # --------------------------------------------------------------------------------------
+    #   
+    def getMaximumGold(self, grid: List[List[int]]) -> int:
+        row = len(grid)
+        col = len(grid[0])
+        visited = [[False for _ in range (col)] for _ in range (row)]
+        currentSum = 0
+        maxGold = 0
 
-    # def dfs_shortestBridge(self, A: List[List[int]], coordinate: List[int], count: int) -> int:
-    #     r, c = coordinate
+        # -----------------------------------------------------------------------------------
+        def dfs(coordinates: Tuple[int]) -> bool:
+            nonlocal currentSum, visited, maxGold
+            r,c = coordinates
 
-    #     # base cases 
-    #     if r < 0 or c < 0 or r >= len(A) or c >= len(A[0]):
-    #         return 0
-    #     if 
+            # Base cases: oob, no gold cell, or visited
+            if r < 0 or len(grid) <= r or c < 0 or len(grid[0]) <= c: 
+                return False
+            if grid[r][c] == 0 or visited[r][c] == True: 
+                return False
+
+            # Todo
+            visited[r][c] = True
+            currentSum += grid[r][c]
+
+            # DFS
+            directions = [(r-1,c), (r,c+1), (r+1,c), (r,c-1)]   # up, right, down, left
+            dirCount = 0
+            for nr, nc in directions:
+                coordinate = (nr, nc)
+                if dfs(coordinate):
+                    dirCount += 1
+
+            # We will stop when we cannot collect any more gold 
+            if dirCount == 0: 
+                maxGold = max(maxGold, currentSum)
+
+            # Backtrack
+            visited[r][c] = False
+            currentSum -= grid[r][c]
+
+            return True
+        # -----------------------------------------------------------------------------------
+
+        for r in range (len(grid)):
+            for c in range (len(grid[0])):
+                # Attempt to start from any cell with gold
+                if grid[r][c] != 0:
+                    coordinate = (r,c)
+                    dfs(coordinate)
+
+        return maxGold
+
+    # --------------------------------------------------------------------------------------
+    # Leetcode 36. Valid Sudoku
+    def isValidSudoku(self, board: List[List[str]]) -> bool:
+        colSets = [set() for _ in range (9)]
+        subBoxSets = [[set() for _ in range (3)] for _ in range (3)]
+
+        for row in range (9):
+            rowSet = set()
+            for col in range (9):
+                cell = ""
+                if board[row][col] != ".":
+                    cell = board[row][col]
+                else:
+                    continue
+
+                # Case 1: Check each row
+                if cell in rowSet:
+                    return False
+                else:
+                    rowSet.add(cell)
+
+                # Case 2: Check each column
+                colSet = colSets[col]
+                if cell in colSet:
+                    return False
+                else:
+                    colSet.add(cell)
+
+                # Case 3: Check each subbox
+                subBoxRow = (row // 3)
+                subBoxCol = (col // 3)
+                subBoxSet = subBoxSets[subBoxRow][subBoxCol]
+                if cell in subBoxSet:
+                    return False
+                else:
+                    subBoxSet.add(cell)
+
+        return True
+
+    # --------------------------------------------------------------------------------------
+    # Leetcode 37. Sudoku Solver
+    def solveSudoku(self, board: List[List[str]]) -> None:
+        """
+        Do not return anything, modify board in-place instead.
+        """
+        # Step 1: Fill all the sets
+        fullSet = {"1", "2", "3", "4", "5", "6", "7", "8", "9"}
+        rowSets = [set() for _ in range (9)]
+        colSets = [set() for _ in range (9)]
+        subBoxSets = [[set() for _ in range (3)] for _ in range (3)]
+        # visited = set()     # Contain all visited filled cell
+        # emptyCell = 0
+
+        for row in range (9):
+            rowSet = rowSets[row]
+            for col in range (9):
+                cell = ""
+                if board[row][col] != ".":
+                    cell = board[row][col]
+                else:
+                    # emptyCell += 1
+                    continue
+
+                # Since the input is guaranteed to be solvable, we don't need to do any validation
+                rowSet.add(cell)
+
+                colSet = colSets[col]
+                colSet.add(cell)
+
+                subBoxRow = (row // 3)
+                subBoxCol = (col // 3)
+                subBoxSet = subBoxSets[subBoxRow][subBoxCol]
+                subBoxSet.add(cell)
+
+        # -------------------------------------------------------
+        def placeCell(r: int, c: int) -> bool:
+            # Base cases: Last column
+            if c == 9:
+                return placeCell(r+1, 0)
+            # Base cases: Last row
+            if r == 9:
+                return True
+            # Base cases: Filled cell
+            if board[r][c] != ".":
+                return placeCell(r,c+1)
+
+            # Action
+            rowSet = rowSets[r]
+            potentialValuesRow = fullSet.difference(rowSet)
+            colSet = colSets[c]
+            potentialValuesCol = fullSet.difference(colSet)
+            subBoxSet = subBoxSets[r//3][c//3]
+            potentialValuesSubBox = fullSet.difference(subBoxSet)
+
+            potentialValues = potentialValuesRow.intersection(potentialValuesCol).intersection(potentialValuesSubBox)
+            print("For row {} and col {}, the potentialValues are {}".format(r, c, potentialValues))
+
+            # Try each potential value
+            for value in potentialValues:
+                board[r][c] = value
+                rowSets[r].add(value)
+                colSets[c].add(value)
+                subBoxSets[r//3][c//3].add(value)
+
+                # DFS the next cell
+                if placeCell(r,c+1):
+                    return True
+                
+                # Backtracking
+                board[r][c] = "."
+                rowSets[r].remove(value)
+                colSets[c].remove(value)
+                subBoxSets[r//3][c//3].remove(value)
+                
+            # After attempting all values from 0->9, it means this Sudoku cannot be solved
+            return False
+        # -------------------------------------------------------
+
+        # Step 2: Recursion and Backtracking
+        placeCell(0,0)
+        self.print_sudoku(board)
+
+    def print_sudoku(self, board: List[List[int]]) -> None:
+        for i in range(9):
+            if i % 3 == 0 and i != 0:
+                print("-" * 21)  # Horizontal separator
+
+            for j in range(9):
+                if j % 3 == 0 and j != 0:
+                    print("|", end=" ")  # Vertical separator
+
+                val = board[i][j]
+                print(val if val != 0 else ".", end=" ")
+
+            print()  # Newline after each row
 
 
     # --------------------------------------------------------------------------------------------
@@ -1211,7 +1493,76 @@ class Solution:
         return list(result)
 
 
+    # --------------------------------------------------------------------------------------------
+    # Leetcode 51. N-Queens
+    # Idea: On each row, attempt to place one Queen in a column, and keep going down row by row until cannot place another Queen.
+    # Then backtrack and attempt to place one Queen in the next column.
+    def solveNQueens(self, n: int) -> List[List[str]]:
+        matrix = [[0 for _ in range (n)] for _ in range (n)]
+        solutions = []
 
+        # Attempt to place a Queen on 0-th row
+        self.placeQueen(matrix, 0, solutions)
+        
+        # If not successful, this means this matrix n x n cannot be solved for N-Queens problem
+        print("There are {} solutions.".format(len(solutions)))
+        return solutions
+    
+    # Helper fn to attemtp to place a Queen on a specific row
+    def placeQueen(self, matrix: List[List[int]], row: int, solutions: List[int]):
+        n = len(matrix)      # n is num of rows/cols
+
+        # Base case: Everytime we hit this base case, it means we found a solution
+        if row == n:
+            board = []
+            for r in matrix:
+                row_str = ''.join('Q' if cell == 1 else '.' for cell in r)
+                board.append(row_str)
+            solutions.append(board)
+            # Here if you retrun True, the call stack will bubble up to the root and return after exploring only the first branch of the tree
+            return      
+
+        for col in range (n):
+            if self.isSafe(matrix, row, col):
+                matrix[row][col] = 1
+
+                # After being able to place a Queen on matrix[row][col], attempt to
+                # place the next Queen on row+1
+                if self.placeQueen(matrix, row+1, solutions):
+                    return True
+                
+                # Backtracking part
+                matrix[row][col] = 0
+
+        return False
+
+    # Helper fn to attemtp to place a Queen on a specific cell
+    # We can definitely optimize on isSafe() helper fn
+    def isSafe(self, matrix: List[List[int]], row: int, col: int):
+        n = len(matrix)      # n is num of rows/cols
+
+        # Case 1: Check above vertical line
+        for r in range (row-1, -1, -1):
+            if matrix[r][col] == 1:
+                return False
+            
+        # Case 2: Check above left diagonal line
+        for r,c in zip( range(row-1, -1, -1), range(col-1, -1, -1) ):
+            if 0 <= r < n and 0 <= c < n and matrix[r][c] == 1:
+                return False
+
+        # Case 3: Check above right diagonal line
+        for r,c in zip( range(row-1, -1, -1), range(col+1, n) ):
+            if 0 <= r < n and 0 <= c < n and matrix[r][c] == 1:
+                return False
+
+        return True
+
+
+    # --------------------------------------------------------------------------------------------
+    # Leetcode 52. N-Queens II
+    def totalNQueens(self, n: int) -> int:
+        return len(self.solveNQueens(n))
 
 
 if __name__ == "__main__":
@@ -1274,6 +1625,9 @@ if __name__ == "__main__":
     # num_closed_island = leetcode.closedIsland(grid)
     # print(num_closed_island)
 
+    # ------------------------- 93. Restore IP Addresses -------------------------
+    s = "25525511135"
+    leetcode.restoreIpAddresses(s)
 
     # ------------------------- 39. Combination Sum -------------------------
     # candidates = [2,3,6,7]
@@ -1300,6 +1654,34 @@ if __name__ == "__main__":
     # largeIsland = leetcode.largestIsland(grid)
     # print(largeIsland)
 
+    # ------------------------ 827. Making A Large Island -------------------------
+    # grid = [[0,6,0],[5,8,7],[0,9,0]]
+    # print(leetcode.getMaximumGold(grid))
+
+    # ------------------------ 36. Valid Sudoku ------------------------
+    # board = [["8","3",".",".","7",".",".",".","."]
+    #         ,["6",".",".","1","9","5",".",".","."]
+    #         ,[".","9","8",".",".",".",".","6","."]
+    #         ,["8",".",".",".","6",".",".",".","3"]
+    #         ,["4",".",".","8",".","3",".",".","1"]
+    #         ,["7",".",".",".","2",".",".",".","6"]
+    #         ,[".","6",".",".",".",".","2","8","."]
+    #         ,[".",".",".","4","1","9",".",".","5"]
+    #         ,[".",".",".",".","8",".",".","7","9"]]
+    # print(leetcode.isValidSudoku(board))
+
+    # ------------------------ 37. Sudoku Solver ------------------------
+    # placeCell(0,0)
+    # board = [["5","3",".",".","7",".",".",".","."],
+    #          ["6",".",".","1","9","5",".",".","."],
+    #          [".","9","8",".",".",".",".","6","."],
+    #          ["8",".",".",".","6",".",".",".","3"],
+    #          ["4",".",".","8",".","3",".",".","1"],
+    #          ["7",".",".",".","2",".",".",".","6"],
+    #          [".","6",".",".",".",".","2","8","."],
+    #          [".",".",".","4","1","9",".",".","5"],
+    #          [".",".",".",".","8",".",".","7","9"]]
+    # leetcode.solveSudoku(board)
 
     # ------------------------ 79. Word Search -------------------------
     # grid = [["A","B","C","E"],
@@ -1310,8 +1692,9 @@ if __name__ == "__main__":
     # print(leetcode.exist(grid, word))
 
 
-    s = "hello"
-    sList = list(s)
-    print(list(reversed(sList)))
-    sList.insert(1, "1")
-    print(sList)
+    # ------------------------ 51. N-Queens -------------------------
+    # ans51 = leetcode.solveNQueens(5)
+    # for matrix in ans51:
+    #     for row in matrix:
+    #         print(row)
+    #     print("-----")

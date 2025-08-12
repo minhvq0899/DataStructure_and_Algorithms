@@ -11,6 +11,7 @@ Leetcode time
     Leetcode 310: Minimum Height Trees 
     Leetcode 444. Sequence Reconstruction (Premium)
     Leetcode 1136: Parallel Courses (Premium)
+    Leetcode 1857. Largest Color Value in a Directed Graph (Hard)
     Leetcode 269. Alien Dictionary (Premium + Hard)
 
 """
@@ -65,7 +66,7 @@ class TopologicalSorting:
 
 
 class Solution: 
-    # Leetcode 210. Course Schedule II --------------------------------------------------------------------------------------------
+    # Leetcode 210. Course Schedule II -------------------------------------------------------------------------------------------
     def findOrder(self, numCourses: int, prerequisites: List[List[int]]) -> List[int]:
         """Going to use Kahn's algo for Topo sorting"""
         # Step 1: Create graph and in_degree list for all nodes
@@ -98,7 +99,7 @@ class Solution:
         return []  
 
 
-    # Leetcode 310: Minimum Height Trees --------------------------------------------------------------------------------------------
+    # Leetcode 310: Minimum Height Trees -----------------------------------------------------------------------------------------
     def findMinHeightTrees(self, n: int, edges: List[List[int]]) -> List[int]:
         # Corner case
         if n == 1:
@@ -133,6 +134,126 @@ class Solution:
         return list(queue_leaves)
  
 
+    # 1857. Largest Color Value in a Directed Graph ------------------------------------------------------------------------------
+    # https://algo.monster/liteproblems/1857
+    def largestPathValue(self, colors: str, edges: List[List[int]]) -> int:
+        # Step 1: graph representation
+        n = len(colors)
+        graph = defaultdict(list)
+        for edge in edges:
+            u, v = edge
+            graph[u].append(v)
+
+        # Step 2: Build a topological sorting for this graph
+        # Step 3: Dynamic Programming
+        # 2.1. Construct the in_degree array
+        topo_order = []
+        in_degree = [0 for _ in range (n)]
+        for edge in edges:
+            u, v = edge
+            in_degree[v] += 1
+
+        # 3.1. Construct a 2D memo
+        # memo[node][c] will represents the max count of color c appears on any path ending at node i
+        memo = [defaultdict(int) for _ in range (n)]
+        result = 0          # store the largest color value of any valid path
+
+        # 2.2. Initialize the queue
+        dq = deque([node for node in range (n) if in_degree[node] == 0])
+        print(dq)
+
+        # 2.3. Run Kahns algorithm
+        # 3.2. Populate the 2D array 'memo'
+        # memo = [{r:1},{r:1, p:1},{r:2},{b:1,r:2},{r:3,b:1}] 
+        while dq:
+            # topo order
+            pop = dq.popleft()
+            topo_order.append(pop)
+            # update memo
+            popColor = colors[pop:pop+1]
+            popColorDict = memo[pop]
+            popColorDict[popColor] += 1
+            # update 'result'
+            for c, freq in popColorDict.items():
+                result = max(result, freq)
+
+            for neighbor in graph[pop]:
+                # remove edge pop->neighbor
+                in_degree[neighbor] -= 1
+                if in_degree[neighbor] == 0:
+                    dq.append(neighbor)
+                # update memo
+                neighborColorDict = memo[neighbor]
+                for c, freq in popColorDict.items():
+                    neighborColorDict[c] = max(neighborColorDict[c], freq)
+
+        print("memo: ", memo)
+        print("topo_order: ", topo_order)
+
+        # 2.4. Check for cycle
+        if len(topo_order) < n:
+            return -1
+        
+        return result
+
+
+    # Leetcode 269. Alien Dictionary ---------------------------------------------------------------------------------------------
+    def alienOrder(self, words: List[str]) -> str:
+        charSet = set()
+        for word in words:
+            for char in word:
+                charSet.add(char)
+
+        # Step 1: Graph representation
+        graph = defaultdict(list)
+
+        # Logic to create a graph from a list of lexicographically sorted words
+        # Think about how words are sorted lexicographically - comparing each chat at a time
+        for wordIndex in range (len(words) - 1):
+            w1, w2 = words[wordIndex], words[wordIndex+1]
+            maxCharIndex = min( len(w1), len(w2) )
+
+            # Edge cases
+            if w1[:maxCharIndex] == w2[:maxCharIndex] and len(w1) > len(w2):
+                return ""
+
+            # Loop through each char in two adj words
+            for charIndex in range (maxCharIndex):
+                if w1[charIndex] != w2[charIndex]:
+                    graph[w1[charIndex]].append(w2[charIndex])
+                    break
+
+        print("graph: ", graph)
+
+        # Step 2: Run Kahns Topological order algo
+        in_degree = defaultdict(int)
+        for _ , dest in graph.items():
+            for node in dest:
+                in_degree[node] += 1
+
+        dq = deque([char for char in charSet if in_degree[char] == 0])
+        print("dq: ", dq)
+
+        topo_order = ""
+        while dq:
+            pop = dq.popleft()
+            topo_order += pop
+
+            for neighbor in graph[pop]:
+                # remove edge pop->neighbor
+                in_degree[neighbor] -= 1
+                if in_degree[neighbor] == 0:
+                    dq.append(neighbor)
+        
+        if len(topo_order) < len(charSet):
+            return ""
+                
+        return topo_order
+
+            
+
+
+
 
 
 
@@ -162,9 +283,24 @@ if __name__ == "__main__":
     leetcode = Solution()
 
     # Leetcode 310: Minimum Height Trees --------------------------------------------------------------------------------------------
-    edges = [[0,1],[0,2],[2,3],[0,4],[2,5],[5,6],[3,7],[6,8],[8,9],[9,10]]
-    answer310 = leetcode.findMinHeightTrees(11, edges)
-    print(answer310)
+    # edges = [[0,1],[0,2],[2,3],[0,4],[2,5],[5,6],[3,7],[6,8],[8,9],[9,10]]
+    # answer310 = leetcode.findMinHeightTrees(11, edges)
+    # print(answer310)
+
+    # Leetcode 1857. Largest Color Value in a Directed Graph ------------------------------------------------------------------------------
+    # colors = "abaca"
+    # edges = [[0,1],[0,2],[1,2],[2,3],[3,4]]
+    # answer = leetcode.largestPathValue(colors, edges)
+    # print("Leetcode 1857. Largest Color Value in a Directed Graph: ", answer)
+
+    # Leetcode 269. Alien Dictionary ---------------------------------------------------------------------------------------------
+    # words = ["wrt","wrf","er","ett","rftt"]
+    words = ["z", "z"]
+    # words = ["abc", "ab"]
+    answer = leetcode.alienOrder(words)
+    print("Leetcode 269. Alien Dictionary: ", answer)
+
+
 
 
 

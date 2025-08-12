@@ -5,18 +5,22 @@ This python file is a part of my effort in getting myself refreshed with Data St
 I can later tackle Leetcode challenges with more confidence. 
 
 ========================================================= Breadth First Search =========================================================
-1. Leetcode 690. Employee Importance
-2. Leetcode 1129. Shortest Path with Alternating Colors
-3. Leetcode 752. Open the Lock
-4. Leetcode 994. Rotting Oranges
-5. Leetcode 785. Is Graph Bipartite?
-6. Leetcode 909. Snakes and Ladders
+Leetcode 690. Employee Importance
+Leetcode 1129. Shortest Path with Alternating Colors
+Leetcode 752. Open the Lock
+Leetcode 994. Rotting Oranges
+Leetcode 286. Walls and Gates
+Leetcode 785. Is Graph Bipartite?
+Leetcode 909. Snakes and Ladders
+Leetcode 127. Word Ladder
+Leetcode 126. Word Ladder II
 
 """
 
-from typing import List
+from typing import List, Tuple
 import queue
-from collections import deque
+from collections import deque, defaultdict
+
 
 # Definition for Employee.
 class Employee:
@@ -190,46 +194,82 @@ class Solution:
 
     # --------------------------------------------------------------------
     # Leetcode 994. Rotting Oranges 
-    def orangesRotting(self, grid: List[List[int]]) -> int:
-        rows, cols = len(grid), len(grid[0])
-        queue = deque()       # Queue for BFS: stores (row, col) of rotten oranges
-        fresh_count = 0       # Total number of fresh oranges
+    def orangesRotting(self, grid: List[List[int]]) -> int:      
+        rotten = set()      # equivalence of 'visited'
+        dq = deque()
+        timeAffected = 0
+        freshOrange = 0
 
-        # ========== Step 1: Initialize queue and count fresh oranges ==========
-        for r in range(rows):
-            for c in range(cols):
-                if grid[r][c] == 2:
-                    queue.append((r, c))  # Rotten orange
-                elif grid[r][c] == 1:
-                    fresh_count += 1     # Fresh orange
+        # Step 1: Initialize queue and count fresh oranges
+        for r in range (len(grid)):
+            for c in range (len(grid[0])):
+                if grid[r][c] == 1:
+                    freshOrange += 1
+                elif grid[r][c] == 2:
+                    dq.append((r,c))
+                    rotten.add((r,c))
 
-        # Early exit: no fresh oranges to rot
-        if fresh_count == 0:
-            return 0
+        # ---------------------------------------
+        def bfs(): 
+            nonlocal timeAffected, freshOrange
 
-        # ========== Step 2: BFS to simulate rotting process ==========
-        minutes_passed = 0
-        directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]  # Right, Left, Down, Up
+            # freshOrange > 0 is important, as this avoids over-count the last layer
+            while dq and freshOrange > 0:
+                timeAffected += 1
 
-        while queue and fresh_count > 0:
-            minutes_passed += 1  # One minute passes
+                # Each minute passes, we need to process the whole layer instead of just one cell
+                for _ in range (len(dq)):
+                    rPop, cPop = dq.popleft()
+                    directions = [(rPop-1,cPop), (rPop,cPop+1), (rPop+1,cPop), (rPop,cPop-1)] # up, right, down, left
 
-            for _ in range(len(queue)):
-                r, c = queue.popleft()
+                    for direction in directions:
+                        r, c = direction
+                        if 0 <= r < len(grid) and 0 <= c < len(grid[0]) and grid[r][c] == 1 and (r,c) not in rotten:
+                            rotten.add((r,c))
+                            dq.append((r,c))
+                            freshOrange -= 1
+        # ---------------------------------------
 
-                # Check all 4 adjacent cells
-                for dr, dc in directions:
-                    nr, nc = r + dr, c + dc
+        # Step 2: BFS to simulate rotting process
+        bfs()        
 
-                    # If neighbor is a fresh orange, rot it
-                    if 0 <= nr < rows and 0 <= nc < cols and grid[nr][nc] == 1:
-                        grid[nr][nc] = 2         # Mark as rotten
-                        fresh_count -= 1         # One less fresh orange
-                        queue.append((nr, nc))   # Add to queue for next minute
+        return timeAffected if freshOrange == 0 else -1
 
-        # ========== Step 3: Return result ==========
-        return minutes_passed if fresh_count == 0 else -1
+    # --------------------------------------------------------------------
+    # Leetcode 286. Walls and Gates
+    def wallsAndGates(self, rooms: List[List[int]]) -> None:
+        """
+        Do not return anything, modify rooms in-place instead.
+        """
+        # visited = set()
+        dq = deque()
+        steps = 0
 
+        # Initialize the queue with all the gates
+        for r in range (len(rooms)):
+            for c in range (len(rooms[0])):
+                if rooms[r][c] == 0:
+                    # visited.add((r,c))
+                    dq.append((r,c))
+
+        # Run BFS algo
+        while dq:
+            steps += 1
+
+            # All cells on the same layer should be processed at the same time
+            for _ in range (len(dq)):
+                rPop, cPop = dq.popleft()
+                
+                # Check all neighbors
+                directions = [(rPop-1,cPop), (rPop,cPop+1), (rPop+1,cPop), (rPop,cPop-1)]   # up, right, down, left
+                for direction in directions:
+                    r, c = direction
+                    if 0 <= r < len(rooms) and 0 <= c < len(rooms[0]) and rooms[r][c] not in (-1,0):
+                        if steps < rooms[r][c]:
+                            rooms[r][c] = steps
+                            dq.append((r,c))
+
+        print(rooms)
 
     # --------------------------------------------------------------------
     # Leetcode 785. Is Graph Bipartite?
@@ -265,64 +305,211 @@ class Solution:
 
     # --------------------------------------------------------------------
     # Leetcode 909. Snakes and Ladders
-    def snakesAndLadders(self, board: List[List[int]]) -> int:
-        # Reverse the board so it's less confusing to represent a graph
+    def printGraph(self, graph: List[List[int]]):
+        for i, edges in enumerate(graph):
+            neighbors = ', '.join(str(v) for v in edges)
+            print(f"Node {i}: [{neighbors}]")
+
+    def graphRepresentation(self, board: List[List[int]]) -> List[List[int]]:
         n = len(board)
-        reversedBoard = []
-        for r in range (n-1, -1, -1):
-            reversedBoard.append(board[r])
+        graph = [[] for _ in range(n * n)]
+        # ----------------------
+        def get_coordinates(square: int) -> Tuple[int, int]:
+            # Convert 1-based square number to (row, col)
+            row = n - 1 - (square - 1) // n
+            col = (square - 1) % n
+            if (n - row) % 2 == 0:
+                col = n - 1 - col
+            return row, col
+        # ----------------------
+        for i in range(1, n * n + 1):
+            for move in range(1, 7):
+                next_square = i + move
+                if next_square > n * n:
+                    continue
+                r, c = get_coordinates(next_square)
+                dest = board[r][c] if board[r][c] != -1 else next_square
+                graph[i - 1].append(dest - 1)
 
-        # Create a directed graph representation
-        graph = [[] for _ in range (n*n)]      # each cell is a node
+        return graph
 
-        # Decide which direction will row go. First row in game (last row in board) will go to right
-        goRight = 0             # first row will always go right
-        for r, row in enumerate(reversedBoard):
-            direction = r % 2
-            # Row goes to the right
-            if direction == goRight:
-                for c in range (n):
-                    nodeValue = r*n + c
-                    # Case 1: if cell is a start/mouth of a ladder/snake
-                    if board[r][c] != -1:
-                        graph[nodeValue].append(board[r][c] - 1)    # add snake/ladder
-                        graph[nodeValue].append(board[r][c] - 1)    # add next cells
-                    # Case 2: if cell is the last cell on the row
-                    elif c == n-1:
-                        if r+1 < n: 
-                            nextNodeNumber = (r+1)*n + c 
-                            graph[nodeValue].append(nextNodeNumber)
-                    # Case 3: if cell is in the middle
-                    else:
-                        graph[nodeValue].append(nodeValue+1)
-            # Row goes to the left
-            else:
-                for c in range (n-1, -1, -1):
-                    nodeValue = r*n + c
-                    # Case 1: if cell is a start/mouth of a ladder/snake
-                    if board[r][c] != -1:
-                        graph[nodeValue].append(board[r][c] - 1)
-                    # Case 2: if cell is the last cell on the row
-                    elif c == 0:
-                        if r+1 < n: 
-                            nextNodeNumber = (r+1)*n + c 
-                            graph[nodeValue].append(nextNodeNumber)
-                    # Case 3: if cell is in the middle
-                    else:
-                        graph[nodeValue].append(nodeValue-1)
-
-        print(graph)
+    def snakesAndLadders(self, board: List[List[int]]) -> int:
+        graph = self.graphRepresentation(board)
+        self.printGraph(graph)
 
         # Start BFS
-        return 0
+        visited = [False for _ in range (len(graph))]
+        path = [-1 for _ in range (len(graph))]
+        dq = deque([0])
+        visited[0] = True
+
+        while dq:
+            pop = dq.popleft()
+            for neighbor in graph[pop]:
+                if not visited[neighbor]:
+                    visited[neighbor] = True
+                    path[neighbor] = pop
+                    dq.append(neighbor)
+        
+        # Trace path
+        print("path: ", path)
+        steps = 1
+        current = path[-1]
+        while current != 0:
+            steps += 1
+            # Impossible to reach the end
+            if current == path[current]:
+                return -1
+            current = path[current]
+
+        return steps
 
                 
+    # --------------------------------------------------------------------
+    # Leetcode 127. Word Ladder
+    def ladderLength(self, beginWord: str, endWord: str, wordList: List[str]) -> int:
+        visited = {}
+        path = {}
 
-
-            
-
-
+        # Edge case: endWord is not in the wordList
+        # Also prepare the 'visited' and 'path' array
+        beginWordInList = False
+        endWordInList = False
+        for word in wordList:
+            visited[word] = False
+            path[word] = None
+            if word == endWord:
+                endWordInList = True
+            if word == beginWord:
+                beginWordInList = True
         
+        if not endWordInList: return 0
+        if not beginWordInList: 
+            wordList.append(beginWord)
+            visited[beginWord] = False
+            path[beginWord] = None
+        
+        # Step 1: Construct a graph representation - O(n*m) for n is # word inwordList and m is len(word)
+        # This graph will be constructed using each pattern of a word. All words share the same pattern are connected by a bi-directional edge
+        # Ex: '*ot': ['hot', 'dot', 'lot']
+        graph = defaultdict(list)
+
+        # 'word' all have the same len
+        for word in wordList:
+            for i in range (len(word)):
+                pattern = word[:i] + "*" + word[i+1:]       # eg. h*t
+                graph[pattern].append(word)
+
+        # print("graph: ", graph)
+        # print("wordList: ", wordList)
+
+        # Step 2: Run BFS
+        dq = deque([beginWord])
+        visited[beginWord] = True
+
+        while dq:
+            pop = dq.popleft()
+
+            # Check all neighbor of pop
+            for i in range (len(pop)):
+                pattern = pop[:i] + "*" + pop[i+1:]       # eg. h*t
+                # All words in graph[pattern] will be the neighbor of pop
+                for neighbor in graph[pattern]:
+                    if neighbor != pop:
+                        if neighbor in visited and visited[neighbor] == False:
+                            visited[neighbor] = True
+                            path[neighbor] = pop
+                            dq.append(neighbor)
+            
+        # print("path: ", path)
+        # print("visited: ", visited)
+
+        # Step 3: Trace path
+        count = 1
+        word = endWord
+        while word != beginWord:
+            count += 1
+            word = path[word]
+            # At any point, if we couldn't reach the next word, it means no is no sequence to go from beginWord->endWord
+            if word == None: 
+                return 0
+
+        return count
+                
+
+    # --------------------------------------------------------------------
+    # Leetcode 126. Word Ladder II
+    def findLadders(self, beginWord: str, endWord: str, wordList: List[str]) -> List[List[str]]:
+        # Edge case: endWord is not in the wordList
+        # Also prepare the 'visited' and 'path' array
+        beginWordInList = False
+        endWordInList = False
+        for word in wordList:
+            if word == endWord:
+                endWordInList = True
+            if word == beginWord:
+                beginWordInList = True
+        
+        if not endWordInList: return []
+        if not beginWordInList: 
+            wordList.append(beginWord)
+        
+        # Step 1: Construct a graph representation - O(n*m) for n is # word inwordList and m is len(word)
+        # This graph will be constructed using each pattern of a word. All words share the same pattern are connected by a bi-directional edge
+        # Ex: '*ot': ['hot', 'dot', 'lot']
+        graph = defaultdict(list)
+
+        # 'word' all have the same len
+        for word in wordList:
+            for i in range (len(word)):
+                pattern = word[:i] + "*" + word[i+1:]       # eg. h*t
+                graph[pattern].append(word)
+
+        # print("graph: ", graph)
+        # print("wordList: ", wordList)
+
+        # Step 2: Run BFS
+        dq = deque([beginWord])
+        parents = defaultdict(list)       # equivalent of 'path'
+        distance = {beginWord: 0}         # equivalent of 'visited', recording the distance between 'word' and 'beginWord'
+
+        while dq:
+            pop = dq.popleft()
+
+            # Check all neighbor of pop
+            for i in range (len(pop)):
+                pattern = pop[:i] + "*" + pop[i+1:]       # eg. h*t
+                # All words in graph[pattern] will be the neighbor of pop
+                for neighbor in graph[pattern]:
+                    # Case 1: if 'neighbor' is not visited yet
+                    if neighbor not in distance:
+                        distance[neighbor] = distance[pop] + 1
+                        parents[neighbor].append(pop)
+                        dq.append(neighbor)
+                    # Case 2: if distance beginWord->neighbor is the same as distance[pop] + 1, then going from pop-> neighbor is another path
+                    elif distance[neighbor] == distance[pop] + 1:
+                        parents[neighbor].append(pop)
+            
+        # print("parents: ", parents)
+        # print("distance: ", distance)
+
+        # Step 3: Trace path using DFS
+        # -------------------------------------
+        def dfs(word: str, path: List[str]):
+            # Base case
+            if word == beginWord:
+                result.append(path[::-1])
+            # dfs
+            for parent in parents[word]:
+                dfs(parent, path + [parent])
+        # -------------------------------------
+
+        result = []
+        if endWord in parents:
+            dfs(endWord, [endWord])
+
+        # print(result)
+        return result
 
 
 
@@ -354,7 +541,22 @@ if __name__ == "__main__":
     # graph = [[],[2,4,6],[1,4,8,9],[7,8],[1,2,8,9],[6,9],[1,5,7,8,9],[3,6,9],[2,3,4,6,9],[2,4,5,6,7,8]]
     # print(leetcode.isBipartite(graph))
 
-    # Leetcode 909. Snakes and Ladders ------------------------------------
-    board = [[-1,-1,-1,-1,-1,-1],[-1,-1,-1,-1,-1,-1],[-1,-1,-1,-1,-1,-1],[-1,35,-1,-1,13,-1],[-1,-1,-1,-1,-1,-1],[-1,15,-1,-1,-1,-1]]
-    leetcode.snakesAndLadders(board)
+    # --------------------------- 994 ---------------------------
+    # grid = [[2,1,1],[1,1,0],[0,1,1]]
+    # answer994 = leetcode.orangesRotting(grid)
+    # print("answer994: ", answer994)
 
+    # --------------------------- 286 ---------------------------
+    # rooms = [[2147483647,-1,0,2147483647],[2147483647,2147483647,2147483647,-1],[2147483647,-1,2147483647,-1],[0,-1,2147483647,2147483647]]
+    # leetcode.wallsAndGates(rooms)
+
+    # --------------------------- 909 ---------------------------
+    # board = [[1,1,-1],[1,1,1],[-1,1,1]]
+    # # board = [[-1,-1,-1,-1,-1,-1],[-1,-1,-1,-1,-1,-1],[-1,-1,-1,-1,-1,-1],[-1,35,-1,-1,13,-1],[-1,-1,-1,-1,-1,-1],[-1,15,-1,-1,-1,-1]]
+    # print(leetcode.snakesAndLadders(board))
+
+    # --------------------------- 127 + 126 ---------------------------
+    # beginWord = "hit"
+    # endWord = "cog"
+    # wordList = ["hot","dot","dog","lot","log","cog"]
+    # leetcode.findLadders(beginWord, endWord, wordList)
