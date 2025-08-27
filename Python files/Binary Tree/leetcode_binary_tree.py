@@ -6,34 +6,44 @@ I can later tackle Leetcode challenges with more confidence.
 
 =========================================================  Binary Tree  =========================================================
 (Easy)
-1. Leetcode 104. Maximum Depth of Binary Tree
-2. Leetcode 226. Invert Binary Tree
-3. Leetcode 617. Merge Two Binary Trees
-4. Leetcode 404. Sum of Left Leaves
+Leetcode 104. Maximum Depth of Binary Tree
+Leetcode 226. Invert Binary Tree
+Leetcode 617. Merge Two Binary Trees
+Leetcode 404. Sum of Left Leaves
 
 (Medium)
-5. Leetcode 1315. Sum of Nodes with Even-Valued Grandparent   
-6. Leetcode 199. Binary Tree Right Side View
-7. Leetcode 669. Trim a Binary Search Tree
+Leetcode 1315. Sum of Nodes with Even-Valued Grandparent   
+Leetcode 199. Binary Tree Right Side View
+Leetcode 669. Trim a Binary Search Tree
 ================================================================
-Kenny Talks Code: 
-Problems involve path finding: given a tree, find a path that optimizes the sub criteria
-8. Leetcode 112: Path Sum (Easy)
-9. Leetcode 113: Path Sum II
-10.Leetcode 129. Sum Root to Leaf Numbers
-11.Leetcode 124. Binary Tree Maximum Path Sum (Hard)
-12.Leetcode 543. Diameter of Binary Tree (Easy, but feels like Medium)
-13.Leetcode 298: BT Longest Consucutive Sequence
+** Kenny Talks Code: 
+** Problems involve path finding: given a tree, find a path that optimizes the sub criteria
+Leetcode 112: Path Sum (Easy)
+Leetcode 113: Path Sum II
+Leetcode 129. Sum Root to Leaf Numbers
+Leetcode 124. Binary Tree Maximum Path Sum (Hard)
+Leetcode 543. Diameter of Binary Tree (Easy, but feels like Medium)
+Leetcode 298: BT Longest Consucutive Sequence
 
-Problems involve tree traversal: explore all nodes in the tree, usually in some unique ways other 
+** Problems involve tree traversal: explore all nodes in the tree, usually in some unique ways other 
 than pre-order, in-order and post-order
-14.Leetcode 102. Binary Tree Level Order Traversal  
-15.Leetcode 515. Find Largest Value in Each Tree Row
-16.Leetcode 116. Populating Next Right Pointers in Each Node
-17.Leetcode 117. Populating Next Right Pointers in Each Node II
-18.Leetcode 105. Construct Binary Tree from Preorder and Inorder Traversal 
-19.Leetcode 106. Construct Binary Tree from Inorder and Postorder Traversal
-20.Leetcode 889. Construct Binary Tree from Preorder and Postorder Traversal
+Leetcode 102. Binary Tree Level Order Traversal  
+Leetcode 515. Find Largest Value in Each Tree Row
+Leetcode 116. Populating Next Right Pointers in Each Node
+Leetcode 117. Populating Next Right Pointers in Each Node II
+Leetcode 105. Construct Binary Tree from Preorder and Inorder Traversal 
+Leetcode 106. Construct Binary Tree from Inorder and Postorder Traversal
+Leetcode 889. Construct Binary Tree from Preorder and Postorder Traversal
+
+** Lowest Common Ancestor: https://www.geeksforgeeks.org/dsa/lowest-common-ancestor-binary-tree-set-1/
+Leetcode 235. Lowest Common Ancestor of a Binary Search Tree
+Leetcode 236. Lowest Common Ancestor of a Binary Tree
+Leetcode 1644. Lowest Common Ancestor of a Binary Tree II
+Leetcode 1650. Lowest Common Ancestor of a Binary Tree III
+Leetcode 1676. Lowest Common Ancestor of a Binary Tree IV
+Leetcode 1123. Lowest Common Ancestor of Deepest Leaves
+Leetcode 865. Smallest Subtree with all the Deepest Nodes - exactly the same as 1123
+
 
 (Hard)
 Leetcode 297. Serialize and Deserialize Binary Tree
@@ -649,6 +659,190 @@ class Solution:
         self.preorderIndex_889 = 0
 
         return arrayToTree_889(0, len(pre) - 1)
+
+
+    """
+    LCA
+    """
+    # Definition for a binary tree node.
+    class TreeNode:
+        def __init__(self, x):
+            self.val = x
+            self.left = None
+            self.right = None
+
+    # Leetcode 235. Lowest Common Ancestor of a Binary Search Tree
+    # Doesn't require recursion - we can leverage the property of the BST
+    # You walk down the tree from the root. As soon as p and q diverge (one on each side), you've found the LCA
+    def lowestCommonAncestor235(self, root: 'TreeNode', p: 'TreeNode', q: 'TreeNode') -> 'TreeNode':
+        while root:
+            if p.val < root.val and q.val < root.val:
+                root = root.left
+            elif p.val > root.val and q.val > root.val:
+                root = root.right
+            else:       # Found LCA
+                return root
+
+
+    # This approach assumes that both the keys are present in the given tree
+    # Leetcode 236. Lowest Common Ancestor of a Binary Tree
+    def lowestCommonAncestor(self, root: 'TreeNode', p: 'TreeNode', q: 'TreeNode') -> 'TreeNode':
+        # Step 1: Base case
+        if not root:
+            return None
+        
+        # Return early: If root is either p or q, root is our LCA
+        if root.val == p.val or root.val == q.val:
+            return root
+        
+        # Step 3: Call recursive fn on both left and right subtree
+        leftLCA = self.lowestCommonAncestor(root.left, p, q)
+        rightLCA = self.lowestCommonAncestor(root.right, p, q)
+
+        # Step 4: Return
+        # Case 4.1: If each node is on a different subtree -> LCA will be root
+        if leftLCA and rightLCA:
+            return root
+        
+        # Case 4.2
+        return leftLCA if leftLCA != None else rightLCA
+
+
+    # Leetcode 1644. Lowest Common Ancestor of a Binary Tree II
+    # It performs a post-order traversal, checking both subtrees before deciding.
+    # It tracks whether p and q were found during traversal.
+    # It only returns the LCA if both nodes are present.
+    def lowestCommonAncestor2(self, root: 'TreeNode', p: 'TreeNode', q: 'TreeNode') -> 'TreeNode':
+        # ---------------------------------------
+        def findLcaAndCheckExistance(root: 'TreeNode') -> tuple['TreeNode', bool, bool]:
+            # Step 1: Base case
+            if not root:
+                return (None, False, False)
+            
+            # Step 3: Call recursive fn on both left and right subtree
+            (leftLCACandidate, leftFoundP, leftFoundQ) = findLcaAndCheckExistance(root.left)
+            (rightLCACandidate, rightFoundP, rightFoundQ) = findLcaAndCheckExistance(root.right)
+
+            # Step 2: Check existance
+            pExistance = leftFoundP or rightFoundP or p.val == root.val
+            qExistance = leftFoundQ or rightFoundQ or q.val == root.val
+
+            # Step 4: Return
+            # Case 4.1: If current root is p or q
+            if p.val == root.val or q.val == root.val:
+                return (root, pExistance, qExistance)
+            # Case 4.2: If both sides return non-null, then our LCA is root
+            if leftLCACandidate and rightLCACandidate:
+                return (root, pExistance, qExistance)
+            # Case 4.3: Our LCA is just a candidate
+            lcaCandidate = leftLCACandidate if leftLCACandidate != None else rightLCACandidate
+            return (lcaCandidate, pExistance, qExistance)
+        # ---------------------------------------
+        candidateLCA, found_p, found_q = findLcaAndCheckExistance(root)
+
+        return candidateLCA if found_p and found_q else None
+
+
+    class Node:
+        def __init__(self, val):
+            self.val = val
+            self.left = None
+            self.right = None
+            self.parent = None
+
+    # Leetcode 1650. Lowest Common Ancestor of a Binary Tree III
+    # Root of the tree is not passed into the function. You are only passed 'p' and 'q'
+    def lowestCommonAncestor3(self, p: 'Node', q: 'Node') -> 'Node':
+        pToRootSet = set()
+
+        # Store all nodes from p to root in a set
+        current = p
+        while current:
+            pToRootSet.add(current.val)
+            current = current.parent
+
+        # The first node in path q->root that exists in the set is our LCA
+        current = q
+        while current:
+            if current.val in pToRootSet:
+                return current
+            else:
+                current = current.parent
+
+        return None
+
+
+    # Leetcode 1676. Lowest Common Ancestor of a Binary Tree IV
+    def lowestCommonAncestor4(self, root: 'TreeNode', nodes: 'List[TreeNode]') -> 'TreeNode':
+        targetSet = set()
+        for node in nodes:
+            targetSet.add(node.val)
+
+        # -----------------------------------------------
+        def lca(root) -> 'TreeNode':
+            # Step 1: Base case
+            if not root:
+                return None
+            
+            # Return early: If root is in the set, root is our LCA
+            if root.val in targetSet:
+                return root
+            
+            # Step 3: Call recursive fn on both left and right subtree
+            leftLCA = lca(root.left)
+            rightLCA = lca(root.right)
+
+            # Step 4: Return
+            # Case 4.1: If each node is on a different subtree -> LCA will be root
+            if leftLCA and rightLCA:
+                return root
+            
+            # Case 4.2
+            return leftLCA if leftLCA != None else rightLCA
+        # -----------------------------------------------
+
+        return lca(root)
+        
+    
+    # Leetcode 1123. Lowest Common Ancestor of Deepest Leaves
+    """
+    lca(3)
+        lca(5) -> (2,3)
+            lca(6) -> (6,1)
+            lca(2) -> (2,2)
+                lca(7) -> (7,1)
+                lca(4) -> (4,1)
+        lca(1) -> (1,2)
+    """
+    def lcaDeepestLeaves(self, root: 'TreeNode') -> 'TreeNode':
+        # ---------------------------------------------------------
+        # Return a potential LCA and the depth of this subtree
+        # We will compute the depth of the tree bottom-up
+        def lca(root) -> tuple[TreeNode, int]:
+            # Step 1: base case
+            if not root:
+                return (None, 0)
+
+            # Step 3: recursive calls
+            (leftLca, leftDepth) = lca(root.left)
+            (rightLca, rightDepth) = lca(root.right)
+
+            # Step 4: return
+            # 4.1: If left and right depths are equal → current node is LCA of deepest leaves
+            if leftDepth == rightDepth:
+                return (root, leftDepth+1)
+            # 4.2 If one side is deeper → propagate that side’s result upward
+            if leftDepth > rightDepth:
+                return (leftLca, leftDepth+1)
+            if leftDepth < rightDepth:
+                return (rightLca, rightDepth+1)
+        
+        # ---------------------------------------------------------
+
+        lca, _ = lca(root)
+        return lca
+
+
 
 
 

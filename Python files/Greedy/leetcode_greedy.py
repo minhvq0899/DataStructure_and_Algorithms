@@ -25,6 +25,7 @@ Leetcode 1276. Number of Burgers with No Waste of Ingredients
 Leetcode 56. Merge Intervals
 Leetcode 1710. Maximum Units on a Truck
 Leetcode 1029. Two City Scheduling
+Leetcode 55 Jump Game
 Leetcode 45 Jump Game II
 
 (Hard)
@@ -378,20 +379,44 @@ class Solution:
         return mincost
 
     # -------------------------------------------------------------------------
+    # Leetcode 55 Jump Game
+    # Use the idea of DP: "how-many-way" problem. But the code follow greedy algorithm
+    # Let's say the targetLine is at the last index (len(nums)-1). We can greedily move the targetLine to the 0-th index
+    def canJump(self, nums: List[int]) -> bool:
+        targetLine = len(nums)-1
+
+        # This way we only have to loop through nums one time --> O(n)
+        for i in range(len(nums)-1, -1, -1):
+            if i + nums[i] >= targetLine:
+                targetLine = i
+
+        return True if targetLine == 0 else False
+
+    # -------------------------------------------------------------------------
     # Leetcode 45 Jump Game II
+    #         0,1,2,3,4
+    # nums = [2,3,1,1,4]
+    # nums = [3,2,1,0,4]
+    # Think of this as a graph problem where you can solve using BFS
+    # Layer 0: index 0
+    # Layer 1: index 1,2 (because from index 0, we can travel to all spot index 1->2)
+    # Layer 2: index 3,4 (from any index in layer 1, we can travel furthest up to index 4)
     def jump(self, nums: List[int]) -> int:
-        jumps = 0         # Total jumps made
-        farthest = 0      # Furthest index reachable in current window
-        end = 0           # End of current jump window
+        left = right = 0        # the window [left:right+1] will be the layer being examined
+        jump = 0                # number of jump
+        furthest = 0            # record the end of the next layer
 
-        for i in range(len(nums) - 1):  # No need to jump from last index
-            farthest = max(farthest, i + nums[i])  # Update furthest reach
+        # -1 because we don't need to jump anymore at the last index
+        while right < len(nums)-1: # and left <= right:      
+            # Examine each index in this layer, just like BFS
+            for i in range(left, right+1):
+                furthest = max(furthest, i+nums[i])
+            
+            left = right + 1
+            right = furthest
+            jump += 1
 
-            if i == end:
-                jumps += 1       # Time to jump
-                end = farthest   # Update window
-
-        return jumps
+        return jump # if left <= right else -1 (this leetcode question is guaranteed to have at leaset 1 solution)      
 
     # -------------------------------------------------------------------------
     # Leetcode 135. Candy
@@ -435,7 +460,13 @@ if __name__ == "__main__":
     # nums = [1,2,1,3,5,6,4]
     # print(leetcode.findPeakElement(nums))
 
+    # ----------------------------------- 55 -----------------------------------
+    # nums = [3,2,1,0,4]
+    # leetcode.canJump(nums)
 
+    # ----------------------------------- 45 -----------------------------------
+    nums = [3,2,1,0,4]
+    print(leetcode.jump(nums))
 
 
 

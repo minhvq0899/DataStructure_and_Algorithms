@@ -14,6 +14,7 @@ Leetcode 785. Is Graph Bipartite?
 Leetcode 909. Snakes and Ladders
 Leetcode 127. Word Ladder
 Leetcode 126. Word Ladder II
+Leetcode 847. Shortest Path Visiting All Nodes - Hard
 
 """
 
@@ -512,7 +513,51 @@ class Solution:
         return result
 
 
-
+    # --------------------------------------------------------------------
+    # Leetcode 847. Shortest Path Visiting All Nodes
+    # This problem follows State BFS -> the most generalized form of BFS
+    # One node can have multiple stages. If graph has 12 nodes, and each node can either be visited or not --> 2^12 states
+    # 12 original nodes * 2^12 => 12 * 2^12 states for a generalized graph
+    # We can no longer just represent a node with its value. It has to be
+    # node = (i, (true/false * n)) -> i is the value of the current node
+    def shortestPathLength(self, graph: List[List[int]]) -> int:
+        visited = set()
+        shortestPath = 0
+        dq = deque()
+        
+        # Initialize queue
+        for nodeValue in range(len(graph)):
+            nodeStage = (nodeValue, [False for _ in range(len(graph))])     # node = (i, (true/false * n)) -> i is the value of the current node
+            nodeStage[1][nodeValue] = True      # second item of tuple nodeStage is a List, so it's mutable
+            dq.append(nodeStage)    
+            visited.add((nodeStage[0], tuple(nodeStage[1])))    # cannot add mutable data type into a set()
+            
+        # Run general BFS
+        while True:
+            # Process each layer
+            for _ in range(len(dq)):    
+                pop = dq.popleft()
+                nodeValue = pop[0]
+                stages = pop[1]
+                stop = True
+                for stage in stages:
+                    # If all stage are True, stop BFS
+                    stop = stop and stage
+                    
+                # Condition to stop our BFS 
+                if stop: 
+                    return shortestPath 
+                    
+                # Check each neighbor of pop
+                for neighbor in graph[nodeValue]:
+                    newStage = stages.copy()
+                    newStage[neighbor] = True
+                    if (neighbor, tuple(newStage)) not in visited:
+                        dq.append((neighbor, newStage))
+                        visited.add((neighbor, tuple(newStage)))
+                    
+            # Increment the distance for each layer
+            shortestPath += 1
 
 
 
@@ -560,3 +605,8 @@ if __name__ == "__main__":
     # endWord = "cog"
     # wordList = ["hot","dot","dog","lot","log","cog"]
     # leetcode.findLadders(beginWord, endWord, wordList)
+
+
+    # --------------------------- 847 ---------------------------
+    graph = [[1],[0,2,4],[1,3,4],[2],[1,2]]
+    print(leetcode.shortestPathLength(graph))    

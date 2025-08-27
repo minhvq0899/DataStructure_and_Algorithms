@@ -25,6 +25,9 @@ Leetcode 503. Next Greater Element II  - use Monotonic stack
 Leetcode 1381. Design a Stack With Increment Operation
 Leetcode 71. Simplify Path
 Leetcode 735. Asteroid Collision
+Leetcode 2116. Check if a Parentheses String Can Be Valid
+Leetcode 1963. Minimum Number of Swaps to Make the String Balanced
+(Similar to 921 and 1541)
 
 (Hard)
 Leetcode 224. Basic Calculator
@@ -389,6 +392,89 @@ class Solution:
         # Join stack contents with '/' and prepend root slash
         return '/' + '/'.join(stack)
 
+    
+    # ----------------------------------------------------------------------------------------------------------------------------------------
+    # Leetcode 2116. Check if a Parentheses String Can Be Valid
+    def canBeValid(self, s: str, locked: str) -> bool:
+        if len(s) % 2 == 1: 
+            return False
+        
+        # Modify the input string
+        modifiedS = ""
+        for i in range (len(locked)):
+            if locked[i] == "1":
+                modifiedS += s[i]
+            else:
+                modifiedS += "x"
+
+        print("modifiedS: ", modifiedS)
+        
+        # Two stacks
+        stack_locked = []           # Contains locked opening paren
+        stack_unlocked = []         # Contains unlocked char
+
+        for i in range (len(modifiedS)):
+            p = modifiedS[i]
+
+            # Populate the stack
+            if p == "(":
+                stack_locked.append(i)
+            elif p == "x":
+                stack_unlocked.append(i)
+            # If it's a locked closing parentheses, apply greedy logic always pop from locked stack first
+            else:
+                if stack_locked:
+                    stack_locked.pop()
+                elif stack_unlocked:
+                    stack_unlocked.pop()
+                else:
+                    return False         
+
+        print("stack_locked: ", stack_locked)
+        print("stack_unlocked: ", stack_unlocked)
+
+        # Handle the left-over in stack_unlocked
+        while stack_locked:
+            op_index = stack_locked.pop()
+            if not stack_unlocked or stack_unlocked[-1] < op_index:
+                return False
+            stack_unlocked.pop()
+
+        # Handle the left-over in stack_locked
+        if stack_unlocked:
+            if len(stack_unlocked) % 2 == 1: return False
+
+        return True
+
+
+    # ----------------------------------------------------------------------------------------------------------------------------------------
+    # Leetcode 1963. Minimum Number of Swaps to Make the String Balanced
+    # When parsing the string:
+    #   Every '[' increases balance.
+    #   Every ']' decreases balance.
+    # If balance ever goes negative, it means we’ve seen more closing brackets than opening ones — which is invalid at that point in the string. 
+    # To fix this, we need to swap a future '[' to this position.
+    # Each swap fixes two brackets:
+    #   One misplaced ']'
+    #   One '[' from later in the string
+    # So if the maximum imbalance is k, we need k // 2 swaps to fix it. But since imbalance can be odd, we round up:
+    # ---> ceil(k / 2) = (k + 1) // 2
+    def minSwaps(self, s: str) -> int:
+        imbalance = 0
+        maxImbalance = 0       
+
+        # Iterate over the string and keep track of the number of opening and closing brackets on each step.
+        for bracket in s:
+            if bracket == "[":
+                imbalance -= 1
+            else:   # "]"
+                imbalance += 1
+            
+            if imbalance > 0:
+                maxImbalance = max(maxImbalance, imbalance)
+        
+        # print(maxImbalance)
+        return (maxImbalance+1)//2
 
     # ========================================================================================================================================
     # Leetcode 224. Basic Calculator
@@ -508,6 +594,16 @@ if __name__ == "__main__":
 
     # goodstr = leetcode.makeGood(lc1544)
     # print(goodstr)
+
+    # ----------------------- 2116. Check if a Parentheses String Can Be Valid -----------------------
+    # s = "(((())(((())"
+    # locked = "111111010111"
+    # print(leetcode.canBeValid(s, locked))
+
+    # ----------------------- 1963. Minimum Number of Swaps to Make the String Balanced -----------------------
+    # s = "[[[]]]][][]][[]]][[["      # expect 2
+    # ans1963 = leetcode.minSwaps(s)
+    # print("ans1963: ", ans1963)
 
     # print(leetcode.nextGreaterElement(lc496_nums1, lc496_nums2))
 

@@ -19,6 +19,7 @@ DFS down different path:
         Leetcode 40. Combination Sum II
         Leetcode 216. Combination Sum III
         Leetcode 377. Combination Sum IV
+        Leetcode 77. Combinations
         Leetcode 78. Subsets
     Leetcode 1306. Jump Game III
 
@@ -35,6 +36,7 @@ DFS on grid/ matrix
     Leetcode 529. Minesweeper
     Leetcode 934. Shortest Bridge ??
     Leetcode 1219. Path with Maximum Gold
+    Leetcode 2664. The Knight’s Tour
     Leetcode 79. Word Search
     Leetcode 212. Word Search II - Hard
     Leetcode 36. Valid Sudoku
@@ -1189,7 +1191,7 @@ class Solution:
         return board
 
     # --------------------------------------------------------------------------------------
-    #   
+    # Leetcode 1219. Path with Maximum Gold
     def getMaximumGold(self, grid: List[List[int]]) -> int:
         row = len(grid)
         col = len(grid[0])
@@ -1239,6 +1241,48 @@ class Solution:
                     dfs(coordinate)
 
         return maxGold
+
+    # --------------------------------------------------------------------------------------
+    # Leetcode 2664. The Knight’s Tour
+    def tourOfKnight(self, m: int, n: int, r: int, c: int) -> List[List[int]]:
+        visitedCells = 0                                # number of visited cells, act as counter too
+        returnBoard = [[-1] * n for _ in range(m)]      # act as 'visited'
+        
+        # --------------------------------------
+        def tryCell(row: int, col: int) -> bool:
+            nonlocal visitedCells
+            
+            # Base cases:
+            if visitedCells == m * n:
+                return True
+            if row < 0 or m <= row or col < 0 or n <= col:  # oob
+                return False
+            if returnBoard[row][col] != -1:                 # cell is already visited
+                return False
+            
+            # Action
+            returnBoard[row][col] = visitedCells
+            visitedCells += 1        
+
+            # Recursion
+            directions = [(2, 1), (2, -1), (-2, 1), (-2, -1), (1, 2), (1, -2), (-1, 2), (-1, -2)]
+            for diffR, diffC in directions:
+                nr = row + diffR
+                nc = col + diffC
+                if tryCell(nr, nc):
+                    return True
+                
+            # Backtracking: whatever steps you do in Action, here you do them in reverse order
+            visitedCells -= 1
+            returnBoard[row][col] = -1
+            
+            # After failing to attempt all 8 directions
+            return False
+        # --------------------------------------
+        tryCell(r,c)
+        
+        return returnBoard
+
 
     # --------------------------------------------------------------------------------------
     # Leetcode 36. Valid Sudoku

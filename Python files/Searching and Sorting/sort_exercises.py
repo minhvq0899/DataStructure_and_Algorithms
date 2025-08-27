@@ -9,6 +9,7 @@ I can later tackle Leetcode challenges with more confidence.
 2. Leetcode 1366. Rank Teams by Votes
 3. Leetcode 853. Car Fleet
 4. Leetcode 1451. Rearrange Words in a Sentence
+5. Leetcode 56. Merge Intervals
 
 """
 
@@ -94,7 +95,6 @@ class Solution:
 
         return "".join(res)
             
-
     # Leetcode 853. Car Fleet
     def carFleet(self, target: int, position: List[int], speed: List[int]) -> int:
         cars = sorted(zip(position, speed))
@@ -107,7 +107,6 @@ class Solution:
             else: times[-1] = lead # else, fleet arrives at later time 'lead'
 
         return ans + len(times) # remaining car is fleet (if it exists)
-
 
     # Leetcode 1451. Rearrange Words in a Sentence
     def arrangeWords(self, text: str) -> str:
@@ -138,11 +137,31 @@ class Solution:
 
         return " ".join(text_list)
 
+    # Leetcode 56. Merge Intervals
+    # intervals = [[1,3],[2,6],[8,10],[15,18]]
+    # i = 1
+    # result = [[1,6],[8,10],]
+    # leftInterval = [1,3]
+    # rightInterval = [2,6]
+    # newInterval = [1,6]
+    def merge(self, intervals: List[List[int]]) -> List[List[int]]:
+        result = []
+        intervals.sort(key = lambda x: [x[0]])  # sort intervals by their start time
+        print(intervals)
+        result.append(intervals[0])
 
+        for i in range(len(intervals)-1):
+            # If the start time of the following interval is smaller or equal to the end time of current interval -> merge
+            if intervals[i+1][0] <= result[-1][1]: 
+                leftInterval = result.pop()
+                rightInterval = intervals[i+1]
+                newInterval = [leftInterval[0], max(leftInterval[1], rightInterval[1])]     # pay attention to the end time of the new interval
+                result.append(newInterval)
+            else:
+                result.append(intervals[i+1])
 
-
-
-
+        print("result56: ", result)
+        return result
 
 
 # ===================================================================================================================
@@ -163,9 +182,9 @@ if __name__ == "__main__":
     #print(sort_diag)
 
     # -------------------------------------------------------------------------------------------
-    lc1366 = ["BCA","CAB","CBA","ABC","ACB","BAC"]
-    teams_1366 = leetcode.rankTeams(lc1366)
-    print(teams_1366)
+    # lc1366 = ["BCA","CAB","CBA","ABC","ACB","BAC"]
+    # teams_1366 = leetcode.rankTeams(lc1366)
+    # print(teams_1366)
 
     # -------------------------------------------------------------------------------------------
     # lc853_target = 12
@@ -179,8 +198,8 @@ if __name__ == "__main__":
     # text = leetcode.arrangeWords(text)
     # print(text)
 
-
-
-
+    # ------------------------------------ 56 ------------------------------------
+    intervals = [[1,3],[2,6],[8,10],[15,18],[16,17]]
+    leetcode.merge(intervals)
 
 

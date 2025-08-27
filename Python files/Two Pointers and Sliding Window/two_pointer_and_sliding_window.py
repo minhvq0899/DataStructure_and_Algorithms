@@ -5,25 +5,40 @@ This python file is a part of my effort in getting myself refreshed with Data St
 I can later tackle Leetcode challenges with more confidence. 
 
 ============================================== Two Pointers Exercise ==============================================
+(Template for Count Subarrays with At Most K Feature)
+countSubarraysAtMostK() - Counting Subarrays (e.g. with at most K features)
+    992, 1248
+    2962. Count Subarrays Where Max Element Appears at Least K Times
+        Total number of non-empty subarray: n*(n+1)//2
+        Total number of subarray, including empty subarray: n*(n+1)//2 + 1 (simply including the one empty subarray)
+longestValidSubarray() - Maximum Length Subarray (longest valid subarray)
+    304, 567
+    Leetcode 904. Fruit Into Baskets
+countSubarraysWithSumK() - Subarray Sum Constraints (e.g. sum == K) 
+    560, 930, 974
+
+# -----------------------------------------------------------------------------------------------
 (Easy)
-Leetcode 27. Remove Element
-Leetcode 26. Remove Duplicates from Sorted Array
+    Leetcode 27. Remove Element
+    Leetcode 26. Remove Duplicates from Sorted Array
 
 # -----------------------------------------------------------------------------------------------
 (Medium)
-[Basic] Leetcode 209. Minimum Size Subarray Sum
-[Basic + flipping char] Leetcode 1234: Replace the Substring for Balanced String 
-[Basic] Leetcode 3. Longest Substring Without Repeating Characters 
-[Keep comparing two Counter objects] Leetcode 438. Find All Anagrams in a String
-[Flipping char/int] Leetcode 487. Max Consecutive Ones II
-[Flipping char/int] Leetcode 1004. Max Consecutive Ones III
-Leetcode 1248. Count Number of Nice Subarrays
-Leetcode 658. Find K Closest Elements
+    [Basic] Leetcode 11. Container With Most Water
+    [Basic] Leetcode 209. Minimum Size Subarray Sum
+    [Basic + flipping char] Leetcode 1234: Replace the Substring for Balanced String 
+    [Basic] Leetcode 3. Longest Substring Without Repeating Characters 
+    [Keep comparing two Counter objects] Leetcode 438. Find All Anagrams in a String
+    [Flipping char/int] Leetcode 487. Max Consecutive Ones II
+    [Flipping char/int] Leetcode 1004. Max Consecutive Ones III
+    [k-at-most template] Leetcode 1248. Count Number of Nice Subarrays
+    Leetcode 658. Find K Closest Elements
 
 # -----------------------------------------------------------------------------------------------
 (Hard)
-[Keep comparing two Counter objects] Leetcode 76. Minimum Window Substring
-Leetcode 42. Trapping Rain Water
+    [Keep comparing two Counter objects] Leetcode 76. Minimum Window Substring
+    Leetcode 42. Trapping Rain Water
+    [k-at-most template] Leetcode 992. Subarrays with K Different Integers
 
 """
 
@@ -32,7 +47,60 @@ from collections import defaultdict, Counter
 
 
 class Solution:
-    # -----------------------------------------------------------------------------------------------
+    # Counting Subarrays (e.g. with at most K features)
+    def countSubarraysAtMostK(nums, k, is_valid):
+        count = 0
+        left = 0
+        freq = {}
+
+        for right, val in enumerate(nums):
+            freq[val] = freq.get(val, 0) + 1
+
+            while not is_valid(freq, k):
+                freq[nums[left]] -= 1
+                if freq[nums[left]] == 0:
+                    del freq[nums[left]]
+                left += 1
+
+            count += right - left + 1
+
+        return count
+
+    # Maximum Length Subarray (longest valid subarray)
+    def longestValidSubarray(nums, k, is_valid):
+        left = 0
+        max_len = 0
+        freq = {}
+
+        for right, val in enumerate(nums):
+            freq[val] = freq.get(val, 0) + 1
+
+            while not is_valid(freq, k):
+                freq[nums[left]] -= 1
+                if freq[nums[left]] == 0:
+                    del freq[nums[left]]
+                left += 1
+
+            max_len = max(max_len, right - left + 1)
+
+        return max_len
+    
+    # Subarray Sum Constraints (e.g. sum == K) 
+    # 🔧 Prefix Sum Variant Templat
+    def countSubarraysWithSumK(nums, k):
+        prefix_sum = 0
+        count = 0
+        freq = defaultdict(int)
+        freq[0] = 1
+
+        for num in nums:
+            prefix_sum += num
+            count += freq[prefix_sum - k]
+            freq[prefix_sum] += 1
+
+        return count
+
+    # ===============================================================================================
     # Leetcode 27. Remove Element (Easy)
     def removeElement(self, nums: List[int], val: int) -> int:
         # two pointers
@@ -54,6 +122,23 @@ class Solution:
                 i += 1
         return i
     
+    
+    # ===============================================================================================
+    # Leetcode 11. Container With Most Water
+    def maxArea(self, height: List[int]) -> int:
+        left, right = 0, len(height)-1
+        maxWater = min(height[left], height[right]) * (right-left)
+
+        # Keep moving the lower bar
+        while left < right:
+            if height[left] <= height[right]:
+                left += 1
+            else:
+                right -= 1
+            maxWater = max(maxWater, min(height[left], height[right]) * (right-left))
+
+        return maxWater
+
     # -----------------------------------------------------------------------------------------------
     # Leetcode 209. Minimum Size Subarray Sum
     # Easy Medium: all integers in nums are positive
@@ -253,6 +338,59 @@ class Solution:
 
     
     # -----------------------------------------------------------------------------------------------
+    # Leetcode 2962. Count Subarrays Where Max Element Appears at Least K Times
+    # answer = (total number of non-empty subarray) - at_most(k-1)
+    def countSubarrays(self, nums: List[int], k: int) -> int:
+        # Helper fn to count number of subarray with at most K feature (in this case, feature is the max element appears K times)
+        # --------------------------------------------------------
+        def numSubarrayAtMostKTime(k) -> int:
+            freq = 0
+            left = 0
+            count = 0
+            maxElement = max(nums)
+
+            for right in range(len(nums)):
+                if nums[right] == maxElement:
+                    freq += 1
+                
+                # Shrink the window
+                while freq > k:
+                    if nums[left] == maxElement:
+                        freq -= 1
+                    left += 1
+
+                count += (right-left+1)
+
+            return count
+        # --------------------------------------------------------
+        n = len(nums)
+        totalSubarray = n * (n+1) // 2
+
+        # answer = (total number of non-empty subarray) - at_most(k-1)
+        return totalSubarray - numSubarrayAtMostKTime(k-1)
+
+    # -----------------------------------------------------------------------------------------------
+    # Leetcode 904. Fruit Into Baskets
+    def totalFruit(self, fruits: List[int]) -> int:
+        left = 0
+        maxLen = 0
+        counter = {}
+
+        for right, rightVal in enumerate(fruits):
+            counter[rightVal] = counter.get(rightVal, 0) + 1
+
+            while len(counter) > 2:
+                counter[fruits[left]] -= 1
+                if counter[fruits[left]] == 0:
+                    del counter[fruits[left]]
+                left += 1
+            
+            maxLen = max(maxLen, (right-left+1))
+
+        return maxLen
+
+
+    # -----------------------------------------------------------------------------------------------
     # Leetcode 658. Find K Closest Elements
     # Helper fn that returns True if a is closer to x than b
     def closer(self, a: int, b: int, x: int) -> bool:
@@ -357,7 +495,6 @@ class Solution:
         print(rainTrap)
         return sum(rainTrap)
     
-
     # This solution takes O(1) of space complexity
     def trap2(self, height: List[int]) -> int:
         L, R = 0, len(height) - 1
@@ -379,6 +516,42 @@ class Solution:
         print(rain)
         return rain
 
+    # -----------------------------------------------------------------------------------------------
+    # Leetcode 992. Subarrays with K Different Integers
+    def subarraysWithKDistinct(self, nums: List[int], k: int) -> int:
+        # Helper fn to count number of subarrays with AT MOST k distinct integers--------------
+        def numSubArrayWithAtMostKInt(k) -> int:
+            counter = {}
+            left = 0
+            count = 0
+
+            # Sliding window template
+            for right in range (len(nums)):
+                numsRight = nums[right]
+                # Increment the freq of char at right
+                if numsRight not in counter:
+                    counter[numsRight] = 1
+                else:
+                    counter[numsRight] += 1
+
+                # Update the sliding window
+                while len(counter) > k:
+                    numsLeft = nums[left]
+                    counter[numsLeft] -= 1
+                    if counter[numsLeft] == 0:
+                        del counter[numsLeft]
+
+                    left += 1
+
+                # print("right: {}, left: {}".format(right, left))
+                count += (right-left+1)
+
+            return count
+        # -------------------------------------------------------------------------------------
+
+        # print("k = {} -> {}".format(k, numSubArrayWithAtMostKInt(k)) )
+        # print("k = {} -> {}".format(k-1, numSubArrayWithAtMostKInt(k-1)))
+        return numSubArrayWithAtMostKInt(k) - numSubArrayWithAtMostKInt(k-1)
 
 
 
@@ -396,8 +569,8 @@ if __name__ == "__main__":
     # print(solution.findAnagrams(s, p))
 
     # -------------------- Leetcode 487 --------------------
-    nums = [1,1,0,1]
-    solution.findMaxConsecutiveOnes(nums)
+    # nums = [1,1,0,1]
+    # solution.findMaxConsecutiveOnes(nums)
 
     # -------------------- Leetcode 1004 --------------------
     # nums = [0,0,1,1,0,0,1,1,1,0,1,1,0,0,0,1,1,1,1]
@@ -416,3 +589,14 @@ if __name__ == "__main__":
     # height = [0,1,0,2,1,0,1,3,2,1,2,1]
     # solution.trap2(height)
 
+    # --------------------------- 992 ---------------------------
+    # nums = [1,2,1,3,4]
+    # k = 3
+    # print(solution.subarraysWithKDistinct(nums, k))
+
+    # --------------------------- 2962 ---------------------------
+    nums = [1,3,2,3,3]
+    k = 2
+    print(solution.countSubarrays(nums, k))
+
+    
