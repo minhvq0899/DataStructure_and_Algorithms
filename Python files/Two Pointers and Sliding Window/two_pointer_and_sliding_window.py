@@ -5,6 +5,13 @@ This python file is a part of my effort in getting myself refreshed with Data St
 I can later tackle Leetcode challenges with more confidence. 
 
 ============================================== Two Pointers Exercise ==============================================
+Understanding of Two Pointer pattern
+Pattern 1. left, right xuat phat cung 1 diem. Right cu di toi' cho toi khi nao co 1 cai condition bi broken, sau do thi left cu di len cho den khi cai condition no dc thoa man thi dung lai
+Pattern 2. left, right xuat phat o dau va cuoi. Sau do tuy thuoc vao condition ma left di toi hoac right di lui
+
+sliding window la 1 use case cu the cua 2 pointers, khi ma khoang cach giua left roi right ko thay doi
+
+
 (Template for Count Subarrays with At Most K Feature)
 countSubarraysAtMostK() - Counting Subarrays (e.g. with at most K features)
     992, 1248
@@ -21,11 +28,16 @@ countSubarraysWithSumK() - Subarray Sum Constraints (e.g. sum == K)
 (Easy)
     Leetcode 27. Remove Element
     Leetcode 26. Remove Duplicates from Sorted Array
+    Leetcode 2824. Count Pairs Whose Sum is Less than Target
 
 # -----------------------------------------------------------------------------------------------
 (Medium)
     [Basic] Leetcode 11. Container With Most Water
     [Basic] Leetcode 209. Minimum Size Subarray Sum
+    [Basic 1] Leetcode 340. Longest Substring with At Most K Distinct Characters
+    [Basic 1 - Fix window size] Leetcode 1456. Maximum Number of Vowels in a Substring of Given Length
+    [Basic 1 - Fix window size] Leetcode 1343. Number of Sub-arrays of Size K and Average Greater than or Equal to Threshold
+    [Basic 1] Leetode 1358. Number of Substrings Containing All Three Characters
     [Basic + flipping char] Leetcode 1234: Replace the Substring for Balanced String 
     [Basic] Leetcode 3. Longest Substring Without Repeating Characters 
     [Keep comparing two Counter objects] Leetcode 438. Find All Anagrams in a String
@@ -122,6 +134,25 @@ class Solution:
                 i += 1
         return i
     
+    # Leetcode 2824. Count Pairs Whose Sum is Less than Target
+    # O(nlogn)
+    # Two pointer technique number 2
+    def countPairs(self, nums: List[int], target: int) -> int:
+        nums.sort()
+        result = 0
+        right = len(nums) - 1
+        
+        for left in range(len(nums)):
+            # Keep moving 'right' down until sum is less than target
+            while right > left and nums[left] + nums[right] >= target:
+                right -= 1
+            # Exit early so result is not updated incorrectly
+            if right <= left: 
+                break
+            # All pairs (left, _) where _ in range(left+1, right)
+            result += (right-left)        
+        
+        return result
     
     # ===============================================================================================
     # Leetcode 11. Container With Most Water
@@ -157,7 +188,114 @@ class Solution:
         
         return min_len if min_len != float('inf') else 0
     
-   
+    # -----------------------------------------------------------------------------------------------
+    # [Basic 1] Leetcode 340. Longest Substring with At Most K Distinct Characters
+    def lengthOfLongestSubstringKDistinct(self, s: str, k: int) -> int:
+        longestSubstring = 0
+        charDict = defaultdict(int)
+        left = 0
+
+        for right in range(len(s)):
+            charDict[s[right]] += 1
+            
+            # Step condition
+            while len(charDict) > k:
+                charDict[s[left]] -= 1
+                if charDict[s[left]] == 0:
+                    del charDict[s[left]]
+
+                left += 1
+
+            # Compute result
+            longestSubstring = max(longestSubstring, right-left+1)
+
+        return longestSubstring
+
+    # -----------------------------------------------------------------------------------------------
+    # [Basic 1 - Fix window size] Leetcode 1456. Maximum Number of Vowels in a Substring of Given Length
+    def maxVowels(self, s: str, k: int) -> int:
+        vowels = {'a', 'e', 'i', 'o','u'}
+        # vowelsDict = defaultdict(int)
+        vowelsSum = 0
+        for right in range(k):
+            if s[right] in vowels:
+                vowelsSum += 1
+        
+        result = vowelsSum
+
+        left = 0
+        for right in range(k, len(s)):
+            if s[right] in vowels:
+                vowelsSum += 1
+            if s[left] in vowels:
+                vowelsSum -= 1
+            
+            left += 1
+            result = max(result, vowelsSum)
+
+        return result
+
+    # -----------------------------------------------------------------------------------------------
+    # [Basic 1 - Fix window size] Leetcode 1343. Number of Sub-arrays of Size K and Average Greater than or Equal to Threshold
+    def numOfSubarrays(self, arr: List[int], k: int, threshold: int) -> int:
+        result = 0
+        currentSum = 0
+
+        # Start with the first window
+        # currentSum = sum(arr[:k]) --> extra O(k) of space
+        for i in range(k):
+            currentSum += arr[i]
+        if currentSum >= threshold * k:
+            result += 1
+        
+        # Sliding window for the rest of array
+        left = 0
+        for right in range(k, len(arr)): # n-k
+            currentSum += arr[right]
+            currentSum -= arr[left]
+            if currentSum >= threshold * k:
+                result += 1
+            left += 1
+
+        return result
+
+    # -----------------------------------------------------------------------------------------------
+    # Leetcode 1358. Number of Substrings Containing All Three Characters
+    def numberOfSubstrings(self, s: str) -> int:
+        # Initialize data structure
+        charFreq = defaultdict(int)
+        result = 0
+        left = 0
+
+        # For loop
+        for right in range(len(s)):
+            # Action
+            charFreq[s[right]] += 1
+
+            '''
+                timn cai index left dau tien ma [left:right] ko chua het abc
+
+                -> tat ca nhung cai substring tu [0 -> left : right] chua het abc
+            '''
+
+            # Stop condition
+            while len(charFreq) == 3:
+                charFreq[s[left]] -= 1
+                if charFreq[s[left]] == 0:
+                    del charFreq[s[left]]
+                left += 1
+
+            """
+            Important note:
+            As soon as when the while loop above stops, our dict has len() of 2. 
+            This means all subarray starting from 0 -> left-1 and ending at right will satisfy the condition (len(dict) == 3)
+            Thus, result += (left-1) - 0  + 1 <-- number of elements from 0 to left-1
+            """
+            result += left
+
+        return result
+
+
     # -----------------------------------------------------------------------------------------------
     # Leetcode 1234: Replace the Substring for Balanced String
     def balancedString(self, s: str) -> int:

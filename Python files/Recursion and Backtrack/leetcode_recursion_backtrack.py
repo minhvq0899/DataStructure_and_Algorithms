@@ -656,7 +656,32 @@ class Solution:
         self.dfs78(nums, index+1, potential, result)
         potential.pop()
 
-    
+    # ----------------------------------------------------------------------------------
+    # Leetcode 77. Combinations
+    # Very similar to LC 216. Combination Sum III
+    def combine(self, n: int, k: int) -> List[List[int]]:
+        ans = []
+        # -----------------------------
+        def recursive(potential: List[int], start: int):
+            # Base case
+            if len(potential) == k:
+                ans.append(potential.copy())
+                return 
+
+            # Action
+            for i in range(start, n+1):
+                potential.append(i)
+
+                # Recursive call
+                recursive(potential, i+1)
+
+                # Backtracking
+                potential.pop()
+        # -----------------------------
+
+        recursive([], 1)
+        return ans
+
     # ------------------------------------------------------------------------
     # Leetcode 1306. Jump Game III
     def canReach(self, arr: List[int], start: int) -> bool:

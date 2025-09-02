@@ -11,6 +11,7 @@ I can later tackle Leetcode challenges with more confidence.
 4. Leetcode 529. Minesweeper
 5. Leetcode 1466. Reorder Routes to Make All Paths Lead to the City Zero (Hard version: Leetcode 2858)
 6. Leetcode 133. Clone Graph
+7. Leetcode 1245. Tree Diameter
 
 """
  
@@ -210,6 +211,60 @@ class Solution:
 
         # Start DFS from the given node
         return dfs(node)
+
+
+    # -------------------------------------------------------------------------------------
+    # Leetcode 1245. Tree Diameter
+    # DFS from root to find the furthest node (x1)
+    # DFS from x1 to find the furthest node x2
+    # Diameter of the tree will be |x2-x1|
+    def treeDiameter(self, edges: List[List[int]]) -> int:
+        n = len(edges) + 1
+        # Graph representation
+        graph = [[] for _ in range(n)]
+        for u,v in edges:
+            graph[u].append(v)
+            graph[v].append(u)
+
+        # Step 1: DFS from a random node to find the furthest node (x1)
+        stack = [(0,0)]     # (node, distance from root)
+        visited = [False for _ in range(n)]
+        visited[0] = True
+        furthestDistance = 0
+        furthestNode = None
+
+        while stack:
+            popNode, popDist = stack.pop()
+            for neighbor in graph[popNode]:
+                if not visited[neighbor]:
+                    visited[neighbor] = True
+                    stack.append((neighbor, popDist+1))
+                    if popDist+1 > furthestDistance:
+                        furthestDistance = popDist+1
+                        furthestNode = neighbor
+
+        # Step 2: DFS from furthestNode
+        stack = [(furthestNode,0)]     # (node, distance from root)
+        visited = [False for _ in range(n)]
+        visited[furthestNode] = True
+        furthestDistance = 0
+        # furthestNode2 = None
+
+        while stack:
+            popNode, popDist = stack.pop()
+            for neighbor in graph[popNode]:
+                if not visited[neighbor]:
+                    visited[neighbor] = True
+                    stack.append((neighbor, popDist+1))
+                    if popDist+1 > furthestDistance:
+                        furthestDistance = popDist+1
+                        # furthestNode2 = neighbor
+
+        return furthestDistance
+
+
+
+
 
 
 

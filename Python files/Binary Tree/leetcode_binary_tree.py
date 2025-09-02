@@ -15,6 +15,8 @@ Leetcode 404. Sum of Left Leaves
 Leetcode 1315. Sum of Nodes with Even-Valued Grandparent   
 Leetcode 199. Binary Tree Right Side View
 Leetcode 669. Trim a Binary Search Tree
+Leetcode 98. Validate Binary Search Tree
+
 ================================================================
 ** Kenny Talks Code: 
 ** Problems involve path finding: given a tree, find a path that optimizes the sub criteria
@@ -28,6 +30,7 @@ Leetcode 298: BT Longest Consucutive Sequence
 ** Problems involve tree traversal: explore all nodes in the tree, usually in some unique ways other 
 than pre-order, in-order and post-order
 Leetcode 102. Binary Tree Level Order Traversal  
+Leetcode 662. Maximum Width of Binary Tree
 Leetcode 515. Find Largest Value in Each Tree Row
 Leetcode 116. Populating Next Right Pointers in Each Node
 Leetcode 117. Populating Next Right Pointers in Each Node II
@@ -52,6 +55,7 @@ Leetcode 297. Serialize and Deserialize Binary Tree
 
 from typing import List
 from queue import Queue
+from collections import deque
 
 # Definition for a binary tree node.
 class Node:
@@ -267,6 +271,68 @@ class Solution:
         
         return helper(root)
 
+    # --------------------------------------------------------------------
+    # Leetcode 98. Validate Binary Search Tree
+    # https://www.geeksforgeeks.org/dsa/a-program-to-check-if-a-binary-tree-is-bst-or-not/#
+    # The idea is to use inorder traversal of a binary search tree, in which the output values are sorted in ascending order.
+    # We can avoid the use of an Auxiliary Array. While doing In-Order traversal, we can keep track of previously visited value. 
+    # If the value of the currently visited node is less than the previous value, then the tree is not BST.
+    def isValidBST(self, root: 'TreeNode') -> bool:
+        # nodeValues = []
+        nodeValue = float('-inf')
+        validBST = True
+
+        # -----------------
+        def inorder(root):
+            nonlocal nodeValue, validBST
+
+            # Base case:
+            if not root:
+                return 
+            
+            inorder(root.left)
+            # nodeValues.append(root.val)
+            if root.val <= nodeValue:
+                validBST = False
+            nodeValue = root.val
+            inorder(root.right)
+        # -----------------
+
+        inorder(root)
+        # print(nodeValues)
+        # for i in range(1, len(nodeValues)):
+        #     if nodeValues[i] <= nodeValues[i-1]:
+        #         return False
+
+        return validBST
+
+    # --------------------------------------------------------------------
+    # Leetcode 662. Maximum Width of Binary Tree
+    # If index of parent is n, the index of left child is (2n), and right child is (2n+1)
+    def widthOfBinaryTree(self, root: 'TreeNode') -> int:
+        dq = deque([(root, 1)])
+        # dq.append("Change level")     # Traverse layer by layer, do no need signal to change level
+        maxWidth = 0
+
+        while dq:
+            levelLen = len(dq)
+            firstNode, firstLevelIndex = dq[0]      # First node of the level
+            lastNode, lastLevelIndex = dq[-1]       # Last node of the level
+
+            # Compute level width
+            levelWidth = lastLevelIndex - firstLevelIndex + 1
+            maxWidth = max(maxWidth, levelWidth)
+
+            # Add all node in the next layer in the deque
+            for _ in range(levelLen):
+                node, index = dq.popleft()
+                if node.left:
+                    dq.append((node.left, index*2))
+                if node.right:
+                    dq.append((node.right, index*2+1))
+
+        return maxWidth
+
 
     # ======================================================================================================
     """
@@ -409,7 +475,7 @@ class Solution:
         self.result_543 = 0
         self.helper_543(root)
         return self.result_543
-
+        
 
     # --------------------------------------------------------------------
     # Leetcode 298: BT Longest Consecutive Sequence
@@ -442,8 +508,6 @@ class Solution:
         answer = self.helper_298(root)
 
         return max( self.result_298, answer )
-
-
 
     # ======================================================================================================
     """
@@ -940,15 +1004,6 @@ class Codec:
         self.print_tree(root.left, level + 1)
         self.print_tree(root.right, level + 1)
     
-
-
-
-
-
-
-
-
-
 
 
 

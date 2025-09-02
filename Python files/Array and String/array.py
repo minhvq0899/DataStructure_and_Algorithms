@@ -26,8 +26,21 @@ Leetcode 238. Product of Array Except Self
 Leetcode 713. Subarray Product Less Than K
 Leetcode 567. Permutation in String
 Leetcode 128: Longest Consecutive Sequence
+Leetcode 189. Rotate Array
+
+    (Sweep line algorithm) # https://leetcode.com/problem-list/ax36evp1/
+G4G: Minimum Platforms Required for Given Arrival and Departure Times (identical to LC 253)
 Leetcode 252: Meeting Rooms (Easy)
 Leetcode 253: Meeting Rooms II
+Leetcode 1094. Car Pooling
+Leetcode 729. My Calendar I - use BST
+Leetcode 731. My Calendar II - not completed
+Leetcode 759. Employee Free Time - Hard
+Leetcode 1353. Maximum Number of Events That Can Be Attended
+(Two-pointer)
+Leetcode 1229. Meeting Scheduler
+Leetcode 986. Interval List Intersections
+Leetcode 218. The Skyline Problem - Hard
 
     (Boyer-Moore majority vote algorithm)
 Leetcode 169. Majority Element I
@@ -58,6 +71,7 @@ Leetcode 2444. Count Subarrays With Fixed Bounds
 from typing import List
 from collections import Counter
 from collections import defaultdict
+import heapq
 import copy
 import math
 
@@ -67,7 +81,10 @@ class TreeNode:
         self.left = left
         self.right = right
 
-
+class Interval:
+    def __init__(self, start: int = None, end: int = None):
+        self.start = start
+        self.end = end
 
 class Solution:
     # ------------------------------------------------------------------------------
@@ -428,6 +445,55 @@ class Solution:
 
         return maxLen
 
+    # Leetcode 189. Rotate Array
+    def rotate(self, nums: List[int], k: int) -> None:
+        """
+        Do not return anything, modify nums in-place instead.
+        """
+        if k >= len(nums):
+            remainder = k % len(nums)
+            if remainder == 0:
+                return
+            else:
+                k = remainder
+        
+        # -----------------------------------------------
+        def swap(array: List[int], start: int, end: int):
+            left = start
+            right = end-1
+            while left < right:
+                array[left], array[right] = array[right], array[left]
+                left += 1
+                right -= 1
+        # -----------------------------------------------
+        nums.reverse()                          # Reverse the array
+        swap(nums, 0, k)                        # Swapping first k elements
+        swap(nums, k, len(nums))                # Swapping the rest
+
+
+    # ==============================================================================
+    """ Sweep line algorithm """
+    # Minimum Platforms Required for Given Arrival and Departure Times
+    def minPlatform(self, arr: List[int], dep: List[int]):
+        sortedArrTime = arr.sort()
+        sortedDepTime = arr.sort()
+
+        arrival, departure = 0, 0
+        result, count = 0, 0
+        # sweep line algorithm
+        while arrival < len(sortedArrTime):
+            # Case 1: a new train arrives
+            if sortedArrTime[arrival] < sortedDepTime[departure]:
+                count += 1
+                arrival += 1
+            # Case 2: a train just left
+            else:
+                count -= 1
+                departure += 1
+            result = max(result, count)
+
+        return result
+
     # ------------------------------------------------------------------------------
     # Leetcode 252: Meeting Rooms (Easy)
     def canAttendMeetings(self, intervals: List[List[int]]) -> bool:
@@ -442,8 +508,7 @@ class Solution:
 
     # ------------------------------------------------------------------------------
     # Leetcode 253: Meeting Rooms II
-    # Follow Sweep line algorithm. Learn more about this algo with this playlist
-    # https://leetcode.com/problem-list/ax36evp1/
+    # https://www.youtube.com/watch?v=FdzJmTCVyJU&ab_channel=NeetCode
     def minMeetingRooms(self, intervals: List[List[int]]) -> int:
         sortedStartingTime = sorted(list([i[0] for i in intervals]))
         sortedEndingTime = sorted(list([i[1] for i in intervals]))
@@ -464,8 +529,228 @@ class Solution:
         
         return res
 
+    # ------------------------------------------------------------------------------
+    # Leetcode 1094. Car Pooling
+    def carPooling(self, trips: List[List[int]], capacity: int) -> bool:
+        pickUps = []                        
+        dropOffs = []                       
+        for numPassengers, p, d in trips:
+            pickUps.append((p, numPassengers))
+            dropOffs.append((d, numPassengers))
+
+        pickUps.sort()                      # [(1,2), (6,3)]
+        dropOffs.sort()                     # [(5,2), (7,3)]
+        p, d = 0, 0
+        currentPassenger = 0
+        while p < len(dropOffs):
+            # Case 1: Pick up another trip
+            if pickUps[p][0] < dropOffs[d][0]:
+                currentPassenger += pickUps[p][1]
+                if currentPassenger > capacity:
+                    return False
+                p += 1
+            # Case 2: Drop off a trip
+            else:
+                currentPassenger -= dropOffs[d][1]
+                d += 1
+
+        return True
+                
+    # ------------------------------------------------------------------------------
+    # Leetcode 759. Employee Free Time - Hard + Premium
+    def employeeFreeTime(self, schedule: List[List[Interval]]) -> List[Interval]:
+        starts, ends = [], []
+        for employeeSchedule in schedule:
+            for interval in employeeSchedule:
+                starts.append(interval.start)
+                ends.append(interval.end)
+
+        starts.sort()
+        ends.sort()
+        result = []
+        currentWorkingEmployee = 0
+        currentFreeStart = -1
+        currentFreeEnd = -1
+        s, e = 0, 0                     # indices of 'starts' and 'ends' list
+        while s < len(starts):
+            # Case 1: a new employee just started working
+            if starts[s] < ends[e]: 
+                currentWorkingEmployee += 1
+                if currentFreeStart != -1:
+                    currentFreeEnd = starts[s]
+                    newFreeInterval = Interval(currentFreeStart, currentFreeEnd)
+                    result.append(newFreeInterval)
+                    
+                    # Reset the free interval
+                    currentFreeStart = -1
+                    currentFreeEnd = -1
+                s += 1
+            # Case 2: a new employee just finished working
+            elif starts[s] > ends[e]:
+                currentWorkingEmployee -= 1
+                # Found some free time
+                if currentWorkingEmployee == 0:
+                    currentFreeStart = ends[e]
+                e += 1
+            # Case 3: both case 1 + case 2 (starts[s] == ends[e])
+            else: 
+                s += 1
+                e += 1
+
+        return result
 
     # ------------------------------------------------------------------------------
+    # Leetcode 1353. Maximum Number of Events That Can Be Attended
+    # The idea is to go day by day and attend any qualified event with the earliest end date (because events with later end date can still be attended in the future)
+    def maxEvents(self, events: List[List[int]]) -> int:
+        # Sort all events by start date
+        events.sort(key = lambda x:x[0])
+        print(events)
+
+        day = events[0][0]  
+        heap = []
+        i = 0               # event index 
+        result = 0          # number of events
+        # Condition: if heap is not empty or there are still more events to process
+        while i < len(events) or heap:
+            # If heap is empty -> reset the current day
+            if not heap:
+                day = events[i][0]      # start from the earliest date (start date of i-th event)
+
+            # Events in the heap are events currently in consideration
+            # Insert all qualifying events' end date (qualified events == start date smaller or equals to 'day')
+            while i < len(events) and events[i][0] <= day:
+                heapq.heappush(heap, events[i][1])
+                i += 1
+
+            # Attend the event
+            heapq.heappop(heap)
+            result += 1
+            # Go home for the day
+            day += 1
+
+            # Remove events with end date already passed the current day (because we cannot attend them anymore)
+            while heap and heap[0] < day:
+                heapq.heappop(heap)
+
+        return result
+
+    # ------------------------------------------------------------------------------
+    # Leetcode 1229. Meeting Scheduler
+    # Two-pointer
+    def minAvailableDuration(self, slots1: List[List[int]], slots2: List[List[int]], duration: int) -> List[int]:
+        # Sort two availabilities by start time
+        slots1.sort()
+        slots2.sort()
+
+        # Indices for two arrays
+        i, j = 0, 0
+        while i < len(slots1) and j < len(slots2):
+            # Compute the start and end of the overlapping availability period
+            startAvailability = max(slots1[i][0], slots2[j][0])
+            endAvailability = min(slots1[i][1], slots2[j][1])
+
+            # Check if the overlapping availability period is enough
+            if endAvailability - startAvailability >= duration:
+                return [startAvailability, startAvailability+duration]
+            
+            # Move the pointer with earlier end time (because we can still potentially make use of the later availability end time in the future)
+            if slots1[i][1] < slots2[j][1]:
+                i += 1
+            else:
+                j += 1
+
+        return []
+
+    # ------------------------------------------------------------------------------
+    # Leetcode 986. Interval List Intersections
+    def intervalIntersection(self, firstList: List[List[int]], secondList: List[List[int]]) -> List[List[int]]:
+        i, j = 0, 0     # indices of the two lists
+        result = []
+
+        intersactionStart = float('inf')
+        intersactionEnd = float('-inf')
+        while i < len(firstList) and j < len(secondList):
+            intersactionStart = max(firstList[i][0], secondList[j][0])
+            intersactionEnd = min(firstList[i][1], secondList[j][1])
+
+            if intersactionStart <= intersactionEnd:
+                result.append([intersactionStart, intersactionEnd])
+
+            # Update indices of the intervals with earlier end time
+            if firstList[i][1] < secondList[j][1]:
+                i += 1
+            else:
+                j += 1
+
+            # Reset
+            intersactionStart = float('inf')
+            intersactionEnd = float('-inf')
+
+        print(result)
+        return result
+
+    # ------------------------------------------------------------------------------
+    # Leetcode 218. The Skyline Problem - Hard
+    # This approach mimics how a skyline would be drawn:
+    # - You "scan" from left to right
+    # - You track which buildings are currently visible
+    # - You update the skyline only when the tallest building changes
+    def getSkyline(self, buildings: List[List[int]]) -> List[List[int]]:
+        # 2. What Causes Height Changes?
+        # Height changes happen at:
+        # - The start of a building (height increases)
+        # - The end of a building (height might decrease)
+        # So we need to process events at these critical x-coordinates.
+        # 3. Model the Problem as Events
+        # Each building gives us two events:
+        # - A start event at left with height h
+        # - An end event at right with height h
+        # To distinguish them:
+        # - We store start events as (x, -height, right) → negative height ensures starts are processed before ends when x is the same
+        # - End events as (x, 0, 0) → zero height means it's just a cleanup signal
+        events = []
+        for left, right, height in buildings:
+            events.append( (left, -height, right) )         # Event building starts
+            events.append( (right, 0, 0) )                   # Event building ends
+
+        # This gives us a sorted list of events to process in order.
+        events.sort()
+
+        # 4. Use a Max-Heap to Track Active Heights
+        # As we sweep from left to right:
+        # - 4.1. We push building heights into a max-heap (using negative values since Python’s heapq is a min-heap)
+        # - 4.2. We remove buildings from the heap once their right edge is passed
+        # The top of the heap always gives us the current tallest building.
+        heap = [(0, float('inf'))]      # (height, right)
+        result = []
+        prev_height = 0
+        for x, negativeHeight, right in events:
+            # 4.1
+            if negativeHeight != 0:
+                heapq.heappush(heap, (negativeHeight, right))
+            else:
+                # 4.2
+                while heap and heap[0][1] <= x:
+                    heapq.heappop(heap)
+
+            # The top of the heap always gives us the current tallest building.
+            current_max_height = -heap[0][0]    
+
+            # 5. Record Key Points When Height Changes
+            # At each event:
+            # - Check the current tallest building (-heap[0][0])
+            # - If it’s different from the previous height, record [x, current_height] as a key point
+            # This ensures we only record skyline changes
+            if current_max_height != prev_height:
+                prev_height = current_max_height
+                result.append( [x, current_max_height] )
+
+        return result
+
+        
+    # ==============================================================================
+    """ Boyer-Moore majority vote algorithm """
     # Leetcode 169. Majority Element I
     def majorityElement1(self, nums: List[int]) -> int:
         # Boyer–Moore majority vote algorithm
@@ -806,6 +1091,63 @@ class Solution:
 
 
 
+# Leetcode 729. My Calendar I
+# [[], [10, 20], [15, 25], [20, 30]]
+# start = 10, 100, 30, 
+# end =   20, 110, 40
+class CalendarNode:
+    def __init__(self, start: int, end: int):
+        self.start = start
+        self.end = end
+        self.left = None
+        self.right = None
+    
+    def __gt__(self, other):
+        return self.start >= other.end
+    
+    def __lt__(self, other):
+        return self.end <= other.start
+
+class MyCalendar:
+    def __init__(self):
+        self.bstRoot = None
+
+    def book(self, startTime: int, endTime: int) -> bool:
+        if not self.bstRoot:
+            self.bstRoot = CalendarNode(startTime, endTime)
+            return True
+        
+        event = CalendarNode(startTime, endTime)
+        current = self.bstRoot
+        while current:
+            if current > event:
+                if current.left:
+                    current = current.left
+                else:
+                    current.left = event
+                    current = None
+            elif current < event:
+                if current.right:
+                    current = current.right
+                else:
+                    current.right = event
+                    current = None
+            else:
+                return False
+            
+        return True
+
+
+# Leetcode 731. My Calendar II
+class MyCalendarTwo:
+    def __init__(self):
+        self.non_overlapping = []
+        self.overlapping = []
+
+    def book(self, startTime: int, endTime: int) -> bool:
+        pass
+
+
 
 
 
@@ -828,10 +1170,29 @@ if __name__ == "__main__":
     # nums = [1,2,3,4]
     # print(leetcode.productExceptSelf(nums))
 
+    # --------------------------- 189 ---------------------------
+    # nums = [1,2,3,4,5,6,7]
+    # k = 3
+    # leetcode.rotate(nums, 3)
+
     # --------------------------- 567 ---------------------------
     # s1 = "ab"
     # s2 = "bc"
     # print(leetcode.checkInclusion(s1, s2))
+
+    # --------------------------- 1353 ---------------------------
+    # events = [[1, 2], [1, 2], [3, 3], [1, 5], [1, 5]]
+    # leetcode.maxEvents(events)
+
+    # --------------------------- 986 ---------------------------
+    # firstList = [[0,2],[5,10],[13,23],[24,25]]
+    # secondList = [[1,5],[8,12],[15,24],[25,26]]
+    # leetcode.intervalIntersection(firstList, secondList)
+
+    # --------------------------- 218 ---------------------------
+    # buildings = [[2,9,10],[3,7,15],[5,12,12],[15,20,10],[19,24,8]]
+    buildings = [ [2,9,10],[2,7,5] ]
+    leetcode.getSkyline(buildings)
 
     # --------------------------- 169 + 229 ---------------------------
     # nums = [1,2]
@@ -865,8 +1226,8 @@ if __name__ == "__main__":
 
     # ---------------------- 2444 ----------------------
           # 0,1,2,3,4,5,6,7,8,9,10,11
-    nums = [1,3,5,2,7,4,3,2,5,4,1,4]
-    minK = 1
-    maxK = 5
-    ans2444 = leetcode.countSubarrays(nums, minK, maxK)
-    print(ans2444)
+    # nums = [1,3,5,2,7,4,3,2,5,4,1,4]
+    # minK = 1
+    # maxK = 5
+    # ans2444 = leetcode.countSubarrays(nums, minK, maxK)
+    # print(ans2444)

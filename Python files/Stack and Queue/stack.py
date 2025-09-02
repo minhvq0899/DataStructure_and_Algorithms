@@ -33,6 +33,7 @@ Leetcode 1963. Minimum Number of Swaps to Make the String Balanced
 Leetcode 224. Basic Calculator
 Leetcode 84. Largest Rectangle in Histogram - use Monotonic stack
 Leetcode 85. Maximal Rectangle - use Monotonic stack
+Leetcode 1944. Number of Visible People in a Queue
 
 
 
@@ -78,24 +79,24 @@ class Solution:
     # Used to solve NGE problems
     def monotonicStack(self, nums: List[int]):
         monotonicStack = []
-        answer = [-1 for _ in range (len(nums))]
+        nge = [-1 for _ in range (len(nums))]
         
         for i in range (len(nums)-1, -1, -1):
             # Maintain the order
             while monotonicStack and monotonicStack[-1] <= nums[i]:
                 monotonicStack.pop()
 
-            # Find answer for NGE
+            # Find nge for NGE
             if len(monotonicStack) == 0:
-                answer[i] = -1
+                nge[i] = -1
             else:
-                answer[i] = monotonicStack[-1]
+                nge[i] = monotonicStack[-1]
 
             # Push the element into the stack as we know the order is maintained
             monotonicStack.append(nums[i])
         
-        print(answer)
-        return answer
+        print(nge)
+        return nge
                 
 
 
@@ -551,6 +552,46 @@ class Solution:
         return maxArea
 
 
+    # ----------------------------------------------------------------------------------------------------------------------------------------
+    # Leetcode 1944. Number of Visible People in a Queue
+    # In example 'heights' = [10,6,8,5,11,9], the reason why 0-th person cannot see 3-th person is because 
+    # index 3th has already been popped by someone shorter than 0th person before
+    def canSeePersonsCount(self, heights: List[int]) -> List[int]:
+        # Same idea as finding the NGE. This array contains indices instead of actual height
+        # stack[0] will be the largest element
+        monotonicStack = []
+
+        # nge = [-1] * len(heights)
+        # in this problem, instead of recording the nge, we record this info
+        visible = [0]*len(heights)          
+
+        for i in range(len(heights)-1, -1, -1):
+            # The number of people we need to pop from the monotonic stack while maintaining 
+            # the order is the number of people the i-th person can see to their right
+            visibleCount = 0
+
+            # Step 1: Maintain the order of the stack
+            while monotonicStack and heights[monotonicStack[-1]] <= heights[i]:
+                monotonicStack.pop()
+                visibleCount += 1
+
+            # Step 2: Compute the result
+            # If the stack is not empty, then the # people the i-th person can see to their right will be visibleCount + 1 
+            # (including the extra person in the stack)
+            if monotonicStack:
+                visible[i] = visibleCount + 1
+            else:
+                visible[i] = visibleCount
+            
+            # Step 3: Add the current height to the stack
+            monotonicStack.append(i)
+
+        return visible
+
+            
+
+
+
 
 # =================================================================================================================================================
 # =================================================================================================================================================
@@ -606,6 +647,10 @@ if __name__ == "__main__":
     # print("ans1963: ", ans1963)
 
     # print(leetcode.nextGreaterElement(lc496_nums1, lc496_nums2))
+
+    # ----------------------- 1944 -----------------------
+    heights = [10,6,8,5,11,9]
+    print(leetcode.canSeePersonsCount(heights))
 
     # daily_temp = leetcode.dailyTemperatures(lc739)
     # print(daily_temp)
