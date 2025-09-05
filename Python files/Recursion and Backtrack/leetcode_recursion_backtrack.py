@@ -21,7 +21,9 @@ DFS down different path:
         Leetcode 377. Combination Sum IV
         Leetcode 77. Combinations
         Leetcode 78. Subsets
+        Leetcode 90. Subsets II
     Leetcode 1306. Jump Game III
+    Leetcode 837. New 21 Game
 
 DFS on grid/ matrix
     Leetcode 200. Number of Islands
@@ -632,7 +634,6 @@ class Solution:
 
         return total_perm
 
-
     # ----------------------------------------------------------------------------------
     # Leetcode 78. Subsets
     def subsets(self, nums: List[int]) -> List[List[int]]:
@@ -655,6 +656,30 @@ class Solution:
         potential.append(nums[index])
         self.dfs78(nums, index+1, potential, result)
         potential.pop()
+
+    # ----------------------------------------------------------------------------------
+    # Leetcode 90. Subsets II
+    def subsetsWithDup(self, nums: List[int]) -> List[List[int]]:
+        result = []
+        nums.sort()
+
+        #---------------------------------
+        def recursion(start: int, potential: List[int]):
+            result.append(potential.copy())
+            
+            for i in range(start, len(nums)):
+                # skip dup on the same level
+                if i > start and nums[i] == nums[i-1]:
+                    continue
+
+                # Include
+                potential.append(nums[i])
+                recursion(i+1, potential)
+                potential.pop()     # backtrack to explore the path where we not include this num
+        #---------------------------------
+        recursion(0, [])
+
+        return result
 
     # ----------------------------------------------------------------------------------
     # Leetcode 77. Combinations
@@ -709,8 +734,30 @@ class Solution:
         self.dfs_canReach(arr, index-arr[index], reach)
 
 
+    # -----------------------------------------------------------------------------------------------
+    # Leetcode 837. New 21 Game
+    # First, let's look at the TLE solution
+    def new21GameTLE(self, n: int, k: int, maxPts: int) -> float:
+        cache = {}
+        # ----------------------------------------
+        def dfs(score: int):
+            # Base case: 
+            if score >= k:
+                return 1 if score <= n else 0
+            if score in cache:
+                return cache[score]
+            
+            # Action
+            probability = 0
+            for i in range(1, maxPts+1):
+                probability += dfs(score+i)
 
+            cache[score] = probability / maxPts
 
+            return cache[score]
+        # ----------------------------------------
+
+        return dfs(0)
 
 
 
@@ -1695,8 +1742,8 @@ if __name__ == "__main__":
     # print(num_closed_island)
 
     # ------------------------- 93. Restore IP Addresses -------------------------
-    s = "25525511135"
-    leetcode.restoreIpAddresses(s)
+    # s = "25525511135"
+    # leetcode.restoreIpAddresses(s)
 
     # ------------------------- 39. Combination Sum -------------------------
     # candidates = [2,3,6,7]
@@ -1706,11 +1753,15 @@ if __name__ == "__main__":
     # candidates = [10,1,2,7,6,1,5]
     # print( leetcode.combinationSum2(candidates, 8) )
 
-
     # ------------------------- Permutation -------------------------
     # nums = [1,2,3]
     # ans = leetcode.permute(nums)
     # print(ans)
+    
+    # ------------------------- 90. Subsets II -------------------------
+    nums = [1,2,2]
+    ans = leetcode.subsetsWithDup(nums)
+    print(ans)
 
     # ------------------------ 827. Making A Large Island -------------------------
     # grid = [[0,0,1,1],

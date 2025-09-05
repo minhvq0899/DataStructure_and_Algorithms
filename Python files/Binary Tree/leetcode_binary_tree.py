@@ -37,6 +37,7 @@ Leetcode 117. Populating Next Right Pointers in Each Node II
 Leetcode 105. Construct Binary Tree from Preorder and Inorder Traversal 
 Leetcode 106. Construct Binary Tree from Inorder and Postorder Traversal
 Leetcode 889. Construct Binary Tree from Preorder and Postorder Traversal
+Leetcode 103. Binary Tree Zigzag Level Order Traversal
 
 ** Lowest Common Ancestor: https://www.geeksforgeeks.org/dsa/lowest-common-ancestor-binary-tree-set-1/
 Leetcode 235. Lowest Common Ancestor of a Binary Search Tree
@@ -691,7 +692,7 @@ class Solution:
         return arrayToTree_106(0, len(postorder) - 1)
 
 
-    # ------------------------- -------------------------------------------
+    # ---------------------------------------------------------------------
     # Leetcode 889. Construct Binary Tree from Preorder and Postorder Traversal
     def constructFromPrePost(self, pre: List[int], post: List[int]) -> Node:
         # ----------------------------------------------
@@ -723,6 +724,43 @@ class Solution:
         self.preorderIndex_889 = 0
 
         return arrayToTree_889(0, len(pre) - 1)
+
+    
+    # ---------------------------------------------------------------------
+    # Leetcode 103. Binary Tree Zigzag Level Order Traversal
+    def zigzagLevelOrder(self, root: 'TreeNode') -> List[List[int]]:
+        if not root:
+            return []
+            
+        dq = deque([root])
+        zigzagOrder = []
+        levelCount = 1
+
+        while dq:
+            # Process each level
+            level = []
+            for _ in range(len(dq)):
+                pop = dq.popleft()
+                level.append(pop.val)
+                # Left -> Right
+                if levelCount % 2 == 1:
+                    if pop.left:
+                        dq.append(pop.left)
+                    if pop.right:
+                        dq.append(pop.right)
+                # Right -> Left
+                else:
+                    if pop.right:
+                        dq.append(pop.right)
+                    if pop.left:
+                        dq.append(pop.left)
+
+            zigzagOrder.append(level)
+            dq.reverse()
+            levelCount += 1
+
+        return zigzagOrder
+
 
 
     """

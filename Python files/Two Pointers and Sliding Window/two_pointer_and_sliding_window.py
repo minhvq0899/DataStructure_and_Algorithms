@@ -45,6 +45,7 @@ countSubarraysWithSumK() - Subarray Sum Constraints (e.g. sum == K)
     [Flipping char/int] Leetcode 1004. Max Consecutive Ones III
     [k-at-most template] Leetcode 1248. Count Number of Nice Subarrays
     Leetcode 658. Find K Closest Elements
+    Leetcode 75. Sort Colors
 
 # -----------------------------------------------------------------------------------------------
 (Hard)
@@ -563,6 +564,41 @@ class Solution:
         
         return arr[left : right + 1]
 
+    # -----------------------------------------------------------------------------------------------
+    # Leetcode 75. Sort Colors
+    # Idea 1: Two passes. First pass is to count the frequency of each values. Second pass is to modify the 'nums'.  
+    # Idea 2: One pass - quick sort. Since we know there can only be 3 values in 'nums', we can have 'left' and 'right' pointers
+    # starting from start and end of 'nums'. Then we have another pointer i going from 0->(n-1), swapping 0s left of 'left' and 2s
+    # to right of 'right'. Everything in the middle will be 1s 
+    def sortColors(self, nums: List[int]) -> None:
+        """
+        Do not return anything, modify nums in-place instead.
+        """
+        left, right = 0, len(nums)-1
+        i = 0
+
+        # i will always be ahead of 'left'
+        while i <= right:
+            # Case 1: nums[i] is 0, nums[left] in this case has to be 1
+            # because if nums[left] is 2, i would have passed by before and swap that 2 with nums[right]
+            if nums[i] == 0:
+                nums[i], nums[left] = nums[left], nums[i]
+                left += 1
+                i += 1
+            # Case 2: nums[i] == 1 -> simply continue
+            elif nums[i] == 1:
+                i += 1
+            # Case 3: nums[i] == 2 -> nums[right] can be either 0 or 1. 
+            # If nums[right] is currently 1 and we increment i, then it's ok. 
+            # But if nums[right] is 0 and we increment i after swapping, then there is a problem. Now not all 0s are to the left of 'left'
+            # That's why we cannot increment i when swapping with 'right'
+            elif nums[i] == 2:
+                nums[i], nums[right] = nums[right], nums[i]
+                right -= 1
+
+        # print(nums)
+        
+
 
     # =================================================================================================
     # -----------------------------------------------------------------------------------------------
@@ -723,6 +759,14 @@ if __name__ == "__main__":
     # t = "aa"
     # print( solution.minWindow(s,t) )
 
+    # --------------------------- 75 ---------------------------
+    # nums = [1,1,1,2,0]
+    # solution.sortColors(nums)
+
+    # --------------------------- 837 ---------------------------
+    ans837 = solution.new21GameTLE(n=6, k=1, maxPts=10)
+    print(ans837)
+
     # --------------------------- 42 ---------------------------
     # height = [0,1,0,2,1,0,1,3,2,1,2,1]
     # solution.trap2(height)
@@ -733,8 +777,8 @@ if __name__ == "__main__":
     # print(solution.subarraysWithKDistinct(nums, k))
 
     # --------------------------- 2962 ---------------------------
-    nums = [1,3,2,3,3]
-    k = 2
-    print(solution.countSubarrays(nums, k))
+    # nums = [1,3,2,3,3]
+    # k = 2
+    # print(solution.countSubarrays(nums, k))
 
     

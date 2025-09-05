@@ -6,7 +6,7 @@ I can later tackle Leetcode challenges with more confidence.
 
 ========================================================= Leetcode Array =========================================================
 
-Easy
+(Easy)
 Leetcode 345: Reverse Vowels of a String
 Leetcode 344: Reverse String
 
@@ -16,12 +16,13 @@ Leetcode 1408. String Matching in an Array (using KMP algorithm makes it a Mediu
 Leetcode 214. Shortest Palindrome
 Leetcode 1392. Longest Happy Prefix
 
-
 Leetcode 72. Edit Distance
 Leetcode 1347. Minimum Number of Steps to Make Two Strings Anagram (simply use Counter - don't overthink)
+Leetcode 6. Zigzag Conversion
+Leetcode 8. String to Integer (atoi)
 
 ----------------------------------------------------
-Hard
+(Hard)
 Leetcode 273. Integer to English Words 
 Leetcode 68. Text Justification
 
@@ -216,7 +217,98 @@ class Solution:
 
         return s[:lengthOfLps]
     
+    # -------------------------------------------------------------------------------
+    # Leetcode 6. Zigzag Conversion
+    # 0 1 2 3 4 5 6 7 8 9 0 1 2 3 
+    # P A Y P A L I S H I R I N G
+    def convert(self, s: str, numRows: int) -> str:
+        # Corner case
+        if numRows == 1 or len(s) <= numRows:
+            return s
+        
+        firstRow, lastRow = "", ""
+        result = ""
+        distance = (numRows-1)*2
+        
+        # Compute first and last row
+        for i in range(0, len(s), distance):
+            firstRow += s[i]
+        for i in range(numRows-1, len(s), distance):
+            lastRow += s[i]
 
+        print("firstRow: ", firstRow)
+        print("lastRow: ", lastRow)
+
+        # Compute all the rows in between
+        result += firstRow
+        for row in range(1, numRows-1):
+            nthRow = s[row]
+            smallerDistance = distance - 2*row
+            start = row
+            charCount = 1
+            while start < len(s):
+                # Adding every even char
+                if charCount % 2 == 1:
+                    start += smallerDistance
+                # Adding every odd char
+                else:
+                    start += (distance - smallerDistance)
+
+                charCount += 1
+                if start < len(s):
+                    nthRow += s[start]
+
+            # Now that we have computed nthRow
+            print("nthRow: {}".format(nthRow))
+            result += nthRow
+
+        result += lastRow
+        print("result: ", result)
+        return result
+        
+    # -------------------------------------------------------------------------------
+    # Leetcode 8. String to Integer (atoi)
+    def myAtoi(self, s: str) -> int:
+        # Step 1: Ignore leading whitespace
+        s = s.lstrip()
+        print("After step 1: ", s)
+
+        if s == "":
+            return 0
+
+        # Step 2: Read Signedness
+        negativity = False
+        if s[0] == "-" or s[0] == "+":
+            negativity = True if s[0] == "-" else False
+            s = s[1:]
+        print("After step 2: ", s)
+        
+        # Step 3: Skip leading 0s
+        i = 0
+        while i < len(s) and s[i] == "0":
+            i += 1
+        s = s[i:]
+        print("After step 3: ", s)
+
+        # Step 4: Read the number and rounding
+        result = ""
+        i = 0
+        while i < len(s) and s[i].isdigit():
+            result += s[i]
+            i += 1
+        print("After step 4: ", result)
+
+        result_int = int(result) if result != "" else 0
+        if negativity:
+            result_int *= (-1)
+        
+        print(result_int)
+        if result_int < -(math.pow(2,31)):
+            return -(math.pow(2,31))
+        elif math.pow(2,31)-1 < result_int:
+            return math.pow(2,31)-1
+
+        return result_int
 
 
     # ==============================================================================
@@ -388,7 +480,16 @@ if __name__ == "__main__":
     # print(leetcode.longestPrefix(s))
 
     # ------------------ LC 68 ------------------
-    words = ["Science","is","what","we","understand","well","enough","to","explain","to","a","computer.","Art","is","everything","else","we","do"]
-    maxWidth = 20
-    leetcode.fullJustify(words, maxWidth)
+    # words = ["Science","is","what","we","understand","well","enough","to","explain","to","a","computer.","Art","is","everything","else","we","do"]
+    # maxWidth = 20
+    # leetcode.fullJustify(words, maxWidth)
     # print( leetcode.prepareNewWord( ["Science","is","what","we"], 20) )
+
+    # ------------------ LC 6 ------------------
+    # s = "PAYPALISHIRING"
+    # numRow = 3
+    # leetcode.convert(s, numRow)
+
+    # ------------------ LC 8 ------------------
+    s = "   -042"
+    leetcode.myAtoi(s)
