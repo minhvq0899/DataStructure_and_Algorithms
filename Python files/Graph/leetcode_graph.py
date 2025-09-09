@@ -15,12 +15,13 @@ Leetcode 207. Course Schedule - Detect Cycle in Directed Graph
 Leetcode 261. Graph Valid Tree - Detect Cycle in Undirected Graph
     Helper function to detect cycle in undirected graph using DFS
 Leetcode 1361. Validate Binary Tree Nodes (Same approach as 261)
-Leetcode 332. Reconstruct Itinerary
+Leetcode 3551. Minimum Swaps to Sort by Digit Sum - https://www.geeksforgeeks.org/dsa/minimum-number-swaps-required-sort-array/#
 
 """
 
 from typing import List
 import collections
+import math
 
 class Solution:
     # Leetcode 997. Find the Town Judge
@@ -48,7 +49,6 @@ class Solution:
                 return poten
 
         return -1
-
 
     # ---------------------------------------------------------------------------------------
     # Leetcode 1042. Flower Planting With No Adjacent
@@ -85,7 +85,6 @@ class Solution:
 
         return ans
 
-
     # ---------------------------------------------------------------------------------------
     # Leetcode 323: Number of CC in an Undirected Graph
     def countComponents(self, n: int, edges: List[List[int]]) -> int:
@@ -109,7 +108,6 @@ class Solution:
         
         return count
 
-
     # iterative
     def CC_dfs(self, graph: collections.defaultdict(list), visited: List[bool], vertice: int):
         stack = [vertice]
@@ -121,7 +119,6 @@ class Solution:
                 if visited[v] == False:
                     visited[v] = True
                     stack.append(v)
-
 
     # ---------------------------------------------------------------------------------------
     # Leetcode 207: Course Schedule - Detect Cycle in Directed Graph
@@ -153,8 +150,6 @@ class Solution:
 
         return not hasCycle
 
-
-
     # -------------------------------------------------------------------------------------
     # Leetcode 261: Graph Valid Tree - Detect Cycle in Undirected Graph
     # Write a function that returns true if a given undirected graph is tree and false otherwise
@@ -182,7 +177,6 @@ class Solution:
         
         return not hasCycle and count == 1
 
-
     # -------------------------------------------------------------------------------------
     def cycle_undirected_dfs(self, graph: collections.defaultdict(list), visited: List[bool], vertice: int, parent: int) -> bool:
         visited[vertice] = True
@@ -197,7 +191,6 @@ class Solution:
                 return True
     
         return False
-
 
     # -------------------------------------------------------------------------------------
     # Leetcode 1361. Validate Binary Tree Nodes
@@ -242,8 +235,7 @@ class Solution:
         for i in range (len(visited)):
             if not visited[i]: return False
         
-        return True
-    
+        return True    
 
     def detectCycleInDirectedGraph(self, graph, start, visited) -> bool:
         # mark start as visiting
@@ -259,48 +251,86 @@ class Solution:
         visited[start] = 2
         return False
 
-        
 
     # -------------------------------------------------------------------------------------
-    # Leetcode 6. Leetcode 332. Reconstruct Itinerary
-    # Hierholzer’s algorithm for finding an Eulerian path
-    def findItinerary(self, tickets: List[List[str]]) -> List[str]:
-        # ========== Step 1: Build the graph ==========
-        # Sort tickets in reverse lex order so we can pop the smallest destination last
-        graph = collections.defaultdict(list)
-        for ticket in sorted(tickets, reverse=True):
-            u, v = ticket
-            graph[u].append(v)
+    # Leetcode 3551. Minimum Swaps to Sort by Digit Sum
+    def minSwaps_arraySolution(self, nums: List[int]) -> int:
+        # Our nums_temp will contain (digitSum, nums[i], i)
+        nums_temp = []
+        indexDict = collections.defaultdict(int)    # nums[i] -> i
+        for i in range(len(nums)):
+            num = nums[i]
+            indexDict[num] = i
+            digitSum = 0
+            while math.floor(num / 10) != 0:
+                digitSum += num % 10
+                num = math.floor(num/10)
+            
+            digitSum += num % 10
+            nums_temp.append( (digitSum, nums[i], i) )      
 
-        for departure, arrival in enumerate(graph):
-            print("{}: {}".format(departure, arrival))
+        nums_temp.sort()    
+        # print(nums_temp)
+        # print(nums)
 
-        # ========== Step 2: DFS traversal using stack ==========
-        stack, result = [], []  # stack for backtracking, result for final itinerary
-        stop = "JFK"            # start from JFK as required
+        # Count number of swap
+        swap = 0
+        for i in range(len(nums_temp)):
+            currentDigitSum, currentNum, currentIndex = nums_temp[i]
+            
+            while currentIndex != i:
+                # Swap
+                nums_temp[i], nums_temp[currentIndex] = nums_temp[currentIndex], nums_temp[i]
+                swap += 1
+                currentDigitSum, currentNum, currentIndex = nums_temp[i]
 
-        while stop:
-            if not graph[stop]:
-                # No more outgoing flights from this airport
-                # Add to result as part of final itinerary
-                result.append(stop)
+        # print(swap)
+        return swap
 
-                # Backtrack to previous airport
-                stop = stack.pop() if stack else None
-            else:
-                # Still have destinations to explore
-                # Push current airport to stack and go deeper
-                stack.append(stop)
-                stop = graph[stop].pop()  # pop the lex smallest destination (due to reverse sort)
+    def minSwaps_cycleDetectionSolution(self, nums: List[int]) -> int:
+        # Our nums_temp will contain (digitSum, nums[i], i)
+        nums_temp = []
+        indexDict = collections.defaultdict(int)    # nums[i] -> i
+        for i in range(len(nums)):
+            num = nums[i]
+            indexDict[num] = i
+            digitSum = 0
+            while math.floor(num / 10) != 0:
+                digitSum += num % 10
+                num = math.floor(num/10)
+            
+            digitSum += num % 10
+            nums_temp.append( (digitSum, nums[i], i) )      
 
-        # Reverse the result to get the correct order (since we built it post-order)
-        return result[::-1]
+        nums_temp.sort()  
 
+        # As we traverse it, if an element hasn’t been visited and isn’t in its correct position,
+        # we trace the cycle formed by the misplaced elements and find its size
+        # The swap count is then updated by cycleSize - 1
+        visited = [False] * len(nums_temp)
+        swap = 0
+        for i in range(len(nums_temp)):
+            currentDigitSum, currentNum, currentIndex = nums_temp[i]
+            # If current element is already visited or already in the correct position
+            if visited[i] or currentIndex == i:
+                continue
 
+            j, cycleSize = i, 0
+            # We make a cycle until it comes back to first element again.
+            while not visited[j]:
+                currentDigitSum, currentNum, currentIndex = nums_temp[j]
+                visited[j] = True
 
+                # Move to the next element of the cycle
+                j = indexDict[currentNum]
+                cycleSize += 1
 
+            # Update answer
+            if cycleSize > 0:
+                swap += (cycleSize-1)
 
-
+        print(swap)
+        return swap
 
 
 
@@ -337,10 +367,12 @@ if __name__ == "__main__":
     # print(leetcode.countComponents_test(N,edges))
 
     # ------------------------------------------------------------------
-    n = 4
-    leftChild = [1,0,3,-1]
-    rightChild = [-1,-1,-1,-1]
-    print(leetcode.validateBinaryTreeNodes(n, leftChild, rightChild))
+    # n = 4
+    # leftChild = [1,0,3,-1]
+    # rightChild = [-1,-1,-1,-1]
+    # print(leetcode.validateBinaryTreeNodes(n, leftChild, rightChild))
 
-
+    # -------------------------- 3551 --------------------------
+    nums = [18,43,34,16]
+    leetcode.minSwaps_cycleDetectionSolution(nums)
 

@@ -47,6 +47,7 @@ Leetcode 1650. Lowest Common Ancestor of a Binary Tree III
 Leetcode 1676. Lowest Common Ancestor of a Binary Tree IV
 Leetcode 1123. Lowest Common Ancestor of Deepest Leaves
 Leetcode 865. Smallest Subtree with all the Deepest Nodes - exactly the same as 1123
+Leetcode 2096. Step-By-Step Directions From a Binary Tree Node to Another
 
 
 (Hard)
@@ -56,7 +57,7 @@ Leetcode 297. Serialize and Deserialize Binary Tree
 
 from typing import List
 from queue import Queue
-from collections import deque
+from collections import deque, defaultdict
 
 # Definition for a binary tree node.
 class Node:
@@ -907,15 +908,6 @@ class Solution:
         
     
     # Leetcode 1123. Lowest Common Ancestor of Deepest Leaves
-    """
-    lca(3)
-        lca(5) -> (2,3)
-            lca(6) -> (6,1)
-            lca(2) -> (2,2)
-                lca(7) -> (7,1)
-                lca(4) -> (4,1)
-        lca(1) -> (1,2)
-    """
     def lcaDeepestLeaves(self, root: 'TreeNode') -> 'TreeNode':
         # ---------------------------------------------------------
         # Return a potential LCA and the depth of this subtree
@@ -945,8 +937,89 @@ class Solution:
         return lca
 
 
+    # Leetcode 2096. Step-By-Step Directions From a Binary Tree Node to Another
+    # Solution 1: This problem can be solve by finding the LCA for 'start' and 'end' node, then constructing the path 
+    # 'start'->LCA and LCA->'end' 
+    # Solution 2: However, the solution below will convert the BT to a undirected graph, then run BFS on the graph
+    def getDirections(self, root: 'TreeNode', startValue: int, destValue: int) -> str:
+        graph = defaultdict(list)               # node value -> [parent value, left value, right value]
+        # ------------------------------------------------------
+        # Traverse the graph, with queue containing the node instead of node value
+        def treeTraverseBFS(root: TreeNode):
+            dq = deque([root])
 
+            while dq:
+                pop = dq.popleft()
+                if not graph[pop.val]:
+                    graph[pop.val] = [None, None, None]
 
+                if pop.left:
+                    graph[pop.val][1] = pop.left.val                    # Add pop.left
+                    if not graph[pop.left.val]:
+                        graph[pop.left.val] = [None, None, None]
+                    graph[pop.left.val][0] = pop.val
+                    dq.append(pop.left)
+                
+                if pop.right:
+                    graph[pop.val][2] = pop.right.val                   # Add pop.right
+                    if not graph[pop.right.val]:
+                        graph[pop.right.val] = [None, None, None]
+                    graph[pop.right.val][0] = pop.val
+                    dq.append(pop.right)        
+        # ------------------------------------------------------
+        
+        # Step 1: Traverse the tree once to collect parents and construct graph representation
+        treeTraverseBFS(root)
+        # print("graph: ", graph)
+
+        # Step 2: BFS to construct the shortest path
+        paths = defaultdict(int)
+        visited = set()
+        # ------------------------------------------------------
+        # Traverse the graph, with queue containing the node value instead of node
+        def bfs(start):
+            dq = deque([start])
+
+            while dq: 
+                popValue = dq.popleft()
+                visited.add(popValue)
+
+                for neighborValue in graph[popValue]:
+                    if neighborValue not in visited:
+                        visited.add(neighborValue)
+                        paths[neighborValue] = popValue
+                        dq.append(neighborValue)                   
+        # ------------------------------------------------------
+        bfs(start = startValue)
+        # print("paths: ", paths)
+
+        # Step 3.1: Construct the value path
+        current = destValue
+        pathList = [destValue]
+        while current != startValue:
+            pathList.append(paths[current])
+            current = paths[current]
+
+        pathList.reverse()
+        # print(pathList)
+
+        # Step 3.2: Construct the letter path
+        result = ""
+        for i in range(len(pathList)-1):
+            currentValue = pathList[i]
+            nextValue = pathList[i+1]
+            # Parent
+            if nextValue == graph[currentValue][0]:
+                result += 'U'
+            # Left
+            elif nextValue == graph[currentValue][1]:
+                result += 'L'
+            # Right
+            elif nextValue == graph[currentValue][2]:
+                result += 'R'
+
+        return result
+     
 
 # ====================================================================================================================
 # ====================================================================================================================
