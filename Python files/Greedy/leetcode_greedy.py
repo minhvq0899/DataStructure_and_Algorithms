@@ -27,6 +27,7 @@ Leetcode 1710. Maximum Units on a Truck
 Leetcode 1029. Two City Scheduling
 Leetcode 55 Jump Game
 Leetcode 45 Jump Game II
+Leetcode 1057. Campus Bikes
 
 (Hard)
 Leetcode 135. Candy
@@ -418,6 +419,52 @@ class Solution:
 
         return jump # if left <= right else -1 (this leetcode question is guaranteed to have at leaset 1 solution)      
 
+    # -------------------------------------------------------------------------
+    # Leetcode 1057. Campus Bikes
+    # Greedy idea: We compute all Manhattan dist for (m*n) pairs, sort them all, and then greedily assign each worker with a bike -> O( (m*n)log(m*n) )
+    # Insight: The Manhattan dist is bounded at 2000 (because both m and n are bounded at 1000). Therefore, we can use Bucket Sorting to optimize our solution
+    # (so that we do not have to sort all m*n pairs)
+    def assignBikes(self, workers: List[List[int]], bikes: List[List[int]]) -> List[int]:
+        maxManhattan = 2000
+        n = len(workers)
+        m = len(bikes)
+        # -------------------------
+        def computeManhattanDis(wx, wy, bx, by):
+            return abs(wx-bx) + abs(wy-by)
+        # -------------------------
+
+        buckets = [[] for _ in range(maxManhattan+1)]   # from 1->2000
+        
+        # Compute all Manhattan dist of (m*n) pairs (cap at 10^6)
+        # In each bucket, we need our pair (worker index, bike index) to be sorted. By looping through index from smallest to largest, 
+        # this will naturally be achived
+        for w in range(n):
+            wx, wy = workers[w]
+            for b in range(m):
+                bx, by = bikes[b]
+                dist = computeManhattanDis(wx, wy, bx, by)
+                buckets[dist].append( (w,b) )  # (index of worker, index of bike)
+
+        # Now, greedily assign bike to worker
+        workerAssigned = [False] * n
+        bikeAssigned = [False] * m
+        result = [-1] * n
+        assigned_count = 0  # so we can return early
+        for dist in range(len(buckets)):
+            for w,b in buckets[dist]:
+                if not workerAssigned[w] and not bikeAssigned[b]:
+                    result[w] = b
+                    workerAssigned[w] = True
+                    bikeAssigned[b] = True
+                    assigned_count += 1
+                    if assigned_count == n:
+                        return result
+                    
+        return result
+
+
+
+    # =============================================================================================
     # -------------------------------------------------------------------------
     # Leetcode 135. Candy
     def candy(self, ratings: List[int]) -> int:

@@ -28,6 +28,7 @@ Leetcode 337. House Robber III
 
 Leetcode 53. Maximum Subarray
 Leetcode 152: Maximum Product Subarray
+Leetcode 62. Unique Paths
 
 # ------------------------------------------------
 (Hard)    
@@ -541,6 +542,34 @@ class Solution:
 
         return res
 
+    # ------------------------------------------------------------------------------
+    # Leetcode 62. Unique Paths
+    def uniquePaths(self, m: int, n: int) -> int:
+        # Corner cases
+        if m == 1 or n == 1:
+            return 1
+        
+        # Classic "How-many-ways-to-get-here" problem
+        memo = [[0 for _ in range(n)] for _ in range(m)]
+        memo[0][1] = 1
+        memo[1][0] = 1
+
+        # Populate the memo
+        for r in range(m):
+            for c in range(n):
+                # Base case
+                if (r == 0 and c == 1) or (r == 1 and c == 0):
+                    continue
+
+                top = memo[r-1][c] if r > 0 else 0
+                left = memo[r][c-1] if c > 0 else 0
+                memo[r][c] = top + left
+
+        # print(memo)
+
+        return memo[m-1][n-1]
+
+
     # =======================================================================================================================
     # Leetcode 10. Regular Expression Matching (Hard)  
     def isMatch(self, s: str, p: str) -> bool:
@@ -702,13 +731,16 @@ if __name__ == "__main__":
     # -------------------- 516 --------------------
     # print( solution.longestPalindromeSubseq("cbbd") )
 
+    # -------------------- 62 --------------------
+    solution.uniquePaths(3, 7)
+
     # -------------------- 10 --------------------
     # s = "aaaaaaaaaaaaaaaaaaa"
     # p = "a*a*a*a*a*a*a*a*a*b"
     # print( solution.isMatch(s, p) )
 
     # -------------------- 2472 --------------------
-    s = "iqqibcecvrbxxj"
-    print(solution.maxPalindromes(s, 1))
+    # s = "iqqibcecvrbxxj"
+    # print(solution.maxPalindromes(s, 1))
 
 

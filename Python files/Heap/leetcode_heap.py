@@ -5,25 +5,31 @@ This python file is a part of my effort in getting myself refreshed with Data St
 I can later tackle Leetcode challenges with more confidence. 
 
 =========================================================  Heap  =========================================================
-1. Leetcode 215. Kth Largest Element in an Array
-2. Leetcode 767. Reorganize String
-3. Leetcode 378. Kth Smallest Element in a Sorted Matrix
-4. Leetcode 373. Find K Pairs with Smallest Sums
+(Easy)
+Leetcode 1337. The K Weakest Rows in a Matrix
+
+(Medium)
+Leetcode 451. Sort Characters By Frequency
+Leetcode 215. Kth Largest Element in an Array
+Leetcode 767. Reorganize String
+Leetcode 378. Kth Smallest Element in a Sorted Matrix
+Leetcode 373. Find K Pairs with Smallest Sums
 Template: 
-5. Leetcode 347. Top K Frequent Elements
-6. Leetcode 23. Merge k Sorted Lists
-7. Leetcode 973. K Closest Points to Origin
-8. Leetcode 659. Split Array into Consecutive Subsequences
-9. Leetcode 692. Top K Frequent Words
+Leetcode 347. Top K Frequent Elements
+Leetcode 23. Merge k Sorted Lists
+Leetcode 973. K Closest Points to Origin
+Leetcode 659. Split Array into Consecutive Subsequences
+Leetcode 692. Top K Frequent Words
 
 (Hard)
-10. Leetcode 295. Find Median from Data Stream 
+Leetcode 295. Find Median from Data Stream 
 
 """
 
 from typing import List
 import heapq 
 import collections
+import Optional
 
 class ListNode:
     def __init__(self, val=0, next=None):
@@ -69,6 +75,84 @@ class MedianFinder:
 
 
 class Solution:
+    # Leetcode 1337. The K Weakest Rows in a Matrix
+    def kWeakestRows(self, mat: List[List[int]], k: int) -> List[int]:
+        heap = []  
+        # -----------------
+        # row = [1,1]
+        # binarySearch có 2 dạng:
+        # 1. Find the exact index of some number
+        # 2. Find the first or last index of some number
+        # This is second case
+        def binarySearch(row: List[int]) -> int:
+            left, right = 0, len(row)-1
+            result = 0
+
+            while left <= right:
+                mid = (left+right)//2
+                if row[mid] == 0:
+                    right = mid -1
+                else:
+                    result = mid + 1
+                    left = mid + 1
+
+            return result
+        # -----------------
+        for r in range(len(mat)):
+            numberOfSolider = binarySearch(mat[r])
+            heap.append((numberOfSolider, r))
+
+        heapq.heapify(heap)
+
+        result = []
+        for _ in range(k):
+            pop = heapq.heappop(heap)
+            result.append(pop[1])
+
+        return result
+
+    # ================================================================================
+    # Leetcode 451. Sort Characters By Frequency
+    def frequencySort(self, s: str) -> str:
+        counter = collections.Counter(s)
+        heap = []       # Use max-heap
+        
+        for char, freq in counter.items():
+            heap.append( (-freq, char) )
+        
+        heapq.heapify(heap)
+
+        result = []
+
+        '''
+        s = 'aabcd'
+        heap = [(-2, a)]
+        pop = (-2, a), heap = []
+        result = a
+        
+        Input: s = "tree"
+        Output: "eert"
+        '''
+
+        '''
+        a = m characters
+        b = n characters
+
+        a += b -> time ??
+
+        '''
+        # If the char has freq of more than 1, then we need to pop them in order
+        while heap and heap[0][0] < -1:
+            pop = heapq.heappop(heap)
+            result.append(pop[1] * -pop[0])
+
+        # The rest of the heap are chars with freq of 1 -> doesn't matter the order
+        for _, char in heap:
+            result.append(char)
+
+        return ''.join(result)
+
+    # --------------------------------------------------------------------------------
     # Leetcode 215. Kth Largest Element in an Array
     def findKthLargest(self, nums: List[int], k: int) -> int:
         aList = nums[:k]
@@ -254,6 +338,33 @@ class Solution:
 
         return dummy.next
 
+    # follow up: merge in place
+    def mergeKLists(self, lists: List[Optional[ListNode]]) -> Optional[ListNode]:
+        # Refer back to our 'lists' variable for all the heads
+        # Dict: value -> index of head in 'lists'
+        '''
+        lists = [ 2, 3]
+        valueToIndexHead = {1:[node1, node2]}
+        '''
+        # Heap of fixed size 3
+        heap = []
+        for i, head in enumerate(lists):
+            if head:
+                heap.append((head.val, i)) # Add value to heap
+
+        # Merge in place
+        heapq.heapify(heap)
+        current = ListNode()
+        head = current
+        while heap:
+            val, i = heapq.heappop(heap)           # a value
+            current.next = lists[i]
+            current = current.next
+            lists[i] = lists[i].next
+            if lists[i]:
+                heapq.heappush(heap, (lists[i].val, i))
+        
+        return head.next
 
     # --------------------------------------------------------------------------------
     # Leetcode 973. K Closest Points to Origin

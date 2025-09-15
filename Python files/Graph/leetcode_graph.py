@@ -10,11 +10,16 @@ Leetcode 997. Find the Town Judge
 Leetcode 1042. Flower Planting With No Adjacent
 =========================================
 Graph Template
-Leetcode 323. Number of CC in an Undirected Graph
+    ** Directed graph **
 Leetcode 207. Course Schedule - Detect Cycle in Directed Graph
-Leetcode 261. Graph Valid Tree - Detect Cycle in Undirected Graph
-    Helper function to detect cycle in undirected graph using DFS
 Leetcode 1361. Validate Binary Tree Nodes (Same approach as 261)
+Leetcode 802. Find Eventual Safe States
+    
+    ** Undirected graph **
+Leetcode 323. Number of CC in an Undirected Graph
+Leetcode 261. Graph Valid Tree - Detect Cycle in Undirected Graph
+
+    ** Array-based problem **
 Leetcode 3551. Minimum Swaps to Sort by Digit Sum - https://www.geeksforgeeks.org/dsa/minimum-number-swaps-required-sort-array/#
 
 """
@@ -22,6 +27,38 @@ Leetcode 3551. Minimum Swaps to Sort by Digit Sum - https://www.geeksforgeeks.or
 from typing import List
 import collections
 import math
+
+class checkCycleAndCcInUndirectedGraph:
+    def __init__(self, graph: List[List[int]], n: int):
+        self.graph = graph
+        self.numV = n
+        self.cc = 0
+        self.cycleExist = False
+
+    def cycle(self):
+        visited = [False for _ in range(self.numV)]
+        # -----------------------------
+        def dfs(node: int, parent: int):
+            for neighbor in self.graph[node]:
+                if not visited[neighbor]:
+                    dfs(neighbor, node)
+                else:   # if 'neighbor' is already visited
+                    if neighbor != parent:
+                        self.cycleExist = True
+        # -----------------------------
+
+        # DFS from each unvisited node
+        for i in range(self.numV):
+            if not visited[i]:
+                visited[i] = True
+                self.cc += 1
+                dfs(i, -1)
+
+class cycleDetection802:
+    def __init__(self, graph, numV):
+        self.graph = graph
+        self.V = numV
+        
 
 class Solution:
     # Leetcode 997. Find the Town Judge
@@ -85,41 +122,8 @@ class Solution:
 
         return ans
 
-    # ---------------------------------------------------------------------------------------
-    # Leetcode 323: Number of CC in an Undirected Graph
-    def countComponents(self, n: int, edges: List[List[int]]) -> int:
-        # -------------------------- set up graph --------------------------
-        # a special dict: <int, List[int]>
-        graph = collections.defaultdict(list)
-        for edge in edges:
-            u, v = edge
-            graph[u].append(v)
-            graph[v].append(u)
-        # ------------------------------------------------------------------
 
-        visited = [False for _ in range(n)]         # visited boolean
-        count = 0
-
-        # attempt to DFS from each vertice, so we can find the different CCs
-        for i in range(n):
-            if visited[i] == False:
-                count += 1                          # found a CC
-                self.CC_dfs(graph, visited, i)
-        
-        return count
-
-    # iterative
-    def CC_dfs(self, graph: collections.defaultdict(list), visited: List[bool], vertice: int):
-        stack = [vertice]
-        visited[vertice] = True
-
-        while stack:                                # while stack is not empty
-            u = stack.pop()
-            for v in graph[u]:
-                if visited[v] == False:
-                    visited[v] = True
-                    stack.append(v)
-
+    """ Directed graph """
     # ---------------------------------------------------------------------------------------
     # Leetcode 207: Course Schedule - Detect Cycle in Directed Graph
     def canFinish(self, numCourses: int, prerequisites: List[List[int]]) -> bool:
@@ -149,48 +153,6 @@ class Solution:
             cycle(i)
 
         return not hasCycle
-
-    # -------------------------------------------------------------------------------------
-    # Leetcode 261: Graph Valid Tree - Detect Cycle in Undirected Graph
-    # Write a function that returns true if a given undirected graph is tree and false otherwise
-    # An undirected graph is tree if it has following properties: 
-    #       1) There is no cycle. 
-    #       2) The graph is connected.
-    def graphValidTree(self, n: int, edges: List[List[int]]) -> bool:
-        # ========== Step 1: Set up graph ==========
-        graph = collections.defaultdict(list)
-        for edge in edges:
-            u, v = edge
-            graph[u].append(v)
-            graph[v].append(u)
-        
-        visited = [False for _ in range(n)]
-
-        # ========== Step 2: Detect cycle and Step 3: Detect connectivity ==========
-        hasCycle = False
-        count = 0
-
-        for i in range(n):
-            if visited[i] == False:
-                count += 1
-                hasCycle = hasCycle or self.cycle_undirected_dfs(graph, visited, i, -1)
-        
-        return not hasCycle and count == 1
-
-    # -------------------------------------------------------------------------------------
-    def cycle_undirected_dfs(self, graph: collections.defaultdict(list), visited: List[bool], vertice: int, parent: int) -> bool:
-        visited[vertice] = True
-
-        for v in graph[vertice]:
-            if visited[v] == False:
-                # go deeper to explore all neighbors of v, with vertive as parent
-                if self.cycle_undirected_dfs(graph, visited, v, vertice): 
-                    return True
-            # exclude the case where we dfs back to parent (go up)
-            elif v != parent: 
-                return True
-    
-        return False
 
     # -------------------------------------------------------------------------------------
     # Leetcode 1361. Validate Binary Tree Nodes
@@ -252,6 +214,98 @@ class Solution:
         return False
 
 
+    # -------------------------------------------------------------------------------------
+    # Leetcode 802. Find Eventual Safe States
+    # Goal is to identify all nodes that are not part of any cycle in a directed graph
+    def eventualSafeNodes(self, graph: List[List[int]]) -> List[int]:
+        visited = [0] * len(graph)      # 0 = not visited, 1 = visiting, 2 = visted/safe (not part of any cycle)
+        # ----------------------------------
+        def cycleDetectionDfs(node) -> bool:
+            # If node in also on the current recursion stack, meaning this is a cycle
+            if visited[node] == 1:
+                return True
+            elif visited[node] == 2:
+                return False
+            
+            # Once we are here, it means 'node' is not visited yet -> mark as visiting
+            visited[node] = 1
+
+            # DFS on all node's neighbors
+            for neighbor in graph[node]:
+                if cycleDetectionDfs(neighbor):
+                    return True
+                
+            # Eventually, if node is not part of a cycle, mark visited[node] as 2
+            visited[node] = 2
+
+            return False
+        # ----------------------------------
+        # if a node is part of a cycle, visited[node] will never be 2
+        result = []
+        for i in range(len(graph)):
+            if not cycleDetectionDfs(i):
+                result.append(i)
+
+        return result
+
+    """ Undirected graph """
+    # ---------------------------------------------------------------------------------------
+    # Leetcode 323: Number of CC in an Undirected Graph
+    def countComponents(self, n: int, edges: List[List[int]]) -> int:
+        # -------------------------- set up graph --------------------------
+        # a special dict: <int, List[int]>
+        graph = collections.defaultdict(list)
+        for edge in edges:
+            u, v = edge
+            graph[u].append(v)
+            graph[v].append(u)
+        # ------------------------------------------------------------------
+
+        visited = [False for _ in range(n)]         # visited boolean
+        count = 0
+
+        # attempt to DFS from each vertice, so we can find the different CCs
+        for i in range(n):
+            if visited[i] == False:
+                count += 1                          # found a CC
+                self.CC_dfs(graph, visited, i)
+        
+        return count
+
+    # iterative
+    def CC_dfs(self, graph: collections.defaultdict(list), visited: List[bool], vertice: int):
+        stack = [vertice]
+        visited[vertice] = True
+
+        while stack:                                # while stack is not empty
+            u = stack.pop()
+            for v in graph[u]:
+                if visited[v] == False:
+                    visited[v] = True
+                    stack.append(v)
+
+    # -------------------------------------------------------------------------------------
+    # Leetcode 261: Graph Valid Tree - Detect Cycle in Undirected Graph
+    # Write a function that returns true if a given undirected graph is tree and false otherwise
+    # An undirected graph is tree if it has following properties: 
+    #       1) There is no cycle. 
+    #       2) The graph is connected.
+    def validTree(self, n: int, edges: List[List[int]]) -> bool:
+        # Step 1: Graph representation
+        graph = [[] for _ in range(n)]
+        for u,v in edges:
+            graph[u].append(v)
+            graph[v].append(u)
+
+        # Step 2: Run Cycle detection
+        cycleObject = checkCycleAndCcInUndirectedGraph(graph, n)
+        cycleObject.cycle()
+        
+        return (not cycleObject.cycleExist) and (cycleObject.cc == 1)
+
+
+
+    """ Array-based problem """
     # -------------------------------------------------------------------------------------
     # Leetcode 3551. Minimum Swaps to Sort by Digit Sum
     def minSwaps_arraySolution(self, nums: List[int]) -> int:
@@ -331,6 +385,20 @@ class Solution:
 
         print(swap)
         return swap
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
 
 
 
