@@ -389,9 +389,6 @@ class Solution:
     # Leetcode 659. Split Array into Consecutive Subsequences
     # def isPossible(self, nums: List[int]) -> bool:
 
-
-    #     return True
-
     # --------------------------------------------------------------------------------    
     # Leetcode 692. Top K Frequent Words
     def topKFrequent(self, words, k):

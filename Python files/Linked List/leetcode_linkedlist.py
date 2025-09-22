@@ -5,11 +5,14 @@ This python file is a part of my effort in getting myself refreshed with Data St
 I can later tackle Leetcode challenges with more confidence. 
 
 =========================================================  Linked Lists  =========================================================
+Template for sublist reversal
+Template to merge two SEPARATE LinkedLists
+
 (Easy)
 Leetcode 206. Reverse Linked List
     Input: 1->2->3->4->5->NULL
     Output: 5->4->3->2->1->NULL
-(Medium version) Leetcode 92. Reverse Linked List II
+(Medium version) Leetcode 92. Reverse Linked List II - Template for sublist reversal
 Leetcode 876. Middle of the Linked List
 Leetcode 160. Intersection of Two Linked Lists
 Leetcode 234. Palindrome Linked List
@@ -26,14 +29,22 @@ Leetcode 237. Delete Node in a Linked List
 Leetcode 2. Add Two Numbers
 Leetcode 138. Copy List with Random Pointer
 Leetcode 430. Flatten a Multilevel Doubly Linked List
+Leetcode 61. Rotate List
+Leetcode 143. Reorder List 
+    - Template for sublist reversal
+    - Template to merge two SEPARATE LinkedLists
+Leetcode 328. Odd Even Linked List
 
 (Hard)
 Leetcode 23. Merge k Sorted Lists
+Leetcode 25. Reverse Nodes in k-Group - Template for sublist reversal
 
 """
 from linkedlist import * 
 from typing import List
 import heapq
+import Optional
+from collections import defaultdict
 
 
 # Definition for singly-linked list
@@ -79,7 +90,49 @@ class Solution:
         
         return head
 
+    # Template for sublist reversal
+    def reverseBetween(head, left, right):
+        if not head or left == right:
+            return head
 
+        dummy = ListNode(0)
+        dummy.next = head
+        prev = dummy
+
+        # Step 1: Move prev to node before reversal starts
+        for _ in range(left - 1):
+            prev = prev.next
+
+        # Step 2: Reverse sublist
+        curr = prev.next
+        for _ in range(right - left):
+            temp = curr.next
+            curr.next = temp.next
+            temp.next = prev.next
+            prev.next = temp
+
+        return dummy.next
+    
+    # Template to merge two SEPARATE LinkedLists
+    # 'first' and 'second' are the two heads of the two lists
+        # tmp1 saves the next node in the first half
+        # tmp2 saves the next node in the second half
+        # You interleave: first → second → tmp1 → tmp2 → ...
+        # Stops when either half runs out
+    def merge_halves(first, second):
+        while second:
+            tmp1 = first.next
+            tmp2 = second.next
+
+            first.next = second
+            if not tmp1:
+                break
+            second.next = tmp1
+
+            first = tmp1
+            second = tmp2
+    
+    # ----------------------------------------------------------------------------------------------------------
     # Leetcode 206. Reverse Linked List
     # iteratives
     def reverseList_iter(self, head: ListNode) -> ListNode:
@@ -110,23 +163,65 @@ class Solution:
         return prev
 
     # recursive
+    """
+    rL(1)
+    current = 0
+    h = rl(1)
+        current = 1
+        h = rl(2)
+            current = 2
+            h = rl(3) -> return 3
+            3.next = 2
+            2.next = None
+            return 3
+        2.next = 1
+        1.next = None
+        return 3
+    ...
+    return 3
+    """
     def reverseList_recursive(self, head: ListNode) -> ListNode:
+        # Step 1: Base case 
+        if head == None:
+            return None
+        if head.next == None:
+            return head
+        
         current = head
-        # base case 1 
-        if current == None:
-            return
         
-        # base case 2
-        if current.next == None:
-            head = current
-            return
-        
-        self.reverseList_recursive(current.next)
+        # Step 2: DFS part -> build solution bottome up
+        h = self.reverseList_recursive(current.next)
 
-        # reverse part
+        # Step 3: Action - reverse part
         current.next.next = current
         current.next = None
-    
+
+        # Step 4: return
+        return h
+
+    # ----------------------------------------------------------------------------------------------------------
+    # Leetcode 92. Reverse Linked List II
+    def reverseBetween(self, head: Optional[ListNode], left: int, right: int) -> Optional[ListNode]:
+        if left == right:
+            return head
+        
+        dummy = ListNode(0)
+        dummy.next = head
+        prev = dummy
+
+        # Step 1: Move prev to node before reversal starts
+        for _ in range(left - 1):
+            prev = prev.next
+
+        # Iteratively reverse sublist
+        current = prev.next             # start at leftNode
+        for _ in range(right-left):
+            after = current.next
+            current.next = after.next
+            after.next = prev.next
+            prev.next = after
+
+        return dummy.next
 
     # ----------------------------------------------------------------------------------------------------------
     # Leetcode 876. Middle of the Linked List
@@ -167,7 +262,6 @@ class Solution:
         # ===== Step 3 =====
         return pA       # or pB because now pA == pB
             
-
     # ----------------------------------------------------------------------------------------------------------
     # Leetcode 234. Palindrome Linked List
     def isPalindrome(self, head: ListNode) -> bool:
@@ -262,7 +356,6 @@ class Solution:
             
         return head3
 
-
     # ----------------------------------------------------------------------------------------------------------
     # Leetcode 1836. Write code to remove duplicates from an unsorted linked list.
     # FOLLOW UP
@@ -311,7 +404,6 @@ class Solution:
         return dummy.next
 
     # ---------------------------------------------------------------
-
     # Leetcode 24. Swap Nodes in Pairs
     def swapPairs(self, head: ListNode) -> ListNode:
         # ========= Step 1: Set up dummy node =========
@@ -334,10 +426,7 @@ class Solution:
         return dummy.next
 
     # ---------------------------------------------------------------
-
     # Leetcode 86. Partition List
-    # Given the head of a linked list and a value x, partition it such that all nodes less than x come before nodes greater than or equal to x.
-    # You should preserve the original relative order of the nodes in each of the two partitions.
     def partition(self, head: ListNode, x: int) -> ListNode:
         # =========== Step 1 ===========
         dummy_less = ListNode()
@@ -365,7 +454,6 @@ class Solution:
     
 
     # ---------------------------------------------------------------
-
     # Leetcode 141 + 142. Linked List Cycle
     # 141. Dectect a cycle
     # Idea 1: We can use a HashSet, this solution may take O(n) memory
@@ -382,7 +470,6 @@ class Solution:
             if walker == runner: return True
             
         return False
-
 
     def detectCycle(self, head: ListNode) -> ListNode:
         hasCycle = False
@@ -409,7 +496,6 @@ class Solution:
                 runner = runner.next
             return walker
 
-
     # ---------------------------------------------------------------
     # Leetcode 237. Delete Node in a Linked List
     def deleteNode(self, node: ListNode):
@@ -421,7 +507,6 @@ class Solution:
         node.val = runner.val
         node.next = runner.next
         
-
     # ---------------------------------------------------------------
     # Leetcode 2. Add Two Numbers
     """
@@ -471,7 +556,6 @@ class Solution:
         # ========== Step 3 ==========
         return dummy.next
 
-
     # ---------------------------------------------------------------    
     # Leetcode 138. Copy List with Random Pointer
     def copyRandomList(self, head: 'Node138') -> 'Node138':
@@ -512,7 +596,6 @@ class Solution:
             curr = curr.next
 
         return pseudo_head.next
-
 
     # ---------------------------------------------------------------    
     # Leetcode 430. Flatten a Multilevel Doubly Linked List
@@ -555,9 +638,127 @@ class Solution:
 
         # Return the tail of the flatten list
         return tail
+
+    # ---------------------------------------------------------------    
+    # Leetcode 61. Rotate List
+    def rotateRight(self, head: Optional[ListNode], k: int) -> Optional[ListNode]:
+        if not head:
+            return None
         
+        llLen = 0
+        current = head
+        while current:
+            current = current.next
+            llLen += 1
+
+        # print(llLen)
+
+        k = k % llLen
+        if k == 0:
+            return head
+
+        # currentPlusK will be k nodes after current
+        # We will keep track of currentPlustKPrev, which will be (k-1) nodes after current
+        current = head
+        currentPlusKPrev = current
+        for _ in range(k-1):
+            if currentPlusKPrev.next:
+                currentPlusKPrev = currentPlusKPrev.next
+            else:
+                break
+
+        # Move currentPlusKPrev to the tail node of the LL
+        currentPrev = None
+        while currentPlusKPrev.next:
+            currentPrev = current
+            current = current.next
+            currentPlusKPrev = currentPlusKPrev.next
+
+        # Update next pointer
+        currentPlusKPrev.next = head
+        if currentPrev:
+            currentPrev.next = None
+
+        return current
+
+    # Leetcode 143. Reorder List
+    def reorderList(self, head: Optional[ListNode]) -> None:
+        """
+        Do not return anything, modify head in-place instead.
+        """
+        prev = None
+        walker = runner = head
+
+        # walker will be the mid point of our LL
+        while runner and runner.next:
+            prev = walker
+            walker = walker.next
+            runner = runner.next.next
+
+        # corner case where LL has len 1
+        if not prev: 
+            return
+        
+        # Reverse the second half of LL
+        while walker.next:
+            after = walker.next
+            walker.next = after.next
+            after.next = prev.next
+            prev.next = after
+
+        # First half will be 'head' to 'prev'
+        # Second half will be prev.next to the end
+        # IMPORTANT: it has two be two separate list for the merging template below to work
+        first, second = head, prev.next
+        prev.next = None    # separate two lists
+
+        # tmp1 saves the next node in the first half
+        # tmp2 saves the next node in the second half
+        # You interleave: first → second → tmp1 → tmp2 → ...
+        # Stops when either half runs out
+        while second:
+            tmp1 = first.next
+            tmp2 = second.next
+
+            first.next = second
+            if not tmp1:
+                break
+            second.next = tmp1
+
+            first = tmp1
+            second = tmp2
+
+    # Leetcode 328. Odd Even Linked List
+    def oddEvenList(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        if not head or not head.next:
+            return head
+        
+        currentOdd = head
+        currentEven = head.next
+        headEven = head.next
+        while currentEven and currentEven.next:
+            # Connect
+            currentOdd.next = currentEven.next
+            currentOdd = currentOdd.next
+
+            currentEven.next = currentOdd.next
+            currentEven = currentEven.next
+
+        # Connect two LL
+        currentOdd.next = headEven
+
+        return head
+
+            
+             
 
 
+
+
+
+
+
+    # ===============================================================
     # ---------------------------------------------------------------    
     # Leetcode 23. Merge k Sorted Lists
     def mergeKLists(self, lists: List[ListNode]) -> ListNode:
@@ -587,6 +788,85 @@ class Solution:
             if node and node.next: heapq.heappush(heap, Wrapper(node.next))
 
         return dummy.next
+
+    # Follow-up: Merge in-place
+    def mergeKLists(self, lists: List[Optional[ListNode]]) -> Optional[ListNode]:
+        # Refer back to our 'lists' variable for all the heads
+        # Dict: value -> index of head in 'lists'
+        '''
+        lists = [ 2, 3]
+        valueToIndexHead = {1:[node1, node2]}
+
+        '''
+        valueToIndexHead = defaultdict(list)
+        heap = []
+        for i, head in enumerate(lists):
+            if head:
+                heap.append((head.val, i)) # Add value to heap
+
+        # Merge in place
+        heapq.heapify(heap)
+        current = ListNode()
+        head = current
+        while heap:
+            val, i = heapq.heappop(heap)           # a value
+            current.next = lists[i]
+            current = current.next
+            lists[i] = lists[i].next
+            if lists[i]:
+                heapq.heappush(heap, (lists[i].val, i))
+        
+        return head.next
+
+    # Leetcode 25. Reverse Nodes in k-Group
+    def reverseKGroup(self, head: Optional[ListNode], k: int) -> Optional[ListNode]:
+        dummy = ListNode(0)
+        dummy.next = head
+        prev = dummy
+        current = head
+        kMinusOneNodesAfterCurrent = current        # A spy that travel ahead to see if we need to visit the next partition
+        for _ in range(k-1):
+            if kMinusOneNodesAfterCurrent:
+                kMinusOneNodesAfterCurrent = kMinusOneNodesAfterCurrent.next
+
+        while kMinusOneNodesAfterCurrent:
+            # Reverse the next k nodes, following the template
+            for _ in range(k-1):
+                after = current.next
+                current.next = after.next
+                after.next = prev.next
+                prev.next = after
+
+            prev = current
+            current = prev.next
+
+            # Send a spy (k-1) nodes ahead
+            kMinusOneNodesAfterCurrent = current
+            for _ in range(k-1):
+                if kMinusOneNodesAfterCurrent:
+                    kMinusOneNodesAfterCurrent = kMinusOneNodesAfterCurrent.next
+
+        return dummy.next
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 if __name__ == "__main__":
