@@ -9,7 +9,7 @@ Understanding of Two Pointer pattern
 Pattern 1. left, right xuat phat cung 1 diem. Right cu di toi' cho toi khi nao co 1 cai condition bi broken, sau do thi left cu di len cho den khi cai condition no dc thoa man thi dung lai
 Pattern 2. left, right xuat phat o dau va cuoi. Sau do tuy thuoc vao condition ma left di toi hoac right di lui
 
-sliding window la 1 use case cu the cua 2 pointers, khi ma khoang cach giua left roi right ko thay doi
+sliding window la 1 use case cu the cua two-pointers, khi ma khoang cach giua left roi right ko thay doi
 
 
 (Template for Count Subarrays with At Most K Feature)

@@ -274,8 +274,8 @@ class Solution:
     def longestPalindrome(self, s: str) -> str:
         s_length = len(s)
         dp = [[False] * s_length for _ in range (s_length)]
-        answer_len = 1                      # the length of the longest palindrom (initialized as 1 because each char is a palindrome)
-        start = s_length - 1                  # where the longest palindrome starts (initialized as the last char)
+        answer_len = 1                          # the length of the longest palindrom (initialized as 1 because each char is a palindrome)
+        start = s_length - 1                    # where the longest palindrome starts (initialized as the last char)
 
         # Set up base case 1: all substrings of length 1 are palindrome (along the diagonal)
         for i in range (s_length):

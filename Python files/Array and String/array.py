@@ -37,7 +37,7 @@ Leetcode 729. My Calendar I - use BST
 Leetcode 731. My Calendar II - not completed
 Leetcode 759. Employee Free Time - Hard
 Leetcode 1353. Maximum Number of Events That Can Be Attended
-(Two-pointer)
+(Two-pointer edition of the Sweep line algorithm)
 Leetcode 1229. Meeting Scheduler
 Leetcode 986. Interval List Intersections
 Leetcode 218. The Skyline Problem - Hard
@@ -65,6 +65,10 @@ Note: The rightmost element is always a leader.
 
 (Hard)
 Leetcode 2444. Count Subarrays With Fixed Bounds
+
+
+    (Implementation)
+Leetcode 729. My Calendar I
 
 """
 
