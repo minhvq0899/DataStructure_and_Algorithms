@@ -33,6 +33,7 @@ Leetcode 62. Unique Paths
 # ------------------------------------------------
 (Hard)    
 Leetcode 10. Regular Expression Matching (Hard)
+Leetcode 44. Wildcard Matching (Hard) - very similar to LC 10
 Leetcode 2472. Maximum Number of Non-overlapping Palindrome Substrings (Hard)
 
 """
@@ -609,6 +610,52 @@ class Solution:
         
         return False
 
+    # Leetcode 44. Wildcard Matching
+    def isMatch44(self, s: str, p: str) -> bool:
+        cache = defaultdict(bool)
+
+        return self.wmDfs(s, 0, p, 0, cache)
+
+    def wmDfs(self, s: str, i: int, p: str, j: int, cache: defaultdict(bool)) -> bool:
+        # Base case 1: found a match
+        if i >= len(s):
+            # If i == len(s) and the remaining pattern can match an empty string (i.e., all *s)
+            for k in range(j, len(p)):
+                if p[k] != '*':
+                    return False
+            return True
+        # Base case 2: not a match
+        if j >= len(p): # (but i is still <= len(s))
+            return False
+        # Base case 3: caching
+        if (i,j) in cache:
+            return cache[(i,j)]
+        
+        firstCharMatched = (i < len(s) and j < len(p) and (s[i] == p[j] or p[j] == "?"))
+
+        # Scenario 1: p[j] is a "*"
+        # 1.1 Use
+        # 1.2 Not use
+        if p[j] == "*":
+            # 1.1. Use the "*"
+            use = self.wmDfs(s, i+1, p, j, cache)
+            cache[(i+1, j)] = use
+
+            # 1.2. Not use the "*"
+            notUse = self.wmDfs(s, i, p, j+1, cache)
+            cache[(i, j+1)] = notUse
+
+            return (notUse or use)
+        
+        # Scenario 2: p[j] is not a "*"
+        if (firstCharMatched):
+            return self.wmDfs(s, i+1, p, j+1, cache)
+        
+        # Scenario 3: if p[j] is not a "*" and the two chars don't match -> not a match
+        return False
+
+
+
 
     # --------------------------------------------------------------------------------------------------
     # Leetcode 2472. Maximum Number of Non-overlapping Palindrome Substrings (Hard)
@@ -732,12 +779,17 @@ if __name__ == "__main__":
     # print( solution.longestPalindromeSubseq("cbbd") )
 
     # -------------------- 62 --------------------
-    solution.uniquePaths(3, 7)
+    # solution.uniquePaths(3, 7)
 
     # -------------------- 10 --------------------
     # s = "aaaaaaaaaaaaaaaaaaa"
     # p = "a*a*a*a*a*a*a*a*a*b"
     # print( solution.isMatch(s, p) )
+
+    # -------------------- 44 --------------------
+    # s = "aa"
+    # p = "*"
+    # print( solution.isMatch44(s, p) )
 
     # -------------------- 2472 --------------------
     # s = "iqqibcecvrbxxj"

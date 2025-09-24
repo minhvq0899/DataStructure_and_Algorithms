@@ -15,6 +15,10 @@ Leetcode 1319. Number of Operations to Make Network Connected
 Leetcode 261: Graph Valid Tree - Detect Cycle in Undirected Graph
 Leetcode 947. Most Stones Removed with Same Row or Column
 Leetcode 1361. Validate Binary Tree Nodes
+Leetcode 1101. The Earliest Moment When Everyone Become Friends
+
+(Hard)
+Leetcode 305. Number of Islands II
 
 """
 
@@ -219,33 +223,36 @@ class Solution:
         
         return not hasCycle and group == 1
 
-
     # ------------------------------------------------------------------------------------- 
     # Leetcode 947. Most Stones Removed with Same Row or Column
     def removeStones(self, stones: List[List[int]]) -> int:
         n = len(stones)
-
-        # Step 1: Assign each stone an index
-        # We'll union stones that share a row or column
-        parent = [i for i in range(n)]
-        rank = [0] * n
-
+        parents = defaultdict()
         for i in range(n):
-            for j in range(i + 1, n):
-                # If stones share a row or column, union them
-                if stones[i][0] == stones[j][0] or stones[i][1] == stones[j][1]:
-                    self.unionByRank(i, j, parent, rank)
+            parents[i] = i
 
-        # Step 2: Count unique parents (connected components)
-        unique_roots = set()
+        uf = Union_by_rank(n, parents)
+
+        # If stones share a row or column, union them
         for i in range(n):
-            root = self.findSetAndPathCompression(i, parent)
-            unique_roots.add(root)
+            for j in range(i+1, n):
+                stone1 = stones[i]
+                stone2 = stones[j]
+                if stone1[0] == stone2[0] or stone1[1] == stone2[1]:
+                    uf.unionByRank(i, j)
+        
+        # print(uf.parents)
+        # Count how many stones are their own parents
+        parents = 0
+        for stone, parent in uf.parents.items():
+            if stone == parent:
+                parents += 1
 
-        # Step 3: Max stones removed = total - number of components
-        return n - len(unique_roots)
+       # The number of stones can be removed will be the complement 
+        # (n - # of components)
+        return n - parents
 
-    
+
     # ------------------------------------------------------------------------------------- 
     # Leetcode 1361. Validate Binary Tree Nodes
     def validateBinaryTreeNodes(self, n: int, leftChild: List[int], rightChild: List[int]) -> bool:
@@ -272,6 +279,82 @@ class Solution:
         # If one of them have a different parent, that parent will be another node without a parent, meaning root_count should be 2 in this case
         return root_count == 1
    
+    # ------------------------------------------------------------------------------------- 
+    # Leetcode 1101. The Earliest Moment When Everyone Become Friends
+    def earliestAcq(self, logs: List[List[int]], n: int) -> int:
+        logs.sort(key = lambda log: log[0])
+
+        unionFind = Union_by_rank(n)
+        components = n
+
+        for timeStamp, u, v in logs:
+            if unionFind.unionByRank(u, v):
+                components -= 1
+            
+                if components == 1:
+                    return timeStamp
+
+        return -1
+
+
+
+
+
+    # =====================================================================================
+    # Leetcode 305. Number of Islands II
+    def numIslands2(self, m: int, n: int, positions: List[List[int]]) -> List[int]:
+        # Initialize parents dict. Every cell is its own parent
+        parents = defaultdict(int)
+        for r in range(m):
+            for c in range(n):
+                index = r*n + c
+                parents[index] = index
+
+        uf = Union_by_rank(m*n, parents)
+        islands = set()
+        numberIsland = 0
+        result = []
+        directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+
+        for rp, cp in positions:
+            positionIndex = rp * n + cp
+
+            # If this cell is already an island
+            if positionIndex in islands:
+                result.append(numberIsland)
+                continue
+
+            islands.add(positionIndex)          # Add this new island to set
+            numberIsland += 1
+
+            # Check if any neighbor is a land
+            for ar, ac in directions:
+                nr = rp + ar
+                nc = cp + ac
+                if 0 <= nr < m and 0 <= nc < n:
+                    neighborIndex = nr * n + nc
+                    # If yes, union current position with that neighbor
+                    if neighborIndex in islands:
+                        # If we successfully union two lands, the number of land decrement by 1
+                        if uf.unionByRank(positionIndex, neighborIndex):
+                            numberIsland -= 1
+
+            result.append(numberIsland)
+
+        return result
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -327,12 +410,14 @@ if __name__ == "__main__":
     # print(leetcode.graphValidTree(N, edges)) # True
         
     # ------------------------------
-    n = 4
-    leftChild = [1,-1,3,2]
-    rightChild = [2,3,-1,-1]
-    print(leetcode.validateBinaryTreeNodes(n, leftChild, rightChild))
+    # n = 4
+    # leftChild = [1,-1,3,2]
+    # rightChild = [2,3,-1,-1]
+    # print(leetcode.validateBinaryTreeNodes(n, leftChild, rightChild))
 
-
+    # ------------------------------
+    stones = [[0,0],[0,2],[1,1],[2,0],[2,2]]
+    leetcode.removeStones(stones)
 
 
 

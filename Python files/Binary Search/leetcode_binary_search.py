@@ -15,11 +15,13 @@ Leetcode 33. Search in Rotated Sorted Array
     (Checking possibility of mid)
 Leetcode 875. Koko Eating Bananas
 Leetcode 1011. Capacity To Ship Packages Within D Days
+Leetcode 1482. Minimum Number of Days to Make m Bouquets
 
 (Hard)
 Leetcode 2468. Split Message Based on Limit (Hard) - Not a working solution, only pass 86/94 test cases
 Leetcode 2071. Maximum Number of Tasks You Can Assign
 Leetcode 4. Median of Two Sorted Arrays
+Leetcode 410. Split Array Largest Sum - same pattern of using isPossible() helper
 
 """
 
@@ -170,6 +172,47 @@ class Solution:
             print(mid)
 
         return cap
+
+    # ------------------------------------------------------------------------------
+    # Leetcode 1482. Minimum Number of Days to Make m Bouquets
+    def minDays(self, bloomDay: List[int], m: int, k: int) -> int:
+        if m*k > len(bloomDay):
+            return -1
+        
+        left = min(bloomDay)
+        right = max(bloomDay)
+        
+        # ------------------------------------------
+        def isPossible(days: int):
+            bouquets = 0
+            flowers = 0
+
+            for bloom in bloomDay:
+                if bloom <= days:
+                    flowers += 1
+                    if flowers == k:
+                        bouquets += 1
+                        flowers = 0
+                else:
+                    flowers = 0
+
+                if bouquets >= m:
+                    return True
+
+            return False
+        # ------------------------------------------
+
+        ans = -1
+        while left <= right:
+            mid = (right+left) // 2
+            if isPossible(mid):
+                ans = mid
+                right = mid - 1
+            else:
+                left = mid + 1
+
+        return ans
+
 
 
     # ==============================================================================
@@ -327,7 +370,7 @@ class Solution:
         # Idea: In the example above, if we merge two arrays together, we will have one big array size 12
         # The median will be the average of 5th and 6th element, which divide our total array into 2 equal partitions (each of size 6)
         # The left partition of the total array is made up of the left partition of nums1 and left partition of nums2
-        # On each search, we need to find the right 'midTemp1' and 'midTemp2' to correctly split our two arrays, so that both of their left partitions, when 
+        # On each search, we need to find the correct 'midTemp1' and 'midTemp2' to correctly split our two arrays, so that both of their left partitions, when 
         # put together, correctly make up the correct left partition of our total array
         total = len(nums1) + len(nums2)
         half = total // 2
@@ -367,6 +410,51 @@ class Solution:
             else:
                 right = midTemp1 - 1
 
+    
+    # ------------------------------------------------------------------------------
+    # Leetcode 410. Split Array Largest Sum
+    # The minimum subarray sum is the largest element of the array (meaning each subarray has len 1)
+    # The maximum subarray sum is the sum of the whole array
+    # Therefore, we can do BS on the range of subarray sum. For each potential value, greedily check if we can split the array
+    # in less than or equal to k subarrays so that sum of each subarray is <= potential value
+    def splitArray(self, nums: List[int], k: int) -> int:
+        left = max(nums)
+        right = sum(nums)
+
+        # ----------------------------------------
+        # For each potential value, greedily check if we can split the array
+        # in less than or equal to k subarrays so that sum of each subarray is <= potential value
+        def canSplit(maxSum: int) -> bool:
+            subarrayCount = 1
+            currentSum = 0
+
+            for num in nums:
+                if currentSum + num > maxSum:
+                    subarrayCount += 1
+                    currentSum = num
+                    if subarrayCount > k:
+                        return False
+                else:
+                    currentSum += num
+
+            return True
+        # ----------------------------------------
+
+        # Do binary search to find the minimized sum
+        answer = 0
+        while left <= right:
+            mid = (right+left) // 2
+            if canSplit(mid):
+                answer = mid
+                right = mid - 1
+            else:
+                left = mid + 1
+
+        return answer
+
+
+
+
 
 
 if __name__ == "__main__":
@@ -404,10 +492,17 @@ if __name__ == "__main__":
     # print(ans2071)
 
     # ---------------------- 4 ----------------------
-    nums1 = [1,2,3,4,5,6,7,8]
-    nums2 = [1,2,3,4]
-    leetcode.findMedianSortedArrays(nums1, nums2)
+    # nums1 = [1,2,3,4,5,6,7,8]
+    # nums2 = [1,2,3,4]
+    # leetcode.findMedianSortedArrays(nums1, nums2)
 
+    # ---------------------- 410 ----------------------
+    # nums = [1,2,3,4,5]
+    # k = 4
+    # answer410 = leetcode.splitArray(nums, k)
+    # print(answer410)
 
-
+    bloomDay = [7,7,7,7,12,7,7]
+    ans1482 = leetcode.minDays(bloomDay, 2, 3)
+    print(ans1482)
 
