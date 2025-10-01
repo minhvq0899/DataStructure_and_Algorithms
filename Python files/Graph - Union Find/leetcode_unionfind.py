@@ -16,6 +16,7 @@ Leetcode 261: Graph Valid Tree - Detect Cycle in Undirected Graph
 Leetcode 947. Most Stones Removed with Same Row or Column
 Leetcode 1361. Validate Binary Tree Nodes
 Leetcode 1101. The Earliest Moment When Everyone Become Friends
+Leetcode 721. Accounts Merge
 
 (Hard)
 Leetcode 305. Number of Islands II
@@ -287,6 +288,7 @@ class Solution:
         unionFind = Union_by_rank(n)
         components = n
 
+        # Tweaking the 'union' API to return True if successfully union two components
         for timeStamp, u, v in logs:
             if unionFind.unionByRank(u, v):
                 components -= 1
@@ -296,8 +298,52 @@ class Solution:
 
         return -1
 
+    # ------------------------------------------------------------------------------------- 
+    # Leetcode 721. Accounts Merge
+    # The idea is to Union accounts with each other. Initially, each account has itself as parent.
+    # First, have 'emailToIdMap' mapping. Loop through each email, if that email is already in the mapping, union two account ID.
+    # Finally, have 'parentAccountIdToEmails' to store result. For each email, we know the accountID that email belongs to. 
+    # Find the parent acount ID of that accountID, then add the email to the parent accound ID list.
+    def accountsMerge(self, accounts: List[List[str]]) -> List[List[str]]:
+        parents = defaultdict(int)              # Initially, each account will have itself as parent
+        for index, account in enumerate(accounts):
+            parents[index] = index
+        
+        uf = Union_by_rank(len(accounts), parents)
+        emailToIdMap = defaultdict(int)         # Account ID will be the account index in "accounts" input
 
+        # Loop through each email in the list. If that email is already in our mapping, union two accound IDs together
+        for index, account in enumerate(accounts):
+            for i in range(1, len(account)):
+                email = account[i]
+                if email in emailToIdMap:
+                    uf.unionByRank(index, emailToIdMap[email])
+                else:
+                    emailToIdMap[email] = index
+            
+        # print(emailToIdMap)
+        # print(uf.parents)
+        # print(uf.rank)
 
+        # Loop through each email and find all the emails that belong to the same union
+        parentAccountIdToEmails = defaultdict(list)     # parent account ID (int) -> [email1, email2, etc]
+        for email, accountID in emailToIdMap.items():
+            parentAccountID = uf.findSetAndPathCompression(accountID)       # find parent account
+            parentAccountIdToEmails[parentAccountID].append(email)          # add that email to the union
+
+        # print(parentAccountIdToEmails)
+        
+        # Prepare result in the format the problem requires
+        results = []
+        for parentAccountId, l in parentAccountIdToEmails.items():
+            name = accounts[parentAccountId][0]
+            l.sort()
+            result = [name] + l
+            results.append(result)
+
+        # print(results)
+        return results
+        
 
 
     # =====================================================================================
@@ -342,11 +388,6 @@ class Solution:
             result.append(numberIsland)
 
         return result
-
-
-
-
-
 
 
 
@@ -416,8 +457,16 @@ if __name__ == "__main__":
     # print(leetcode.validateBinaryTreeNodes(n, leftChild, rightChild))
 
     # ------------------------------
-    stones = [[0,0],[0,2],[1,1],[2,0],[2,2]]
-    leetcode.removeStones(stones)
+    # stones = [[0,0],[0,2],[1,1],[2,0],[2,2]]
+    # leetcode.removeStones(stones)
+
+    # ------------------------------
+    accounts = [["John","johnsmith@mail.com","john_newyork@mail.com"],
+                ["John","johnsmith@mail.com","john00@mail.com"],
+                ["Mary","mary@mail.com"],
+                ["John","johnnybravo@mail.com"]]
+    leetcode.accountsMerge(accounts)
+
 
 
 
