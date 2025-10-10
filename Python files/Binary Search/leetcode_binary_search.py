@@ -16,6 +16,7 @@ Leetcode 33. Search in Rotated Sorted Array
 Leetcode 875. Koko Eating Bananas
 Leetcode 1011. Capacity To Ship Packages Within D Days
 Leetcode 1482. Minimum Number of Days to Make m Bouquets
+Leetcode 1631. Path With Minimum Effort - Graph + BS
 
 (Hard)
 Leetcode 2468. Split Message Based on Limit (Hard) - Not a working solution, only pass 86/94 test cases
@@ -203,6 +204,53 @@ class Solution:
         # ------------------------------------------
 
         ans = -1
+        while left <= right:
+            mid = (right+left) // 2
+            if isPossible(mid):
+                ans = mid
+                right = mid - 1
+            else:
+                left = mid + 1
+
+        return ans
+
+    # ------------------------------------------------------------------------------
+    # Leetcode 1631. Path With Minimum Effort
+    def minimumEffortPath(self, heights: List[List[int]]) -> int:
+        rowLen = len(heights)
+        colLen = len(heights[0])
+        # -----------------------------
+        # Check if it's possible to travel from (0,0) -> (r-1, c-1) with threshold k
+        # We will use DFS to traverse our graph
+        def isPossible(k: int) -> bool:
+            stack = [(0,0)]
+            visited = set()
+            visited.add((0,0))
+            directions = [(-1, 0), (0, 1), (1, 0), (0, -1)]
+
+            while stack:
+                pr, pc = stack.pop()
+                for dr, dc in directions:
+                    nr, nc = pr + dr, pc + dc
+                    if 0 <= nr < rowLen and 0 <= nc < colLen and (nr, nc) not in visited and abs(heights[nr][nc] - heights[pr][pc]) <= k:
+                        if nr == rowLen-1 and nc == colLen-1:
+                            return True
+                        
+                        stack.append((nr, nc))
+                        visited.add((nr, nc))
+
+            return False
+        # -----------------------------
+        maxHeight, minHeight = float('-inf'), float('inf')
+        for r in range(len(heights)):
+            for c in range(len(heights[0])):
+                if heights[r][c] > maxHeight:
+                    maxHeight = heights[r][c]
+                if heights[r][c] < minHeight:
+                    minHeight = heights[r][c]
+
+        left, right = 0, maxHeight - minHeight
+        ans = right
         while left <= right:
             mid = (right+left) // 2
             if isPossible(mid):

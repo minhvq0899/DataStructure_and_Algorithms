@@ -61,10 +61,6 @@ class TopologicalSorting:
         
 
         
-
-
-
-
 class Solution: 
     # Leetcode 210. Course Schedule II -------------------------------------------------------------------------------------------
     def findOrder(self, numCourses: int, prerequisites: List[List[int]]) -> List[int]:
@@ -251,12 +247,6 @@ class Solution:
         return topo_order
 
             
-
-
-
-
-
-
 
 if __name__ == "__main__":    
     """

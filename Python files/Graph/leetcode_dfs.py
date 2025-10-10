@@ -5,17 +5,19 @@ This python file is a part of my effort in getting myself refreshed with Data St
 I can later tackle Leetcode challenges with more confidence. 
 
 ========================================================= Depth First Search =========================================================
-1. Leetcode 17. Letter Combinations of a Phone Number
-2. Leetcode 841. Keys and Rooms
-3. Leetcode 200. Number of Islands 
-4. Leetcode 529. Minesweeper
-5. Leetcode 1466. Reorder Routes to Make All Paths Lead to the City Zero (Hard version: Leetcode 2858)
-6. Leetcode 133. Clone Graph
-7. Leetcode 1245. Tree Diameter
+Leetcode 17. Letter Combinations of a Phone Number
+Leetcode 841. Keys and Rooms
+Leetcode 200. Number of Islands 
+Leetcode 529. Minesweeper
+Leetcode 1466. Reorder Routes to Make All Paths Lead to the City Zero (Hard version: Leetcode 2858)
+Leetcode 133. Clone Graph
+Leetcode 1245. Tree Diameter
+Leetcode 490. The Maze
 
 """
  
 from typing import List
+import bisect
 
 # For LC 133. Clone graph
 class Node:
@@ -263,6 +265,82 @@ class Solution:
         return furthestDistance
 
 
+    # -------------------------------------------------------------------------------------
+    # Leetcode 490. The Maze
+    def hasPath(self, maze: List[List[int]], start: List[int], destination: List[int]) -> bool:
+        rowLen = len(maze)
+        colLen = len(maze[0])
+        wallsIdxForEachRow = [[] for _ in range(rowLen)]
+        wallsIdxForEachCol = [[] for _ in range(colLen)]
+        for r in range(rowLen):
+            for c in range(colLen):
+                if maze[r][c] == 1:
+                    wallsIdxForEachRow[r].append(c)
+                    wallsIdxForEachCol[c].append(r)
+
+        # print(wallsIdxForEachCol)
+        # print(wallsIdxForEachRow)
+
+        stack = [(start[0], start[1])]
+        visited = set()
+        visited.add( (start[0], start[1]) )
+
+        while stack:
+            pr, pc = stack.pop()
+            # Now roll the ball all the way to up, right, down, left until we hit a wall
+            # Roll in 4 directions
+            # Roll up
+            up_idx = bisect.bisect_left(wallsIdxForEachCol[pc], pr)
+            upR = wallsIdxForEachCol[pc][up_idx - 1] + 1 if up_idx > 0 else 0
+            upC = pc
+
+            # Roll down
+            down_idx = bisect.bisect_right(wallsIdxForEachCol[pc], pr)
+            downR = wallsIdxForEachCol[pc][down_idx] - 1 if down_idx < len(wallsIdxForEachCol[pc]) else rowLen - 1
+            downC = pc
+
+            # Roll left
+            left_idx = bisect.bisect_left(wallsIdxForEachRow[pr], pc)
+            leftC = wallsIdxForEachRow[pr][left_idx - 1] + 1 if left_idx > 0 else 0
+            leftR = pr
+
+            # Roll right
+            right_idx = bisect.bisect_right(wallsIdxForEachRow[pr], pc)
+            rightC = wallsIdxForEachRow[pr][right_idx] - 1 if right_idx < len(wallsIdxForEachRow[pr]) else colLen - 1
+            rightR = pr
+
+            for nextR, nextC in [(upR, upC), (rightR, rightC), (downR, downC), (leftR, leftC)]:
+                if (nextR, nextC) not in visited:
+                    if nextR == destination[0] and nextC == destination[1]:
+                        return True
+                    stack.append((nextR, nextC))
+                    visited.add((nextR, nextC))
+
+        return False
+
+
+    # Leetcode 505. The Maze II
+    # For LC490 we can use DFS with 'visited' set because we only have to check if it's possible to reach the destination.
+    # However, for this LC 505, DFS with 'visited' set can potentially skip shorter paths if a longer one already reached a node first.
+    # We cannot use BFS either because each edge has a different weight. BFS would work if we want the path with the minimum hops (each hop has weight of 1)
+    # For this problem, we need to use Dijkstra. Find the solution in "Python files\Graph - Shortest path in graph\dijkstra.py"
+    # -------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -285,16 +363,18 @@ if __name__=="__main__":
     # numIs = leetcode.numIslands(grid)
     # print(numIs)
     
-
     # --------------- 207 ---------------
-    numCourses = 20
-    prerequisites = [[0,10],[3,18],[5,5],[6,11],[11,14],[13,1],[15,1],[17,4]]
+    # numCourses = 20
+    # prerequisites = [[0,10],[3,18],[5,5],[6,11],[11,14],[13,1],[15,1],[17,4]]
 
-    print(leetcode.canFinish(numCourses, prerequisites))
+    # print(leetcode.canFinish(numCourses, prerequisites))
 
-
-    # --------------- 210 ---------------
-
+    # --------------- 490 + 505 ---------------
+    maze = [[0,0,0,0,1,0,0],[0,0,1,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,1],[0,1,0,0,0,0,0],[0,0,0,1,0,0,0],[0,0,0,0,0,0,0],[0,0,1,0,0,0,1],[0,0,0,0,1,0,0]]
+    start = [0,0]
+    destination = [8,6]
+    # ans490 = leetcode.hasPath(maze, start, destination)
+    # print(ans490)
 
 
 

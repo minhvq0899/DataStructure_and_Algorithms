@@ -372,6 +372,7 @@ class Solution:
     
     # ----------------------------------------------------------------------------------------------------------------------------------------
     # Leetcode 71. Simplify Path
+    # Use the stack to mimic the behavior of directory management
     def simplifyPath(self, path: str) -> str:
         stack = []  # Stack to hold valid directory names
 
@@ -393,7 +394,7 @@ class Solution:
         # Join stack contents with '/' and prepend root slash
         return '/' + '/'.join(stack)
 
-    
+
     # ----------------------------------------------------------------------------------------------------------------------------------------
     # Leetcode 2116. Check if a Parentheses String Can Be Valid
     def canBeValid(self, s: str, locked: str) -> bool:
@@ -649,8 +650,8 @@ if __name__ == "__main__":
     # print(leetcode.nextGreaterElement(lc496_nums1, lc496_nums2))
 
     # ----------------------- 1944 -----------------------
-    heights = [10,6,8,5,11,9]
-    print(leetcode.canSeePersonsCount(heights))
+    # heights = [10,6,8,5,11,9]
+    # print(leetcode.canSeePersonsCount(heights))
 
     # daily_temp = leetcode.dailyTemperatures(lc739)
     # print(daily_temp)
@@ -660,10 +661,14 @@ if __name__ == "__main__":
     # nge_medium = leetcode.nextGreaterElements(lc503)
     # print(nge_medium)
 
+    # ----------------------- 84 + 85 -----------------------
     # answer84 = leetcode.largestRectangleArea(lc84)
     # print(answer84)
-
     # answer85 = leetcode.maximalRectangle(matrix85)
+
+    # ----------------------- 71 -----------------------
+    path = "/a/./b/../../c/"
+    leetcode.simplifyPath(path)
 
 
 

@@ -5,6 +5,8 @@ This python file is a part of my effort in getting myself refreshed with Data St
 I can later tackle Leetcode challenges with more confidence. 
 
 ========================================================= Breadth First Search =========================================================
+
+(Medium)
 Leetcode 690. Employee Importance
 Leetcode 1129. Shortest Path with Alternating Colors
 Leetcode 752. Open the Lock
@@ -14,9 +16,14 @@ Leetcode 785. Is Graph Bipartite?
 Leetcode 909. Snakes and Ladders
 Leetcode 127. Word Ladder
 Leetcode 126. Word Ladder II
-Leetcode 847. Shortest Path Visiting All Nodes - Hard
+Leetcode 1091. Shortest Path in Binary Matrix
+
+(Hard)
+Leetcode 847. Shortest Path Visiting All Nodes
 
 """
+
+
 
 from typing import List, Tuple
 import queue
@@ -364,7 +371,6 @@ class Solution:
             current = path[current]
 
         return steps
-
                 
     # --------------------------------------------------------------------
     # Leetcode 127. Word Ladder
@@ -437,7 +443,6 @@ class Solution:
 
         return count
                 
-
     # --------------------------------------------------------------------
     # Leetcode 126. Word Ladder II
     def findLadders(self, beginWord: str, endWord: str, wordList: List[str]) -> List[List[str]]:
@@ -512,8 +517,48 @@ class Solution:
         # print(result)
         return result
 
-
     # --------------------------------------------------------------------
+    # Leetcode 1091. Shortest Path in Binary Matrix
+    def shortestPathBinaryMatrix(self, grid: List[List[int]]) -> int:
+        n = len(grid[0])
+        if grid[0][0] != 0 or grid[n-1][n-1] != 0:
+            return -1
+        
+        visited = set()
+        dq = deque()
+        dq.append( ((0, 0), 0) )            # (node, distance from top-left cell to node)
+        visited.add((0,0))
+        # up, upright, right, rightdown, down, downleft, left, leftup
+        directions = [(-1, 0), (-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1)]         
+
+        # Start of BFS
+        while dq:
+            node, dist = dq.popleft()
+            row, col = node
+
+            # Optimization
+            if row == n-1 and col == n-1:
+                return dist
+            
+            # Check each neighbor
+            for deltaR, deltaC in directions:
+                nr, nc = row + deltaR, col + deltaC
+                # Only check if that cell is 0
+                if 0 <= nr < n and 0 <= nc < n and grid[nr][nc] == 0 and (nr, nc) not in visited:
+                    visited.add((nr, nc))
+                    dq.append( ((nr, nc), dist+1) )
+        
+        return -1
+
+
+
+
+
+
+
+
+
+    # ====================================================================
     # Leetcode 847. Shortest Path Visiting All Nodes
     # This problem follows State BFS -> the most generalized form of BFS
     # One node can have multiple stages. If graph has 12 nodes, and each node can either be visited or not --> 2^12 states
@@ -558,7 +603,7 @@ class Solution:
                     
             # Increment the distance for each layer
             shortestPath += 1
-
+        
 
 
 
@@ -606,7 +651,10 @@ if __name__ == "__main__":
     # wordList = ["hot","dot","dog","lot","log","cog"]
     # leetcode.findLadders(beginWord, endWord, wordList)
 
+    # --------------------------- 1091 ---------------------------
+    grid = [[0,0,0],[1,1,0],[1,1,0]]
+    leetcode.shortestPathBinaryMatrix(grid)
 
     # --------------------------- 847 ---------------------------
-    graph = [[1],[0,2,4],[1,3,4],[2],[1,2]]
-    print(leetcode.shortestPathLength(graph))    
+    # graph = [[1],[0,2,4],[1,3,4],[2],[1,2]]
+    # print(leetcode.shortestPathLength(graph))    

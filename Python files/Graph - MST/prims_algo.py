@@ -5,13 +5,23 @@ This python file is a part of my effort in getting myself refreshed with Data St
 I can later tackle Leetcode challenges with more confidence. 
 
 ========================================================= MST Algorithm =========================================================
-Prims class
+Primm: uses heap
+Time complexity: O(ElogE)
+    1. Start from any vertex (v) - mark v as visited
+    2. Find all edges going outwards from v. Add all neighbors (weight, v, to_node) to the PQ which point to unvisited to_node
+
+    While loop condition: heap still has elements and edgeCount < mstNumberEdges
+        3. Pop an element from heap
+        4. Check if a to_node is already visited
+            If yes, there can only be 2 scenarios
+            4.1. this edge overlaps with an edge already part of our MST
+            4.2. this edge would introduce a cycle in the MST
+            --> both cases are forbidden --> continue
+        5. Call the addEdge(to_node) - same as step 2
 
 Leetcode time
     Leetcode 1135. Connecting Cities With Minimum Cost
     Leetcode 1584. Min Cost to Connect All Points
-    Leetcode 1631. Path With Minimum Effort
-
 
 
 """
@@ -92,35 +102,110 @@ class Solution:
     # -----------------------------------------------------------
     # Leetcode 1584. Min Cost to Connect All Points
     def minCostConnectPoints(self, points: List[List[int]]) -> int:
+        V = len(points)
+        visited = set()                 # node index is 0 -> (V-1)
+        mstNumEdge = V-1                # our MST will have V-1 number of edges to avoid cycle
+        edgeCount, mstCost = 0, 0
         graph = defaultdict(list)
+        heap = []
 
-        # prepare weights and graph repre
-        for i in range (len(points)):
-            pointI = points[i]
-            for j in range (i+1, len(points)):
-                pointJ = points[j]
-                weight = self.computeCost(pointI, pointJ)
-                graph[i].append((j, weight))
-                graph[j].append((i, weight))
+        # -----------------------------------
+        def computeWeight(xi, yi, xj, yj) -> int:
+            return abs(xi-xj) + abs(yi-yj)
 
-        primsClass = Prims(graph, len(points))
-        mstCost, mstEdges = primsClass.mst(0)
+        # Iterate over all edges going outwards from the current node
+        # Add edges to the PQ which point to unvisited nodes
+        def addEdge(currentNode):
+            visited.add(currentNode)
+
+            for neighborV, neighborW in graph[currentNode]:
+                if neighborV not in visited:
+                    heapq.heappush(heap, (neighborW, currentNode, neighborV))
+        # -----------------------------------
+
+        # Graph representation: connect all nodes to all nodes -> V^2 edges
+        # One thing we notice here is that frontload the computation of ALL edges is expensive. 
+        # Instead, we can optimize this by just computing the edges when processing a certain node
+        # Find the optimized version below
+        for i in range(V):
+            xi, yi = points[i]
+            for j in range(i+1, V):
+                xj, yj = points[j]
+                weight = computeWeight(xi, yi, xj, yj)
+                graph[i].append([j, weight])
+                graph[j].append([i, weight])
+
+        # Prim's algo
+        addEdge(0)
+        while heap and edgeCount != mstNumEdge:
+            w, start, end = heapq.heappop(heap)
+
+            # If this node is visited -> node already belongs to our MST
+            if end in visited:
+                continue
+
+            # Else, add this edge to our MST
+            edgeCount += 1
+            mstCost += w
+
+            addEdge(end)
 
         return mstCost
-
-    def computeCost(self, pointA: List[int], pointB: List[int]) -> int:
-        Ax, Ay = pointA
-        Bx, By = pointB
-
-        return abs(Ax - Bx) + abs(Ay - By)
-        
     
-    # -----------------------------------------------------------
-    # Leetcode 1631. Path With Minimum Effort
-    def minimumEffortPath(self, heights: List[List[int]]) -> int:
-        
+    # Optimized solution
+    def minCostConnectPoints(self, points: List[List[int]]) -> int:
+        V = len(points)
+        visited = set()         # node index is 0 -> (V-1)
+        mstNumEdge = V-1           # our MST will have V-1 number of edges to avoid cycle
+        edgeCount, mstCost = 0, 0
+        graph = defaultdict(list)
+        heap = []
 
+        # -----------------------------------
+        def computeWeight(xi, yi, xj, yj) -> int:
+            return abs(xi-xj) + abs(yi-yj)
 
+        # Iterate over all edges going outwards from the current node
+        # Add edges to the PQ which point to unvisited nodes
+        def addEdge(currentNode):
+            visited.add(currentNode)
+
+            for neighborV, neighborW in graph[currentNode]:
+                if neighborV not in visited:
+                    heapq.heappush(heap, (neighborW, currentNode, neighborV))
+
+        """
+        Optimized part: only compute all outward edges of the currentNode when we process the current node
+        """
+        def calculateEdges(currentNode):
+            [xi, yi] = points[currentNode]
+            for j in range(V):
+                if j != currentNode:
+                    xj, yj = points[j]
+                    weight = computeWeight(xi, yi, xj, yj)
+                    graph[currentNode].append([j, weight])
+        # -----------------------------------
+
+        # Prim's algo
+        calculateEdges(0)
+        addEdge(0)
+
+        while heap and edgeCount != mstNumEdge:
+            w, _, end = heapq.heappop(heap)
+
+            # If this node is visited -> node already belongs to our MST
+            if end in visited:
+                continue
+
+            # Else, add this edge to our MST
+            edgeCount += 1
+            mstCost += w
+
+            calculateEdges(end)
+            addEdge(end)
+
+        return mstCost
+    
 
 
 

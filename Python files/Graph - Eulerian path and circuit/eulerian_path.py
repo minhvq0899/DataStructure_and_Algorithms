@@ -31,6 +31,7 @@ Hierholzer class
     _dfs()
     (static) initialize_empty_graph()
     (static) add_directed_edge()
+
     
 Leetcode time - Leetcode class
     Leetcode 332. Reconstruct Itinerary
@@ -245,6 +246,8 @@ class Leetcode:
 
         return result
 
+
+    # -------------------------------------------------------------------------------------------
     # Leetcode 2097. Valid Arrangement of Pairs
     def validArrangement(self, pairs: List[List[int]]) -> List[List[int]]:
         # Step 1: Construct a graph
