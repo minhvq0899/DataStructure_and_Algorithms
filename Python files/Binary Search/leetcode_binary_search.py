@@ -12,6 +12,7 @@ Leetcode 35. Search Insert Position
     (Monotonic function within the list)
 Leetcode 153. Find Minimum in Rotated Sorted Array
 Leetcode 33. Search in Rotated Sorted Array
+Leetcode 34. Find First and Last Position of Element in Sorted Array
     (Checking possibility of mid)
 Leetcode 875. Koko Eating Bananas
 Leetcode 1011. Capacity To Ship Packages Within D Days
@@ -50,6 +51,9 @@ class Solution:
 
 
     # ==============================================================================
+    """
+    (Monotonic function within the list)
+    """
     # ------------------------------------------------------------------------------
     # Leetcode 153. Find Minimum in Rotated Sorted Array
     def findMin(self, nums: List[int]) -> int:
@@ -108,6 +112,53 @@ class Solution:
 
 
     # ------------------------------------------------------------------------------
+    # Leetcode 34. Find First and Last Position of Element in Sorted Array
+    def searchRange(self, nums: List[int], target: int) -> List[int]:
+        # i = bisect.bisect_left(nums, target)
+        # j = bisect.bisect_right(nums, target)
+        
+        # ---------------------------------
+        # first index where nums[index] >= target
+        def bs_left() -> int:
+            left, right = 0, len(nums)
+
+            while left < right:
+                mid = (left+right) // 2
+
+                if nums[mid] < target:
+                    left = mid + 1
+                else:       # target <= nums[mid]  --> found a candidate
+                    right = mid
+
+            return left
+        
+        # last index where nums[index] <= target
+        def bs_right() -> int:
+            left, right = 0, len(nums)
+
+            while left < right:
+                mid = (left+right) // 2
+
+                if nums[mid] <= target:
+                    left = mid + 1
+                else:       # target < nums[mid] --> found a candidate
+                    right = mid
+
+            return left
+        # ---------------------------------
+        i = bs_left()
+        j = bs_right()
+
+        print("i: {}, j: {}".format(i,j))
+        if i == j: # doesn't find the target value
+            return [-1, -1]
+        else:
+            return [i, j-1]
+
+    # ------------------------------------------------------------------------------
+    """
+    (Checking possibility of mid)
+    """
     # Leetcode 875. Koko Eating Bananas
     def minEatingSpeed(self, piles: List[int], h: int) -> int:
         # helper function to decide if possible to eat all bananas with k 
@@ -520,6 +571,12 @@ if __name__ == "__main__":
     # nums = [4,5,6,7,0,1,2]
     # print(leetcode.search(nums, 0))
 
+    # ---------------------- 34 ----------------------
+    nums = [5,7,8,8,10]
+    target = 4
+    ans34 = leetcode.searchRange(nums, target)
+    print(ans34)
+
     # ---------------------- 1011 ----------------------
     # print( "Final: ", leetcode.shipWithinDays_test( [3,2,2,4,1,4], 3 ) )
 
@@ -550,7 +607,8 @@ if __name__ == "__main__":
     # answer410 = leetcode.splitArray(nums, k)
     # print(answer410)
 
-    bloomDay = [7,7,7,7,12,7,7]
-    ans1482 = leetcode.minDays(bloomDay, 2, 3)
-    print(ans1482)
+    # ---------------------- 1482 ----------------------
+    # bloomDay = [7,7,7,7,12,7,7]
+    # ans1482 = leetcode.minDays(bloomDay, 2, 3)
+    # print(ans1482)
 

@@ -5,6 +5,28 @@ This python file is a part of my effort in getting myself refreshed with Data St
 I can later tackle Leetcode challenges with more confidence. 
 
 ========================================================= Binary Search =========================================================
+1. Classic Binary Search - find the exact match
+
+2. Lower Bound Search - first index where the value is >= the target (bisect left) 
+Behavior: 
+- if found the value, return the index
+- if couldn't find the value, return the index of the closest larger value
+🔍 bs_left: Find the first position where a value could go
+- Think: “Where can I insert this value so it appears before any existing duplicates?”
+- Use case: Lower bound, weighted sampling, prefix sum searc
+
+3. Upper Bound Search - last index where the value is <= the target (bisect right) 
+🔍 bs_right: Find the last position where a value could go
+- Think: “Where can I insert this value so it appears after any existing duplicates?”
+- Use case: Upper bound, range queries, histogram binning
+
+🧪 Example
+arr = [1, 2, 2, 2, 3]
+target = 2
+
+bs_left(arr, target) -> 2
+bs_right(arr, target) -> 4
+
 
 
 """
@@ -12,9 +34,10 @@ I can later tackle Leetcode challenges with more confidence.
 from typing import List
 import bisect
 
+bisect.bisect_left()
 
-# nums is an array, target is an integer
-def binarySearch(nums, target):
+# 1. Classic Binary Search - find the exact match
+def binarySearch(nums: List[int], target: int):
     left = 0
     right = len(nums) - 1
     while (left <= right):
@@ -29,50 +52,49 @@ def binarySearch(nums, target):
     return -1    
 
 
-# bisect left: 
-# if found the value, return the index
-# if don't found the value, return the index of the closest larger value
-def bs_left(nums, target):
-    left = 0
-    right = len(nums)  - 1
-    while left <= right:
-        mid = left + (right - left) // 2
-        if nums[mid] == target and (mid == left or nums[mid] > nums[mid-1]):
-            return mid
-        elif nums[mid] < target:
+# 2. Lower Bound Search - first index where the value is >= the target (bisect left) 
+def bs_left(nums: List[int], target: int) -> int:
+    # 'right' starts at len(nums) here because the output can be len(nums)
+    left, right = 0, len(nums)  
+
+    while left < right:
+        mid = (left + right) // 2
+
+        # Case 1: target is after mid
+        if nums[mid] < target:
             left = mid + 1
+        # Case 2: target is before mid -> we found a "candidate"
         else:
-            right = mid - 1
+            right = mid
 
-    return -1
+    # Once 'left' == 'right', we've found the smallest index where target <= nums[i] 
+    # Since the while loop stops precisely at the first time 'left' == 'right', 
+    # it is also okay to return 'right' instead of 'left' 
+    return left     
 
 
 
-# bisect right: ALWAYS return the index of closest larger value
-def bs_right(nums, target):
-    left = 0
-    right = len(nums)  - 1
-    while left <= right:
-        mid = left + (right - left) // 2
-        if nums[mid] == target and (mid == right or nums[mid] < nums[mid+1]):
-            return mid
-        elif nums[mid] > target:
-            right = mid - 1
-        else:
+
+# 3. Upper Bound Search - last index where the value is <= the target (bisect right) 
+def bs_right(nums: List[int], target: int):
+    left, right = 0, len(nums)
+
+    while left < right:
+        mid = (left + right) // 2
+
+        # Case 1: target is after mid 
+        if nums[mid] <= target:
             left = mid + 1
+        # Case 2: target < nums[mid]
+        # Found a candidate
+        else:
+            right = mid
 
-    return -1    
+    # Since the while loop stops precisely at the first time 'left' == 'right', 
+    # it is also okay to return 'right' instead of 'left'
+    return left    
 
 
-# Leetcode 34. Find First and Last Position of Element in Sorted Array
-def searchRange(nums: List[int], target: int) -> List[int]:
-    i = bisect.bisect_left(nums, target)
-    j = bisect.bisect_right(nums, target)
-    
-    if i == j: # doesn't find the target value
-        return [-1, -1]
-    else:
-        return [i, j-1]
 
 
 
