@@ -7,8 +7,9 @@ I can later tackle Leetcode challenges with more confidence.
 ============================================================ Stack ============================================================
 (Monotonic stack implementation)
 monotonicStack()
+496, 503, 739, 901
 
-(Easy)
+    (Easy)
 Leetcode 20. Valid Parentheses
     isValid_easy
     isValid_medium
@@ -16,24 +17,33 @@ Leetcode 1047. Remove All Adjacent Duplicates In String
 Leetcode 1544. Make The String Great
 Leetcode 496. Next Greater Element I - use Monotonic stack
 
-(Medium)
+    (Medium)
+    "Medium - Parentheses related"
+Leetcode 856. Score of Parentheses
+Leetcode 2116. Check if a Parentheses String Can Be Valid (2 Stacks + Greedy)
+Leetcode 1963. Minimum Number of Swaps to Make the String Balanced (Similar to 921 and 1541)
+Leetcode 921. Minimum Add to Make Parentheses Valid
+
+    "Medium - Monotonic stack"
+Leetcode 739. Daily Temperatures - use Monotonic stack
+Leetcode 503. Next Greater Element II  - use Monotonic stack
+Leetcode 1762. Buildings With an Ocean View - Premium
+
+    "Medium - basic stack"
 Leetcode 443. String Compression
 Leetcode 394. Decode String
-Leetcode 739. Daily Temperatures - use Monotonic stack
-Leetcode 856. Score of Parentheses
-Leetcode 503. Next Greater Element II  - use Monotonic stack
 Leetcode 1381. Design a Stack With Increment Operation
 Leetcode 71. Simplify Path
 Leetcode 735. Asteroid Collision
-Leetcode 2116. Check if a Parentheses String Can Be Valid
-Leetcode 1963. Minimum Number of Swaps to Make the String Balanced
-(Similar to 921 and 1541)
+Leetcode 227. Basic Calculator II
 
-(Hard)
+
+    (Hard)
 Leetcode 224. Basic Calculator
+    "Hard - Monotonic stack"
 Leetcode 84. Largest Rectangle in Histogram - use Monotonic stack
 Leetcode 85. Maximal Rectangle - use Monotonic stack
-Leetcode 1944. Number of Visible People in a Queue
+Leetcode 1944. Number of Visible People in a Queue - - use Monotonic stack
 
 
 
@@ -41,6 +51,7 @@ Leetcode 1944. Number of Visible People in a Queue
 
 from typing import List
 from collections import defaultdict, deque
+import math
 
 # ----------------------------------------------------------------------------------------------------------------------------------------
 # Leetcode 1381. Design a Stack With Increment Operation
@@ -100,10 +111,8 @@ class Solution:
                 
 
 
-
-    # --------------------------------------------------------------------------------------------
+    # ===========================================================================================
     # Leetcode 20
-    # first just take it easy
     # s only contains "(" and ")"
     def isValid_easy(self, s: str) -> bool:
         stack = []
@@ -141,8 +150,279 @@ class Solution:
     def removeDuplicates(self, S: str) -> str:
         pass
 
-    # --------------------------------------------------------------------------------------------
-    # Leetcode 443
+    # ===========================================================================================
+    "Medium - Parentheses related"
+    # ----------------------------------------------------------------------------------------------------------------------------------------
+    # Leetcode 856. Score of Parentheses
+    def scoreOfParentheses(self, S: str) -> int:
+        depth_score = [0] # depth 0 (has value 0) is for when the last time we pop
+
+        for c in S:
+            if c == "(": # just keep adding depth
+                depth_score.append(0)
+            else: 
+                prev = depth_score.pop()
+                depth_score[-1] += max(2*prev, 1) # it's either a () or (A)
+
+        return depth_score[0]
+
+    # ----------------------------------------------------------------------------------------------------------------------------------------
+    # Leetcode 2116. Check if a Parentheses String Can Be Valid
+    def canBeValid(self, s: str, locked: str) -> bool:
+        if len(s) % 2 == 1: 
+            return False
+        
+        # Modify the input string
+        modifiedS = ""
+        for i in range (len(locked)):
+            if locked[i] == "1":
+                modifiedS += s[i]
+            else:
+                modifiedS += "x"
+
+        print("modifiedS: ", modifiedS)
+        
+        # Two stacks
+        stack_locked = []           # Contains locked opening paren
+        stack_unlocked = []         # Contains unlocked char
+
+        for i in range (len(modifiedS)):
+            p = modifiedS[i]
+
+            # Populate the stack
+            if p == "(":
+                stack_locked.append(i)
+            elif p == "x":
+                stack_unlocked.append(i)
+            # If it's a locked closing parentheses, apply greedy logic always pop from locked stack first
+            else:
+                if stack_locked:
+                    stack_locked.pop()
+                elif stack_unlocked:
+                    stack_unlocked.pop()
+                else:
+                    return False         
+
+        print("stack_locked: ", stack_locked)
+        print("stack_unlocked: ", stack_unlocked)
+
+        # Handle the left-over in stack_locked
+        while stack_locked:
+            op_index = stack_locked.pop()
+            if not stack_unlocked or stack_unlocked[-1] < op_index:
+                return False
+            stack_unlocked.pop()
+
+        # Handle the left-over in stack_unlocked
+        if stack_unlocked:
+            if len(stack_unlocked) % 2 == 1: return False
+
+        return True
+
+    # ----------------------------------------------------------------------------------------------------------------------------------------
+    # Leetcode 1963. Minimum Number of Swaps to Make the String Balanced
+    # When parsing the string:
+    #   Every '[' increases balance.
+    #   Every ']' decreases balance.
+    # If balance ever goes negative, it means we’ve seen more closing brackets than opening ones — which is invalid at that point in the string. 
+    # To fix this, we need to swap a future '[' to this position.
+    # Each swap fixes two brackets:
+    #   One misplaced ']'
+    #   One '[' from later in the string
+    # So if the maximum imbalance is k, we need k // 2 swaps to fix it. But since imbalance can be odd, we round up:
+    # ---> ceil(k / 2) = (k + 1) // 2
+    def minSwaps(self, s: str) -> int:
+        imbalance = 0
+        maxImbalance = 0       
+
+        # Iterate over the string and keep track of the number of opening and closing brackets on each step.
+        for bracket in s:
+            if bracket == "[":
+                imbalance -= 1
+            else:   # "]"
+                imbalance += 1
+            
+            if imbalance > 0:
+                maxImbalance = max(maxImbalance, imbalance)
+        
+        # print(maxImbalance)
+        return (maxImbalance+1)//2
+
+    
+    # ----------------------------------------------------------------------------------------------------------------------------------------
+    # Leetcode 921. Minimum Add to Make Parentheses Valid
+    def minAddToMakeValid(self, s: str) -> int:
+        # number of closing parenthese that never saw an opening 
+        redundant_closing = 0
+        
+        # This stack will only contain '('
+        # Any valid substring will get processed by the stack 
+        # What's left in the stack will be number of '(' that never closed
+        stack = []      
+
+        for p in s:
+            if p == ')':
+                if stack:
+                    stack.pop()
+                else:
+                    redundant_closing += 1
+            else:
+                stack.append(p)
+
+        return redundant_closing + len(stack)
+                
+        
+
+
+
+    "Medium - Monotonic stack"
+    # ----------------------------------------------------------------------------------------------------------------------------------------
+    # Leetcode 496. Next Greater Element I
+    def nextGreaterElement(self, nums1: List[int], nums2: List[int]) -> List[int]:
+        # Step 1: Compute the NGE for all elements in nums2
+        stack = []                          # monotonic stack
+        nge = [-1 for _ in range (len(nums2))]
+
+        for i in range (len(nums2)-1, -1, -1):
+            # Make sure the stack is in right order
+            while stack and stack[-1] < nums2[i]:
+                stack.pop()
+
+            # Compute the NGE for nums2[i]
+            if stack:
+                nge[i] = stack[-1]
+            else:
+                nge[i] = -1
+
+            # Append nums2[i] to stack
+            stack.append(nums2[i])
+
+        print(nge)
+
+        # Step 2: Store nums2 element and its NGE in a dict for fast look up later
+        ngeDict = defaultdict(int)
+        for i, num in enumerate(nums2):
+            ngeDict[num] = nge[i]
+
+        # Step 3: Prepare the nge list for nums1
+        ngeNums1 = [-1 for _ in range (len(nums1))]
+        for i, num in enumerate(nums1):
+            ngeNums1[i] = ngeDict[num]
+
+        return ngeNums1
+
+    # ----------------------------------------------------------------------------------------------------------------------------------------
+    # Leetcode 739. Daily Temperatures
+    def dailyTemperatures(self, T: List[int]) -> List[int]:
+        # We will compute the NGE of each element in T
+        stack = []      # monotonic stack that contains (temp, index)
+        nge = [ 0 for _ in range (len(T)) ]
+    
+        for i in range (len(T)-1, -1, -1):
+            tem = T[i]
+
+            # Maintain the order of the stack
+            while stack and stack[-1][0] <= tem:
+                stack.pop()
+
+            # Compute the NGE
+            if stack:
+                indexOfNGE = stack[-1][1]    
+                days = indexOfNGE - i
+                nge[i] = days
+            # else: nge[i] = 0
+
+            # Add tem to stack
+            stack.append((tem, i))
+        
+        return nge
+
+    # ----------------------------------------------------------------------------------------------------------------------------------------
+    # Leetcode 503. Next Greater Element II  - use Monotonic stack
+    def nextGreaterElements(self, nums: List[int]) -> List[int]:
+        # we will iterate over the array two times to make it circular
+        circularNums = nums + nums
+        print(circularNums)
+
+        # compute the nge for circularNums
+        stack = []          # monotonic stack (largest at the bottom)
+        ngeCircularNums = [-1 for _ in range (len(circularNums))]
+        for i in range (len(circularNums)-1, -1, -1):
+            # Maintain the order
+            while stack and stack[-1] <= circularNums[i]:
+                stack.pop()
+
+            # Get the NGE for element i-th
+            if stack:
+                ngeCircularNums[i] = stack[-1]
+            # else: nge[i] is already -1
+
+            # Add element i-th to the stack
+            stack.append(circularNums[i])
+
+        # The NGE of i-th element in nums will be the same as the NGE of i-th element in circularNums
+        ngeNums = [-1 for _ in range (len(nums))]
+        for i in range (len(ngeNums)):
+            ngeNums[i] = ngeCircularNums[i]
+
+        return ngeNums
+
+    # ----------------------------------------------------------------------------------------------------------------------------------------        
+    # Leetcode 1762. Buildings With an Ocean View - Premium
+    # We don’t need Monotonic Stack for this problem. We just need to scan one time from right to left and keep track of the tallest building seen so far.
+    # Monotonic stack solution tells us which element (its index) is the NGE.
+    # For this problem, we don’t need to know the exact NGE, just whether one exists.
+    # Solution 1: Basic use of Monotonic stack
+    def findBuildings(self, heights: List[int]) -> List[int]:
+        # For this problem, this should be "next greater or equal element"
+        # nge = [-1 for _ in range(len(heights))]
+        stack = []
+        result = []
+        
+        for i in range(len(heights)-1, -1, -1):
+            h = heights[i]
+
+            # Step 1: Maintain the order of our monotonic stack
+            while stack and heights[stack[-1]] < h:
+                stack.pop()
+
+            # Step 2: Compute the NGOEE for element at index i-th
+            # if stack:
+            #     nge[i] = stack[-1]
+
+            # Optimization 
+            if not stack:
+                result.append(i)
+
+            # Step 3: 
+            stack.append(i)
+
+        # print(nge)
+        # result = [i for i in range(len(nge)) if nge[i] == -1]
+
+        # print(result)
+        result.reverse()
+        return result
+
+    # Solution 2: One pass Right -> Left
+    def findBuildings(self, heights: List[int]) -> List[int]:
+        result = []
+        maxHeight = -1
+
+        for i in range(len(heights)-1, -1, -1):
+            h = heights[i]
+            
+            if h > maxHeight:
+                result.append(i)
+                maxHeight = h
+
+        result.reverse()
+        return result
+
+
+
+    "Medium - basic stack"
+    # Leetcode 443. String Compression
     def compress(self, chars: List[str]) -> int:
         stack = []
         for char in chars:
@@ -226,110 +506,6 @@ class Solution:
 
         return "".join(stack)
 
-    # ----------------------------------------------------------------------------------------------------------------------------------------
-    # Leetcode 496. Next Greater Element I
-    def nextGreaterElement(self, nums1: List[int], nums2: List[int]) -> List[int]:
-        # Step 1: Compute the NGE for all elements in nums2
-        stack = []                          # monotonic stack
-        nge = [-1 for _ in range (len(nums2))]
-
-        for i in range (len(nums2)-1, -1, -1):
-            # Make sure the stack is in right order
-            while stack and stack[-1] < nums2[i]:
-                stack.pop()
-
-            # Compute the NGE for nums2[i]
-            if stack:
-                nge[i] = stack[-1]
-            else:
-                nge[i] = -1
-
-            # Append nums2[i] to stack
-            stack.append(nums2[i])
-
-        print(nge)
-
-        # Step 2: Store nums2 element and its NGE in a dict for fast look up later
-        ngeDict = defaultdict(int)
-        for i, num in enumerate(nums2):
-            ngeDict[num] = nge[i]
-
-        # Step 3: Prepare the nge list for nums1
-        ngeNums1 = [-1 for _ in range (len(nums1))]
-        for i, num in enumerate(nums1):
-            ngeNums1[i] = ngeDict[num]
-
-        return ngeNums1
-
-    # ----------------------------------------------------------------------------------------------------------------------------------------
-    # Leetcode 739. Daily Temperatures
-    def dailyTemperatures(self, T: List[int]) -> List[int]:
-        # We will compute the NGE of each element in T
-        stack = []      # monotonic stack that contains (temp, index)
-        nge = [ 0 for _ in range (len(T)) ]
-    
-        for i in range (len(T)-1, -1, -1):
-            tem = T[i]
-
-            # Maintain the order of the stack
-            while stack and stack[-1][0] <= tem:
-                stack.pop()
-
-            # Compute the NGE
-            if stack:
-                indexOfNGE = stack[-1][1]    
-                days = indexOfNGE - i
-                nge[i] = days
-            # else: nge[i] = 0
-
-            # Add tem to stack
-            stack.append((tem, i))
-        
-        return nge
-
-    # ----------------------------------------------------------------------------------------------------------------------------------------
-    # Leetcode 856. Score of Parentheses
-    def scoreOfParentheses(self, S: str) -> int:
-        depth_score = [0] # depth 0 (has value 0) is for when the last time we pop
-
-        for c in S:
-            if c == "(": # just keep adding depth
-                depth_score.append(0)
-            else: 
-                prev = depth_score.pop()
-                depth_score[-1] += max(2*prev, 1) # it's either a () or (A)
-
-        return depth_score[0]
-
-    # ----------------------------------------------------------------------------------------------------------------------------------------
-    # Leetcode 503. Next Greater Element II  - use Monotonic stack
-    def nextGreaterElements(self, nums: List[int]) -> List[int]:
-        # we will iterate over the array two times to make it circular
-        circularNums = nums + nums
-        print(circularNums)
-
-        # compute the nge for circularNums
-        stack = []          # monotonic stack (largest at the bottom)
-        ngeCircularNums = [-1 for _ in range (len(circularNums))]
-        for i in range (len(circularNums)-1, -1, -1):
-            # Maintain the order
-            while stack and stack[-1] <= circularNums[i]:
-                stack.pop()
-
-            # Get the NGE for element i-th
-            if stack:
-                ngeCircularNums[i] = stack[-1]
-            # else: nge[i] is already -1
-
-            # Add element i-th to the stack
-            stack.append(circularNums[i])
-
-        # The NGE of i-th element in nums will be the same as the NGE of i-th element in circularNums
-        ngeNums = [-1 for _ in range (len(nums))]
-        for i in range (len(ngeNums)):
-            ngeNums[i] = ngeCircularNums[i]
-
-        return ngeNums
 
     # ----------------------------------------------------------------------------------------------------------------------------------------
     # Leetcode 735. Asteroid Collision
@@ -396,89 +572,47 @@ class Solution:
 
 
     # ----------------------------------------------------------------------------------------------------------------------------------------
-    # Leetcode 2116. Check if a Parentheses String Can Be Valid
-    def canBeValid(self, s: str, locked: str) -> bool:
-        if len(s) % 2 == 1: 
-            return False
-        
-        # Modify the input string
-        modifiedS = ""
-        for i in range (len(locked)):
-            if locked[i] == "1":
-                modifiedS += s[i]
-            else:
-                modifiedS += "x"
+    # Leetcode 227. Basic Calculator II
+    def calculate(self, s: str) -> int:
+        stack = []
+        i = 0
+        num = 0
+        prev_op = '+'               # starts with '+' to handle the first number
+        operators = {'+', '-', '*', '/'}        
 
-        print("modifiedS: ", modifiedS)
-        
-        # Two stacks
-        stack_locked = []           # Contains locked opening paren
-        stack_unlocked = []         # Contains unlocked char
+        # Process all '*' and '/'
+        while i < len(s):
+            char = s[i]
 
-        for i in range (len(modifiedS)):
-            p = modifiedS[i]
+            # Scenario 1: char is a digit
+            # here if char is ' ' then we simply just continue
+            if char.isdigit():
+                num = num*10 + int(char)
 
-            # Populate the stack
-            if p == "(":
-                stack_locked.append(i)
-            elif p == "x":
-                stack_unlocked.append(i)
-            # If it's a locked closing parentheses, apply greedy logic always pop from locked stack first
-            else:
-                if stack_locked:
-                    stack_locked.pop()
-                elif stack_unlocked:
-                    stack_unlocked.pop()
-                else:
-                    return False         
+            # Scenario 2: char is an operator
+            if char in operators or i == len(s) - 1:
+                if prev_op == '+':
+                    stack.append(num)
+                elif prev_op == '-':
+                    stack.append(-num)
+                elif prev_op == '*':
+                    stack.append(stack.pop() * num)
+                elif prev_op == '/':
+                    stack.append( int(stack.pop() / num) )
 
-        print("stack_locked: ", stack_locked)
-        print("stack_unlocked: ", stack_unlocked)
+                # Reset
+                prev_op = char
+                num = 0
 
-        # Handle the left-over in stack_unlocked
-        while stack_locked:
-            op_index = stack_locked.pop()
-            if not stack_unlocked or stack_unlocked[-1] < op_index:
-                return False
-            stack_unlocked.pop()
+            i += 1
 
-        # Handle the left-over in stack_locked
-        if stack_unlocked:
-            if len(stack_unlocked) % 2 == 1: return False
-
-        return True
+        return sum(stack)
 
 
-    # ----------------------------------------------------------------------------------------------------------------------------------------
-    # Leetcode 1963. Minimum Number of Swaps to Make the String Balanced
-    # When parsing the string:
-    #   Every '[' increases balance.
-    #   Every ']' decreases balance.
-    # If balance ever goes negative, it means we’ve seen more closing brackets than opening ones — which is invalid at that point in the string. 
-    # To fix this, we need to swap a future '[' to this position.
-    # Each swap fixes two brackets:
-    #   One misplaced ']'
-    #   One '[' from later in the string
-    # So if the maximum imbalance is k, we need k // 2 swaps to fix it. But since imbalance can be odd, we round up:
-    # ---> ceil(k / 2) = (k + 1) // 2
-    def minSwaps(self, s: str) -> int:
-        imbalance = 0
-        maxImbalance = 0       
 
-        # Iterate over the string and keep track of the number of opening and closing brackets on each step.
-        for bracket in s:
-            if bracket == "[":
-                imbalance -= 1
-            else:   # "]"
-                imbalance += 1
-            
-            if imbalance > 0:
-                maxImbalance = max(maxImbalance, imbalance)
-        
-        # print(maxImbalance)
-        return (maxImbalance+1)//2
 
     # ========================================================================================================================================
+    "Hard"
     # Leetcode 224. Basic Calculator
     """
     - Stack keeps track of the sign context introduced by parentheses.
@@ -667,14 +801,17 @@ if __name__ == "__main__":
     # answer85 = leetcode.maximalRectangle(matrix85)
 
     # ----------------------- 71 -----------------------
-    path = "/a/./b/../../c/"
-    leetcode.simplifyPath(path)
+    # path = "/a/./b/../../c/"
+    # leetcode.simplifyPath(path)
 
+    # ----------------------- 227 -----------------------
+    # s = "14-3/2"
+    # leetcode.calculate(s)
 
-
-
-
-
+    # ----------------------- 1762 -----------------------
+    #          0,1,2,3,4,5,6,7
+    heights = [7,5,3,2,6,9,3,2]
+    leetcode.findBuildings(heights)
 
 
 
