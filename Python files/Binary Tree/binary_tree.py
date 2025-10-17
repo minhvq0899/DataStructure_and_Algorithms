@@ -65,9 +65,9 @@ def preOrder(root):
 def inOrder(root):
     if not root:
         return 
-    preOrder(root.left)
+    inOrder(root.left)
     print(root.val)
-    preOrder(root.right)
+    inOrder(root.right)
 
 
 # Level Order Traversal of a Binary Tree

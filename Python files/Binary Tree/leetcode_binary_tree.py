@@ -16,6 +16,7 @@ Leetcode 1315. Sum of Nodes with Even-Valued Grandparent
 Leetcode 199. Binary Tree Right Side View
 Leetcode 669. Trim a Binary Search Tree
 Leetcode 98. Validate Binary Search Tree
+Leetcode 2265. Count Nodes Equal to Average of Subtree
 
 ================================================================
 ** Kenny Talks Code: 
@@ -38,6 +39,9 @@ Leetcode 105. Construct Binary Tree from Preorder and Inorder Traversal
 Leetcode 106. Construct Binary Tree from Inorder and Postorder Traversal
 Leetcode 889. Construct Binary Tree from Preorder and Postorder Traversal
 Leetcode 103. Binary Tree Zigzag Level Order Traversal
+Leetcode 314. Binary Tree Vertical Order Traversal
+Leetcode 987. Vertical Order Traversal of a Binary Tree (Hard verion of 314)
+Leetcode 863. All Nodes Distance K in Binary Tree
 
 ** Lowest Common Ancestor: https://www.geeksforgeeks.org/dsa/lowest-common-ancestor-binary-tree-set-1/
 Leetcode 235. Lowest Common Ancestor of a Binary Search Tree
@@ -58,6 +62,9 @@ Leetcode 297. Serialize and Deserialize Binary Tree
 from typing import List
 from queue import Queue
 from collections import deque, defaultdict
+import Optional
+import math
+
 
 # Definition for a binary tree node.
 class Node:
@@ -94,15 +101,6 @@ class Node:
         # ------------------------------------------------------------
         tree = insertNode(root, 0, n)
         return tree
-
-
-
-
-
-
-
-
-
 
 
 
@@ -308,33 +306,35 @@ class Solution:
 
         return validBST
 
+
     # --------------------------------------------------------------------
-    # Leetcode 662. Maximum Width of Binary Tree
-    # If index of parent is n, the index of left child is (2n), and right child is (2n+1)
-    def widthOfBinaryTree(self, root: 'TreeNode') -> int:
-        dq = deque([(root, 1)])
-        # dq.append("Change level")     # Traverse layer by layer, do no need signal to change level
-        maxWidth = 0
+    # Leetcode 2265. Count Nodes Equal to Average of Subtree
+    def averageOfSubtree(self, root: TreeNode) -> int:
+        result = 0
+        # -----------------------------------
+        # Given a node, return [the sum of the subtree of root, # of node in that subtree]
+        def dfs(root) -> List[int]:
+            nonlocal result
 
-        while dq:
-            levelLen = len(dq)
-            firstNode, firstLevelIndex = dq[0]      # First node of the level
-            lastNode, lastLevelIndex = dq[-1]       # Last node of the level
+            # 1. base case
+            if not root:
+                return [0,0]
+            
+            # 2. dfs part
+            left_sum, left_number_nodes = dfs(root.left)
+            right_sum, right_number_nodes = dfs(root.right)
 
-            # Compute level width
-            levelWidth = lastLevelIndex - firstLevelIndex + 1
-            maxWidth = max(maxWidth, levelWidth)
+            # 3. action
+            subtree_sum = (root.val + left_sum + right_sum)
+            subtree_total_node = (1 + left_number_nodes + right_number_nodes)
+            if math.floor(subtree_sum / subtree_total_node) == root.val:
+                result += 1
 
-            # Add all node in the next layer in the deque
-            for _ in range(levelLen):
-                node, index = dq.popleft()
-                if node.left:
-                    dq.append((node.left, index*2))
-                if node.right:
-                    dq.append((node.right, index*2+1))
+            return [subtree_sum, subtree_total_node]
+        # -----------------------------------
+        dfs(root)
 
-        return maxWidth
-
+        return result
 
     # ======================================================================================================
     """
@@ -545,6 +545,33 @@ class Solution:
                 if (not q.empty()): q.put(None)
                 
         return level_order_traversal
+
+    # --------------------------------------------------------------------
+    # Leetcode 662. Maximum Width of Binary Tree
+    # If index of parent is n, the index of left child is (2n), and right child is (2n+1)
+    def widthOfBinaryTree(self, root: 'TreeNode') -> int:
+        dq = deque([(root, 1)])
+        # dq.append("Change level")     # Traverse layer by layer, do no need signal to change level
+        maxWidth = 0
+
+        while dq:
+            levelLen = len(dq)
+            firstNode, firstLevelIndex = dq[0]      # First node of the level
+            lastNode, lastLevelIndex = dq[-1]       # Last node of the level
+
+            # Compute level width
+            levelWidth = lastLevelIndex - firstLevelIndex + 1
+            maxWidth = max(maxWidth, levelWidth)
+
+            # Add all node in the next layer in the deque
+            for _ in range(levelLen):
+                node, index = dq.popleft()
+                if node.left:
+                    dq.append((node.left, index*2))
+                if node.right:
+                    dq.append((node.right, index*2+1))
+
+        return maxWidth
 
 
     # --------------------------------------------------------------------
@@ -763,7 +790,134 @@ class Solution:
         return zigzagOrder
 
 
+    # --------------------------------------------------------------------
+    # Leetcode 314. Binary Tree Vertical Order Traversal
+    def verticalOrder(self, root: Optional[TreeNode]) -> List[List[int]]:
+        if not root: return []
 
+        columnIndexes = defaultdict(list)
+        # -------------------------------------
+        def bfs(root: TreeNode):
+            dq = deque([(root, 0)])
+
+            while dq:
+                node, column = dq.popleft()
+                columnIndexes[column].append(node.val)
+                
+                # process child from left -> right
+                if node.left:
+                    dq.append((node.left, column-1))
+                if node.right:
+                    dq.append((node.right, column+1))
+        # -------------------------------------
+        bfs(root)
+        # print(columnIndexes)
+
+        minColumnIndex = min(columnIndexes)
+        maxColumnIndex = max(columnIndexes)
+        result = []
+        for i in range(minColumnIndex, maxColumnIndex+1):
+            result.append(columnIndexes[i])
+
+        return result
+
+    # --------------------------------------------------------------------
+    # Leetcode 987. Vertical Order Traversal of a Binary Tree (Hard verion of 314)
+    # For this problem, we can optimize like this: store all tuple (col, row, node.val) in a list. After traversing BFS, sort this list
+    # --> all tuples will be sorted by col, then row, then node value, just like we want
+    def verticalTraversal(self, root: Optional[TreeNode]) -> List[List[int]]:
+        if not root: return []
+
+        coordinateToNodeValueMap = defaultdict(list)            # One coordinate can have multiple node values. (row, col) -> [v1, v2, etc]
+        columnToRowsMap = defaultdict(set)                      # For each col, store all rows that exists a coordinate in our tree
+        # -------------------------------------
+        def bfs(root: TreeNode):
+            dq = deque([(root, (0,0))])
+
+            while dq:
+                node, coordinate = dq.popleft()
+                row, col = coordinate
+                coordinateToNodeValueMap[coordinate].append(node.val)
+                columnToRowsMap[col].add(row)
+                
+                # process child from left -> right
+                if node.left:
+                    dq.append((node.left, (row+1, col-1)))
+                if node.right:
+                    dq.append((node.right, (row+1, col+1)))
+        # -------------------------------------
+        bfs(root)
+        print(coordinateToNodeValueMap)
+        print(columnToRowsMap)
+
+        result = []
+        minCol = min(columnToRowsMap)
+        maxCol = max(columnToRowsMap)
+        for col in range(minCol, maxCol+1):
+            oneCol = []     # Store all values that have this col index
+            for row in sorted(columnToRowsMap[col]):
+                oneCordinateValues = coordinateToNodeValueMap[(row, col)]       # All the values in a coordinate
+                if len(oneCordinateValues) > 1:
+                    oneCordinateValues.sort()
+
+                oneCol.extend(oneCordinateValues)
+
+            result.append(oneCol)
+
+        return result
+
+    # --------------------------------------------------------------------
+    # Leetcode 863. All Nodes Distance K in Binary Tree
+    def distanceK(self, root: TreeNode, target: TreeNode, k: int) -> List[int]:
+        # A dict to store each node's parent
+        # IMPORTANT: this needs to be a regular dict in Python instead of DefaultDict because
+        # If pop.val is not in 'parents', parents[pop.val] will silently create a dummy TreeNode.
+        # Later in BFS, you’ll try to access .val on this dummy node, which is not part of the real tree.
+        # This can lead to infinite loops, incorrect results, or subtle bugs.
+        parents = {}
+
+        # BFS to populate our parents dict
+        dq = deque([root])
+        while dq:
+            pop = dq.popleft()
+
+            # Populate parents and queue
+            if pop.left:
+                dq.append(pop.left)
+                parents[pop.left.val] = pop
+            if pop.right:
+                dq.append(pop.right)                
+                parents[pop.right.val] = pop
+        
+        # BFS from target node to find all nodes distance K from target
+        result = []
+        dq = deque([target])
+        visited = set()
+        visited.add(target.val)
+        layer = 0
+        while dq:
+            if layer == k:
+                for _ in range(len(dq)):
+                    pop = dq.popleft()
+                    result.append(pop.val)
+                break
+
+            for _ in range(len(dq)):
+                pop = dq.popleft()
+
+                parent = parents[pop.val] if pop.val in parents else None
+                for node in [pop.left, pop.right, parent]:
+                    if node and node.val not in visited:
+                        dq.append(node)
+                        visited.add(node.val)
+
+            layer += 1
+
+        return result
+
+
+
+    # ======================================================================================================
     """
     LCA
     """

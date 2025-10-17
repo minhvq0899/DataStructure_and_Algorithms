@@ -13,6 +13,7 @@ Leetcode 1466. Reorder Routes to Make All Paths Lead to the City Zero (Hard vers
 Leetcode 133. Clone Graph
 Leetcode 1245. Tree Diameter
 Leetcode 490. The Maze
+Leetcode 339. Nested List Weight Sum
 
 """
  
@@ -24,6 +25,52 @@ class Node:
     def __init__(self, val=0, neighbors=None):
         self.val = val
         self.neighbors = neighbors if neighbors is not None else []
+
+
+class NestedInteger:
+   def __init__(self, value=None):
+       """
+       If value is not specified, initializes an empty list.
+       Otherwise initializes a single integer equal to value.
+       """
+       pass
+
+   def isInteger(self):
+       """
+       @return True if this NestedInteger holds a single integer, rather than a nested list.
+       :rtype bool
+       """
+       pass
+
+   def add(self, elem):
+       """
+       Set this NestedInteger to hold a nested list and adds a nested integer elem to it.
+       :rtype void
+       """
+       pass
+
+   def setInteger(self, value):
+       """
+       Set this NestedInteger to hold a single integer equal to value.
+       :rtype void
+       """
+       pass
+
+   def getInteger(self):
+       """
+       @return the single integer that this NestedInteger holds, if it holds a single integer
+       The result is undefined if this NestedInteger holds a nested list
+       :rtype int
+       """
+       pass
+
+   def getList(self):
+       """
+       @return the nested list that this NestedInteger holds, if it holds a nested list
+       The result is undefined if this NestedInteger holds a single integer
+       :rtype List[NestedInteger]
+       """
+       pass
 
 
 
@@ -149,8 +196,6 @@ class Solution:
                             self.updateBoard(board, [r, c])
                 
         return board
-
-
 
     # -------------------------------------------------------------------------------------
     # Leetcode 1466. Reorder Routes to Make All Paths Lead to the City Zero
@@ -318,22 +363,36 @@ class Solution:
 
         return False
 
-
     # Leetcode 505. The Maze II
     # For LC490 we can use DFS with 'visited' set because we only have to check if it's possible to reach the destination.
     # However, for this LC 505, DFS with 'visited' set can potentially skip shorter paths if a longer one already reached a node first.
     # We cannot use BFS either because each edge has a different weight. BFS would work if we want the path with the minimum hops (each hop has weight of 1)
     # For this problem, we need to use Dijkstra. Find the solution in "Python files\Graph - Shortest path in graph\dijkstra.py"
+        
     # -------------------------------------------------------------------------------------
+    # Leetcode 339. Nested List Weight Sum
+    def depthSum(self, nestedList: List[NestedInteger]) -> int:
+        result = 0
 
+        # ------------------------------------------
+        def flatten(nl: NestedInteger, level: int):
+            nonlocal result
+            if not nl:
+                return 
+            
+            if nl.isInteger():
+                result += nl.getInteger() * level
+                return
+            
+            nlList = nl.getList()
+            for l in nlList:
+                flatten(l, level+1)
+        # ------------------------------------------
 
+        for nlObject in nestedList:
+            flatten(nlObject, 1)
 
-
-
-
-
-
-
+        return result
 
 
 

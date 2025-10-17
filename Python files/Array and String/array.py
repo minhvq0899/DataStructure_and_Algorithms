@@ -27,6 +27,7 @@ Leetcode 713. Subarray Product Less Than K
 Leetcode 567. Permutation in String
 Leetcode 128: Longest Consecutive Sequence
 Leetcode 189. Rotate Array
+Leetcode 825. Friends Of Appropriate Ages
 
     (Sweep line algorithm) # https://leetcode.com/problem-list/ax36evp1/
 G4G: Minimum Platforms Required for Given Arrival and Departure Times (identical to LC 253)
@@ -449,6 +450,7 @@ class Solution:
 
         return maxLen
 
+    # ------------------------------------------------------------------------------
     # Leetcode 189. Rotate Array
     def rotate(self, nums: List[int], k: int) -> None:
         """
@@ -473,6 +475,12 @@ class Solution:
         nums.reverse()                          # Reverse the array
         swap(nums, 0, k)                        # Swapping first k elements
         swap(nums, k, len(nums))                # Swapping the rest
+
+    # ------------------------------------------------------------------------------
+    # Leetcode 825. Friends Of Appropriate Ages
+    def numFriendRequests(self, ages: List[int]) -> int:
+        
+        pass
 
 
     # ==============================================================================

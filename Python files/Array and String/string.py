@@ -11,7 +11,7 @@ Leetcode 345: Reverse Vowels of a String
 Leetcode 344: Reverse String
 
 ----------------------------------------------------
-(KMP algorithm)
+    (KMP algorithm)
 Leetcode 1408. String Matching in an Array (using KMP algorithm makes it a Medium)
 Leetcode 214. Shortest Palindrome
 Leetcode 1392. Longest Happy Prefix
@@ -20,6 +20,8 @@ Leetcode 72. Edit Distance
 Leetcode 1347. Minimum Number of Steps to Make Two Strings Anagram (simply use Counter - don't overthink)
 Leetcode 6. Zigzag Conversion
 Leetcode 8. String to Integer (atoi)
+Leetcode 791. Custom Sort String
+Leetcode 249. Group Shifted Strings
 
 ----------------------------------------------------
 (Hard)
@@ -310,6 +312,38 @@ class Solution:
 
         return result_int
 
+    
+    # -------------------------------------------------------------------------------
+    # Leetcode 249. Group Shifted Strings
+    def groupStrings(self, strings: List[str]) -> List[List[str]]:
+        # ----------------------------------------------
+        def computeDistance(char1, char2) -> int:
+            ord1 = ord(char1)
+            ord2 = ord(char2)
+
+            return (ord1 - ord2) % 26
+        # ----------------------------------------------
+
+        patternsDict = defaultdict(list)        # tuple -> list of strings with same pattern
+
+        for s in strings:
+            # Initialized as list. Later before adding to dict we can convert this to tuple
+            pattern = []
+            for i in range(len(s)-1):
+                dist = computeDistance(s[i], s[i+1])
+                pattern.append(dist)
+
+            patternTuple = tuple(pattern)
+            patternsDict[patternTuple].append(s)
+
+        # print(patternsDict)
+
+        result = []
+        for _, values in patternsDict.items():
+            result.append(values)
+
+        return result
+
 
     # ==============================================================================
     # Leetcode 273. Integer to English Words (Hard)
@@ -434,26 +468,32 @@ class Solution:
         return result
                 
 
+    # -------------------------------------------------------------------------------
+    # Leetcode 791. Custom Sort String
+    # This is the optimized solution, where we avoid using HashMap because Meta doesn't like HashMap
+    def customSortString(self, order: str, s: str) -> str:
+        s_char_freq = [0 for _ in range(26)]
 
+        for char in s:
+            index = ord(char) - 97
+            s_char_freq[index] += 1
 
+        result = []
+        for char in order:
+            index = ord(char) - 97
+            freq = s_char_freq[index]
+            for _ in range(freq):
+                result.append(char)
 
+            s_char_freq[index] = 0
+            
+        for i, freq in enumerate(s_char_freq):
+            if freq != 0:
+                char = chr(i+97)
+                result.append(char * freq)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        print(result)
+        return "".join(result)
 
 
 
@@ -491,5 +531,23 @@ if __name__ == "__main__":
     # leetcode.convert(s, numRow)
 
     # ------------------ LC 8 ------------------
-    s = "   -042"
-    leetcode.myAtoi(s)
+    # s = "   -042"
+    # leetcode.myAtoi(s)
+
+    # ------------------ LC 791 ------------------
+    # order = "bcafg"
+    # s = "abcd"
+    # leetcode.customSortString(order, s)
+
+    # ------------------ LC 249 ------------------
+    strings = ["abc","bcd","acef","xyz","az","ba","a","z"]
+    leetcode.groupStrings(strings)
+
+
+
+
+
+
+
+
+

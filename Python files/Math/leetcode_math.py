@@ -13,6 +13,7 @@ I can later tackle Leetcode challenges with more confidence.
 6. Leetcode 1375. Bulb Switcher III
 7. Leetcode 1227. Airplane Seat Assignment Probability
 8. Leetcode 1033. Moving Stones Until Consecutive
+9. Leetcode 50. Pow(x, n)
 
 """
 
@@ -98,8 +99,6 @@ class Solution:
         
         return result
 
-
-
     # ----------------------------------------------------------------------------------
     # Leetcode 264. Ugly Number II
     def nthUglyNumber(self, n: int) -> int:
@@ -146,8 +145,6 @@ class Solution:
         
         return ugly[-1]
                 
-
-
     # ----------------------------------------------------------------------------------
     # Leetcode 12. Integer to Roman
     def intToRoman(self, num: int) -> str:
@@ -161,8 +158,6 @@ class Solution:
                 num -= value[i]
         
         return result
-
-
 
     # ----------------------------------------------------------------------------------
     # Leetcode 1154. Day of the Year
@@ -195,8 +190,6 @@ class Solution:
 
         return number_of_days
 
-
-
     # ----------------------------------------------------------------------------------
     # Leetcode 367. Valid Perfect Square
     def isPerfectSquare(self, num: int) -> bool:
@@ -214,8 +207,6 @@ class Solution:
         
         return False
         
-
-
     # ----------------------------------------------------------------------------------
     # Leetcode 1375. Bulb Switcher III
     def numTimesAllBlue(self, light: List[int]) -> int:
@@ -234,14 +225,10 @@ class Solution:
             
         return moments
 
-
-
     # ----------------------------------------------------------------------------------
     # Leetcode 1227. Airplane Seat Assignment Probability
     def nthPersonGetsNthSeat(self, n: int) -> float:
         return 1 if n == 1 else 0.5
-
-
 
     # ----------------------------------------------------------------------------------
     # Leetcode 1033. Moving Stones Until Consecutive
@@ -263,6 +250,30 @@ class Solution:
             ans[0] = 2
 
         return ans
+
+    # ----------------------------------------------------------------------------------
+    # Leetcode 50. Pow(x, n)
+    # O(logN)
+    def myPow(self, x: float, n: int) -> float:
+        if n == 0:
+            return 1
+
+        # ---------------------------------------------------
+        def recursion(x_helper: float, power: int) -> float:
+            if power == 0:
+                return 1.0
+            
+            halve = recursion(x_helper, power // 2)
+            
+            if power % 2 == 1:
+                return x_helper * halve * halve
+            
+            return halve * halve
+        # ---------------------------------------------------
+        result = recursion(x, abs(n))
+
+        return result if n > 0 else 1.0/result
+
 
 
 

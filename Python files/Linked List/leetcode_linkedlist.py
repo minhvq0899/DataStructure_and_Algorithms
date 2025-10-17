@@ -17,6 +17,7 @@ Leetcode 876. Middle of the Linked List
 Leetcode 160. Intersection of Two Linked Lists
 Leetcode 234. Palindrome Linked List
 Leetcode 21. Merge Two Sorted Lists
+Leetcode 203. Remove Linked List Elements
 
 (Medium)
 Leetcode 445. Add Two Numbers II
@@ -326,6 +327,26 @@ class Solution:
         
         return head
 
+    # ----------------------------------------------------------------------------------------------------------
+    # Leetcode 203. Remove Linked List Elements
+    def removeElements(self, head: Optional[ListNode], val: int) -> Optional[ListNode]:
+        # Step 1: Create dummy node
+        dummy = ListNode(None, None)
+        dummy.next = head
+
+        # Step 2: Traverse with curr
+        curr = dummy
+        while curr.next:
+            # Skipping the next node (curr.next)
+            if curr.next.val == val:
+                # Notice: here we are only updating 'curr.next', not 'curr'
+                curr.next = curr.next.next
+            else:
+                # Move curr up
+                curr = curr.next
+
+        return dummy.next
+
     # ==========================================================================================================
     # ----------------------------------------------------------------------------------------------------------
     # Leetcode 445. Add Two Numbers II
@@ -562,40 +583,26 @@ class Solution:
         if not head:
             return None
 
-        # ===== Pass 1: Interleave copied nodes with original nodes =====
+        # Pass 1: Make a copy for each node and insert it right after the original
         curr = head
         while curr:
-            # Create a new node and insert it right after the original
-            copy = Node138(curr.val)
-            copy.next = curr.next
+            copy = Node138(curr.val, curr.next, curr.random)
             curr.next = copy
-            curr = copy.next  # Move to the next original node
+            curr = copy.next
 
-        # ===== Pass 2: Assign random pointers to the copied nodes =====
-        curr = head
+        # Pass 2
+        # Assign the right random pointers to the copied nodes
+        # Separate the original and copied lists 
+        copy_head = head.next
+        curr = copy_head
         while curr:
+            if curr.next:
+                curr.next = curr.next.next
             if curr.random:
-                # curr.next is the copy node
-                # curr.random.next is the copy of the random node
-                curr.next.random = curr.random.next
-            curr = curr.next.next  # Move to the next original node
-
-        # ===== Pass 3: Separate the original and copied lists =====
-        curr = head
-        pseudo_head = Node(0)
-        copy_curr = pseudo_head
-
-        while curr:
-            # Extract the copy node
-            copy = curr.next
-            copy_curr.next = copy
-            copy_curr = copy
-
-            # Restore the original list
-            curr.next = copy.next
+                curr.random = curr.random.next
             curr = curr.next
 
-        return pseudo_head.next
+        return copy_head
 
     # ---------------------------------------------------------------    
     # Leetcode 430. Flatten a Multilevel Doubly Linked List

@@ -315,6 +315,7 @@ class Solution:
 
 
     # ==============================================================================
+    """ Hard """
     # Leetcode 2468. Split Message Based on Limit (Hard) - Not a working solution, only pass 86/94 test cases
     def splitMessage(self, message: str, limit: int) -> List[str]:
         if limit <= 5: return []
