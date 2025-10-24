@@ -13,11 +13,11 @@ dualMonotonicWindow()
 All LC questions below follow the monotonic queue template
 
 (Medium)
-Leetcode 1438. Longest Continuous Subarray With Absolute Diff Less Than or Equal to Limit - dualMonotonicWindow()
-Leetcode 2762. Continuous Subarrays - dualMonotonicWindow()
+Leetcode 1438. Longest Continuous Subarray With Absolute Diff Less Than or Equal to Limit
+Leetcode 2762. Continuous Subarrays
 
 (Hard)
-Leetcode 239. Sliding Window Maximum - monotonicQueueTemplate()
+Leetcode 239. Sliding Window Maximum
 Leetcode 862. Shortest Subarray with Sum at Least K
 
 """
@@ -50,9 +50,15 @@ class Solution:
 
         return result
 
+    """
+    Find the maximum length of a subarray [left, right] such that the constraint function constraint_fn(max, min) returns True.
+    """
     def dualMonotonicWindow(self, nums: List[int], constraint_fn) -> int:
-        max_dq = deque()  # decreasing queue for max
-        min_dq = deque()  # increasing queue for min
+        # Keeps track of indices in decreasing order → gives the maximum in the current window
+        max_dq = deque()
+        # Keeps track of indices in increasing order → gives the minimum in the current window
+        min_dq = deque()  
+        # 'left' indice shrinks the window when the constraint is violated
         left = 0
         best = 0
 
@@ -241,8 +247,6 @@ class Solution:
 
     # --------------------------------------------------------------------------------------------
     # Leetcode 862. Shortest Subarray with Sum at Least K - Hard
-    # nums = [10,1,-2,4,7,2], k = 12  --> 3 
-    #      [0,10,11,9,...]
     def shortestSubarray(self, nums: List[int], k: int) -> int:
         # Prefix sums to compute subarray sums in constant time
         prefixSum = [None for _ in range (len(nums)+1)]         # PrefixSum needs to have length of (n+1) instead of n
@@ -253,20 +257,22 @@ class Solution:
         print(prefixSum)
 
         # A monotonic increasing deque to track candidate starting indices for subarrays
+        # Why monotonic? What make an indice 'i' "better" than indice 'j'
+        #   If prefixSum[i] ≤ prefixSum[j], then i is a better starting point than j for future subarrays.
+        #   We remove worse candidates from the back of the deque.
         min_dq = deque()
         ans = len(nums) + 1
-
-        # Why monotonic?
-        #   If prefix[i] ≤ prefix[j], then i is a better starting point than j for future subarrays.
-        #   We remove worse candidates from the back of the deque.
+        
         # Iterate through prefixSum
         for i in range (len(prefixSum)):
             # 3+4. Shrink window while condition is still satisfied and update ans
+            # min_dq[0] here is the CURRENT best indice to start our subarray
             while min_dq and (prefixSum[i] - prefixSum[min_dq[0]]) >= k:
                 startIndex = min_dq.popleft()
                 ans = min(ans, (i-startIndex))
 
             # 1. Maintain the order of our queue 
+            # min_dq[-1] here is the CURRENT worst indice to start our subarray
             while min_dq and prefixSum[i] <= prefixSum[min_dq[-1]]:
                 min_dq.pop()
             
@@ -331,8 +337,8 @@ if __name__ == "__main__":
     # print(leetcode.continuousSubarrays(nums))
 
     # ---------------------- 862 ----------------------
-    # nums = [10,1,-2,4,7,2]
-    # k = 12
-    # print(leetcode.shortestSubarray(nums, k))
+    nums = [10,1,-2,4,7,2]
+    k = 12
+    print(leetcode.shortestSubarray(nums, k))
 
 
