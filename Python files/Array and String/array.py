@@ -56,6 +56,7 @@ Leetcode 974. Subarray Sums Divisible by K
 Leetcode 1248. Count Number of Nice Subarrays
 Leetcode 930. Binary Subarrays With Sum
 Leetcode 437. Path Sum III
+Leetcode 325. Maximum Size Subarray Sum Equals k - Premium
 (Hard) 
 Leetcode 1074. Number of Submatrices That Sum to Target
 
@@ -1046,6 +1047,41 @@ class Solution:
 
         return prefixSum
 
+    
+    # -----------------------------------------------------------------------------------------------
+    # Leetcode 325. Maximum Size Subarray Sum Equals k - Premium
+    # Optimization: if 'currSum' already exists in dict, we do not want to override this value because
+    # we want the longest subarray with sum k. If we override the value, later on when we search for complement 
+    # (currSum-k) in dict, it will result in a shorter subarray [right+1, i+1]
+    # However, for now I will leave the solution as below (dict has value as list of int/tuple) for better understanding of the algo
+    def maxSubArrayLen(self, nums: List[int], k: int) -> int:
+        currSum = 0
+        # key: accumulated sum (int) -> value: list of indice pairs ([(0,r1), (0,r2), ...])
+        # note: since all subarray in this dict starts from indice 0, the value can be a list of int instead of list of tuple
+        accumulated_sum_dict = defaultdict(list)   
+        maxSubarrayLen = 0
+
+        for i, num in enumerate(nums):
+            currSum += num
+
+            # Basic case: Subarray [0:i+1] has sum as k
+            if currSum == k:
+                maxSubarrayLen = max(maxSubarrayLen, (i-0+1))
+
+            # If the complement (currSum-k) exists in the dict, it means there exists at least one subarray with sum of k
+            if (currSum-k) in accumulated_sum_dict:
+                # The subarray [right, i+1] will have sum as k
+                for _, right in accumulated_sum_dict[(currSum-k)]:
+                    maxSubarrayLen = max(maxSubarrayLen, (i-right+1))
+
+            # Subarray [0:i+1] has sum as currSum
+            accumulated_sum_dict[currSum].append((0,i+1))
+
+        # print(maxSubarrayLen)
+        return maxSubarrayLen
+
+
+
 
     # -----------------------------------------------------------------------------------------------
     # Function to find the leaders in an array
@@ -1203,8 +1239,8 @@ if __name__ == "__main__":
 
     # --------------------------- 218 ---------------------------
     # buildings = [[2,9,10],[3,7,15],[5,12,12],[15,20,10],[19,24,8]]
-    buildings = [ [2,9,10],[2,7,5] ]
-    leetcode.getSkyline(buildings)
+    # buildings = [ [2,9,10],[2,7,5] ]
+    # leetcode.getSkyline(buildings)
 
     # --------------------------- 169 + 229 ---------------------------
     # nums = [1,2]
@@ -1235,6 +1271,11 @@ if __name__ == "__main__":
     # matrix = [[0,0,0,1,1],[1,1,1,0,1],[1,1,1,1,0],[0,0,0,1,0],[0,0,0,1,1]]
     # target = 0
     # leetcode.numSubmatrixSumTarget(matrix, target)
+
+    # --------------------------- 325 ---------------------------
+    nums = [1,-1,5,-2,3]
+    k = 3
+    leetcode.maxSubArrayLen(nums, k)
 
     # ---------------------- 2444 ----------------------
           # 0,1,2,3,4,5,6,7,8,9,10,11

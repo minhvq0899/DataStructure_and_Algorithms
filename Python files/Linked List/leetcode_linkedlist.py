@@ -295,37 +295,32 @@ class Solution:
 
     # ----------------------------------------------------------------------------------------------------------
     # Leetcode 21. Merge Two Sorted Lists
-    def mergeTwoLists(self, l1: ListNode, l2: ListNode) -> ListNode:
-        # in case one the the two list is empty
-        if not l1: return l2
-        elif not l2: return l1
-        
-        # set head
-        if l1.val < l2.val:
-            head = l1
-            l1 = l1.next
+    def mergeTwoLists(self, list1: Optional[ListNode], list2: Optional[ListNode]) -> Optional[ListNode]:
+        # Create dummy node
+        dummy = ListNode(None, None)
+        currDummy = dummy
+        curr1 = list1
+        curr2 = list2
+
+        # As long as one of the list still have node, keep adding
+        while curr1 and curr2:
+            if curr1.val < curr2.val:
+                currDummy.next = curr1
+                curr1 = curr1.next
+            else:
+                currDummy.next = curr2
+                curr2 = curr2.next
+
+            currDummy = currDummy.next
+
+        # If one of the list still has nodes while the other list ran out of node already,
+        # simply attach that list to the end of our result list
+        if curr1:
+            currDummy.next = curr1
         else:
-            head = l2
-            l2 = l2.next
-        
-        anchor = head
-            
-        # loop
-        while l1 and l2:
-            if l1.val < l2.val:
-                anchor.next = l1
-                l1 = l1.next
-                anchor = anchor.next
-            else: 
-                anchor.next = l2
-                l2 = l2.next
-                anchor = anchor.next
-        
-        # connect the final list with the rest of l1 or l2
-        if l1: anchor.next = l1
-        elif l2: anchor.next = l2
-        
-        return head
+            currDummy.next = curr2
+
+        return dummy.next
 
     # ----------------------------------------------------------------------------------------------------------
     # Leetcode 203. Remove Linked List Elements
@@ -346,6 +341,9 @@ class Solution:
                 curr = curr.next
 
         return dummy.next
+
+
+
 
     # ==========================================================================================================
     # ----------------------------------------------------------------------------------------------------------
@@ -397,7 +395,8 @@ class Solution:
             h = h.next
         
         return head
-     
+
+
     # Leetcode 19. Remove Nth Node From End of List
     # Given the head of a linked list, remove the nth node from the end of the list and return its head.
     def removeNthFromEnd(self, head: ListNode, n: int) -> ListNode:
@@ -410,11 +409,11 @@ class Solution:
         runner = dummy
 
         # set up runner to be n steps ahead of walker
-        for k in range (n):
+        for _ in range (n):
             runner = runner.next
 
         # bring runner to the end node
-        while runner and runner.next != None:
+        while runner.next:
             walker = walker.next
             runner = runner.next
 

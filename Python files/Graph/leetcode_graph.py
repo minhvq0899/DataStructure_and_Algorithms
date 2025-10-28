@@ -18,7 +18,6 @@ Leetcode 802. Find Eventual Safe States
     ** Undirected graph **
 Leetcode 323. Number of CC in an Undirected Graph
 Leetcode 261. Graph Valid Tree - Detect Cycle in Undirected Graph
-Leetcode 399. Evaluate Division
 
     ** Array-based problem **
 Leetcode 3551. Minimum Swaps to Sort by Digit Sum - https://www.geeksforgeeks.org/dsa/minimum-number-swaps-required-sort-array/#
@@ -303,47 +302,6 @@ class Solution:
         cycleObject.cycle()
         
         return (not cycleObject.cycleExist) and (cycleObject.cc == 1)
-
-    
-    # -------------------------------------------------------------------------------------
-    # Leetcode 399. Evaluate Division
-    def calcEquation(self, equations: List[List[str]], values: List[float], queries: List[List[str]]) -> List[float]:
-        graph = collections.defaultdict(list)       # vertice -> [[vertice, multiply weight], ...]
-        
-        # Populate the undirected graph
-        for index, equation in enumerate(equations):
-            # u/v = value  -->  u = value * v and v = u * (1/value)
-            u, v = equation         
-            value = values[index]
-            graph[u].append([v, value])
-            graph[v].append([u, 1/value])
-
-        # Now, we do BFS for each pair of queries
-        # ------------------------------
-        def bfs(source, target) -> float:
-            visited = set()            
-            dq = collections.deque()
-            dq.append((source, 1))
-
-            while dq:
-                popNode, popWeight = dq.popleft()
-                for neighbor, neighborWeight in graph[popNode]:
-                    if neighbor not in visited:
-                        if neighbor == target:
-                            return popWeight * neighborWeight
-                        
-                        visited.add(neighbor)
-                        dq.append((neighbor, popWeight * neighborWeight))
-
-            return -1.0
-        # ------------------------------
-        results = []
-        for u, v in queries:
-            results.append(bfs(u, v))
-
-        # print(results)
-        return results
-
             
 
 

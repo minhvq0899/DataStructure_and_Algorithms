@@ -5,10 +5,19 @@ This python file is a part of my effort in getting myself refreshed with Data St
 I can later tackle Leetcode challenges with more confidence. 
 
 =========================================================  Binary Search  =========================================================
+(Note)
+Two edge cases to think about when deciding your while loop condition (<= or <)
+    If our input has len == 1
+    If our input has len == 2
+Ask yourself: can my code handle both of these edge cases
+
 (Easy)
 Leetcode 35. Search Insert Position
+Leetcode 278. First Bad Version
 
 (Medium)
+Leetcode 162. Find Peak Element
+Leetcode 1901. Find a Peak Element II
     (Monotonic function within the list)
 Leetcode 153. Find Minimum in Rotated Sorted Array
 Leetcode 33. Search in Rotated Sorted Array
@@ -49,8 +58,98 @@ class Solution:
         
         return left
 
+    # ------------------------------------------------------------------------------
+    # Leetcode 278. First Bad Version
+    def isBadVersion(version: int) -> bool:
+        pass
+
+    def firstBadVersion(self, n: int) -> int:
+        left, right = 1, n
+
+        # But why "<" condition instead of "<=" condition
+        # Think about edge case where n == 1
+        # If we use condition "<=", it will stuck in infinite loop
+        while left < right:
+            mid = (left+right) // 2
+
+            # Case 1: target is after mid
+            if self.isBadVersion(mid) == False:
+                left = mid + 1
+            else:   # since 'mid' can be a candidate
+                right = mid
+
+        return right
+
+
+
 
     # ==============================================================================
+    # Leetcode 162. Find Peak Element
+    # The reason why binary search works for this question is because it's guaranteed that a peak exists in the array
+    def findPeakElement(self, nums: List[int]) -> int:
+        left, right = 0, len(nums)-1
+
+        while left < right:
+            mid = (left+right) // 2
+
+            '''
+            We have to compare 'mid' with either 1.(mid-1) or 2.(mid+1) to decide if we are going upward or downward
+            1. (mid-1) -> not ideal because index can be out of bound -> need more condition
+            2. (mid+1) -> much more ideal because the 'floor' operation //2 will always round down -> there will always be (mid+1)
+            '''
+
+            # Case 1: Going downward, 'mid' is a candidate
+            if nums[mid] > nums[mid+1]: 
+                right = mid
+            # Case 2: Going upward (nums[mid] <= nums[mid+1]), guaranteed that 'mid' is not a candidate 
+            else: 
+                left = mid + 1
+
+        return left
+
+    # ------------------------------------------------------------------------------
+    # Leetcode 1901. Find a Peak Element II
+    """
+    [[10,50, 40,30,20],
+     [1, 500,600, 3, 4],
+     [5, 50, 6, 7, 8 ],
+     [9, 100,10, 11, 12 ],
+     [1, 50 ,2, 3, 4 ]]
+    """
+    # Even if the global max isn’t guaranteed to be a peak, one of its neighbors is guaranteed to be in a direction that leads to a peak. 
+    # That’s the key idea behind the algorithm’s correctness.
+    def findPeakGrid(self, mat: List[List[int]]) -> List[int]:
+        rows, cols = len(mat), len(mat[0])
+        left, right = 0, cols - 1
+
+        # Perform binary search on columns, not rows
+        while left <= right:
+            mid_col = (left + right) // 2
+
+            # Find the row with the max value in mid_col
+            max_row = 0
+            for r in range(rows):
+                if mat[r][mid_col] > mat[max_row][mid_col]:
+                    max_row = r
+
+            # Get neighbors
+            left_val = mat[max_row][mid_col - 1] if mid_col - 1 >= 0 else -1
+            right_val = mat[max_row][mid_col + 1] if mid_col + 1 < cols else -1
+            curr_val = mat[max_row][mid_col]
+
+            # Check if it's a peak
+            if curr_val > left_val and curr_val > right_val:
+                return [max_row, mid_col]
+            elif left_val > curr_val:
+                right = mid_col - 1
+            else:
+                left = mid_col + 1
+
+        return [-1, -1]  # Should never reach here if input guarantees a peak
+
+
+
+
     """
     (Monotonic function within the list)
     """
@@ -78,7 +177,6 @@ class Solution:
                 L = mid + 1
 
         return nums[mid]
-
 
     # ------------------------------------------------------------------------------
     # Leetcode 33. Search in Rotated Sorted Array
@@ -109,7 +207,6 @@ class Solution:
                     R = mid - 1
                 
         return -1
-
 
     # ------------------------------------------------------------------------------
     # Leetcode 34. Find First and Last Position of Element in Sorted Array
@@ -154,6 +251,8 @@ class Solution:
             return [-1, -1]
         else:
             return [i, j-1]
+
+
 
     # ------------------------------------------------------------------------------
     """
@@ -560,6 +659,11 @@ class Solution:
 if __name__ == "__main__":
     leetcode = Solution()
 
+    # ---------------------- 1901 ----------------------
+    mat = [[10,50, 40,30,20],
+           [1, 500,2, 3, 4 ]]
+    leetcode.findPeakGrid(mat)
+
     # ---------------------- 35 ----------------------
     # idx = leetcode.searchInsert( [1,3,5,6], 2 )
     # print(idx)
@@ -573,10 +677,10 @@ if __name__ == "__main__":
     # print(leetcode.search(nums, 0))
 
     # ---------------------- 34 ----------------------
-    nums = [5,7,8,8,10]
-    target = 4
-    ans34 = leetcode.searchRange(nums, target)
-    print(ans34)
+    # nums = [5,7,8,8,10]
+    # target = 4
+    # ans34 = leetcode.searchRange(nums, target)
+    # print(ans34)
 
     # ---------------------- 1011 ----------------------
     # print( "Final: ", leetcode.shipWithinDays_test( [3,2,2,4,1,4], 3 ) )

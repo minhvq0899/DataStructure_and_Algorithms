@@ -21,13 +21,17 @@ Leetcode 516. Longest Palindromic Subsequence
 Leetcode 5. Longest Palindromic Substring
 Leetcode 647. Palindromic Substrings
 Classic 0/1 Knapsack Problem
-   Similar idea: Leetcode 474. Ones and Zeroes
+    Similar idea: Leetcode 474. Ones and Zeroes
 Leetcode 198. House Robber
 Leetcode 213. House Robber II
 Leetcode 337. House Robber III
 
+    (Kadane's algo)
 Leetcode 53. Maximum Subarray
+Leetcode 918. Maximum Sum Circular Subarray
 Leetcode 152: Maximum Product Subarray
+Leetcode 1749. Maximum Absolute Sum of Any Subarray
+
 Leetcode 62. Unique Paths
 
 # ------------------------------------------------
@@ -542,6 +546,76 @@ class Solution:
             res = max(res, currentMax)
 
         return res
+
+    # ------------------------------------------------------------------------------
+    # Leetcode 918. Maximum Sum Circular Subarray
+    # Similar to LC 152, but the array is circular
+    # Compute both globalMin and globalMax using Kadane's algorithm
+    # Scenario 1: the maximum sum subarray is in the middle of 'nums' -> globalMax is the answer
+    # Scenario 2: the maximum sum subarray is a circular subarray -> (arraySum - globalMin) is the answer
+    def maxSubarraySumCircular(self, nums: List[int]) -> int:
+        currMin = 0
+        currMax = 0
+        globalMin = nums[1]
+        globalMax = nums[1]
+        arraySum = 0
+
+        # Kadane's algorithm
+        for num in nums:
+            arraySum += num
+
+            # 1. Handle min scenario
+            # If including 'num' is worse than starting fresh from 'num'
+            if currMin + num > num:
+                currMin = num
+            else:
+                currMin += num
+
+            globalMin = min(globalMin, currMin)
+
+            # 2. Handle max scenario
+            # If including 'num' is worse than starting fresh from 'num'
+            if currMax + num < num:
+                currMax = num
+            else:
+                currMax += num
+
+            globalMax = max(globalMax, currMax)
+
+        # Edge case: all elements in 'nums' are negative
+        if globalMax < 0:
+            return globalMax
+        
+        # There can be 2 scenarios:
+        # Scenario 1: the maximum sum subarray is in the middle of 'nums' -> globalMax is the answer
+        # Scenario 2: the maximum sum subarray is a circular subarray -> (arraySum - globalMin) is the answer
+        return max(globalMax, (arraySum-globalMin))
+
+    # ------------------------------------------------------------------------------
+    # Leetcode 1749. Maximum Absolute Sum of Any Subarray
+    # We are looking for the largest positive subarray sum or the most negative subarray sum — whichever has the bigger absolute value
+    # --> We need to track both globalMin and globalMax
+    def maxAbsoluteSum(self, nums: List[int]) -> int:
+        currMin, currMax = 0, 0
+        result = 0
+
+        for num in nums:
+            # 1. track min
+            if currMin + num >= num:
+                currMin = num
+            else:
+                currMin += num
+            
+            # 2. track max
+            if currMax + num <= num:
+                currMax = num
+            else:
+                currMax += num
+
+            result = max(result, abs(currMin), abs(currMax))
+
+        return result
+
 
     # ------------------------------------------------------------------------------
     # Leetcode 62. Unique Paths

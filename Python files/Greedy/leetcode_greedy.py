@@ -257,7 +257,7 @@ class Solution:
                 left = mid + 1
                 continue
             # peak is on the left side (including mid)
-            if mid-1 >= 0 and nums[mid-1] > nums[mid]:
+            if mid-1 >= 0 and nums[mid-1] > nums[mid]: 
                 right = mid
                 continue
 
