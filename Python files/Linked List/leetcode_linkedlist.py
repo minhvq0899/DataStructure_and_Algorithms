@@ -477,7 +477,10 @@ class Solution:
     # Leetcode 141 + 142. Linked List Cycle
     # 141. Dectect a cycle
     # Idea 1: We can use a HashSet, this solution may take O(n) memory
-    # Idea 2: We can use Floy's Cycle detection 
+    # Idea 2: We can use Floyd's Cycle detection algorithm
+    # Floyd's algo helps in two ways: 
+    #   2.1. Finds the starting node of the cycle
+    #   2.2. O(1) extra space
     def hasCycle(self, head: ListNode) -> bool:
         # =========== Step 2: Move our walker and runner ===========
         walker = head         
@@ -516,6 +519,22 @@ class Solution:
                 runner = runner.next
             return walker
 
+    # Leetcode 202. Happy Number - Easy
+    # Also use idea from Floyd's cycle detection algo
+    def isHappy(self, n: int) -> bool:
+        def get_next(num):
+            return sum(int(digit) ** 2 for digit in str(num))
+
+        slow = n
+        fast = get_next(n)
+
+        while fast != 1 and slow != fast:
+            slow = get_next(slow)
+            fast = get_next(get_next(fast))
+
+        return fast == 1
+    
+    
     # ---------------------------------------------------------------
     # Leetcode 237. Delete Node in a Linked List
     def deleteNode(self, node: ListNode):

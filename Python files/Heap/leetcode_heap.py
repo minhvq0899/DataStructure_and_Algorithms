@@ -20,16 +20,16 @@ Leetcode 23. Merge k Sorted Lists
 Leetcode 973. K Closest Points to Origin
 Leetcode 659. Split Array into Consecutive Subsequences
 Leetcode 692. Top K Frequent Words
+Leetcode 621. Task Scheduler
 
 (Hard)
 Leetcode 295. Find Median from Data Stream 
 
 """
 
-from typing import List
+from typing import List, Optional
 import heapq 
 import collections
-import Optional
 
 class ListNode:
     def __init__(self, val=0, next=None):
@@ -346,22 +346,24 @@ class Solution:
         lists = [ 2, 3]
         valueToIndexHead = {1:[node1, node2]}
         '''
-        # Heap of fixed size 3
+        # Heap of fixed size k, where k == len(lists)
+        # Our heap will only do comparison with the node value
         heap = []
         for i, head in enumerate(lists):
             if head:
-                heap.append((head.val, i)) # Add value to heap
+                # (node.val, index of the linkedlist the node belongs to in our 'lists')
+                heap.append((head.val, i)) 
 
         # Merge in place
-        heapq.heapify(heap)
+        heapq.heapify(heap)         # O(n)
         current = ListNode()
         head = current
         while heap:
-            val, i = heapq.heappop(heap)           # a value
-            current.next = lists[i]
-            current = current.next
-            lists[i] = lists[i].next
-            if lists[i]:
+            val, i = heapq.heappop(heap)           
+            current.next = lists[i]                 # Retrieve the node 
+            current = current.next                  # Update current
+            lists[i] = lists[i].next                # Update node in 'lists'
+            if lists[i]:                            # Add another node to heap to maintain size k
                 heapq.heappush(heap, (lists[i].val, i))
         
         return head.next
@@ -414,6 +416,65 @@ class Solution:
             result.append(heapq.heappop(heap)[1])  # Only take the word part
 
         return result
+
+
+    # --------------------------------------------------------------------------------
+    # Leetcode 621. Task Scheduler
+    # In this problem, we don't care about task label. We only care about the frequency of each task,
+    # which helps us compute the min # of interval required to complete all tasks
+    def leastInterval(self, tasks: List[str], n: int) -> int:
+        freq = collections.Counter(tasks)
+
+        # This min heap only contains the frequency of each task.
+        # We want to prioritize processing the task with highest freq left (also greedy approach)
+        heap = []
+        for _, f in freq.items():
+            heap.append(-f)        
+        heapq.heapify(heap)             # O(n)
+
+        time = 0
+        dq = collections.deque()        # Contains (freq of a task, timestamp when this task can start being processed again)
+        while heap or dq:
+            time += 1
+
+            # 1. Check if any task ready to be processed again
+            # We only have to check one task because there cannot be two task with the same timestamp
+            if dq and dq[0][1] == time:
+                pop = dq.popleft()
+                heapq.heappush(heap, pop[0])
+
+            # 2. Process one of the available task
+            if heap:
+                f = heapq.heappop(heap)
+
+                # We now have one less of this task to process, but only add it back to the queue if there is still some of this tasks to process
+                if f + 1 < 0:
+                    dq.append((f+1, time + n + 1))
+
+        return time
+            
+            
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

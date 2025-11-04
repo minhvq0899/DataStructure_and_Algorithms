@@ -14,6 +14,7 @@ Leetcode 785. Is Graph Bipartite?
 Leetcode 909. Snakes and Ladders
 Leetcode 1091. Shortest Path in Binary Matrix
 Leetcode 399. Evaluate Division
+Leetcode 1730. Shortest Path to Get Food - Premium
 
     (Multi-source BFS)
 Leetcode 542. 01 Matrix
@@ -371,6 +372,46 @@ class Solution:
 
         # print(results)
         return results
+
+
+    # -------------------------------------------------------------------------------------
+    # Leetcode 1730. Shortest Path to Get Food - Premium
+    def getFood(self, grid: List[List[str]]) -> int:
+        dq = deque()
+        visited = defaultdict(int)
+        rowLen = len(grid)
+        colLen = len(grid[0])
+
+        # Each state will have these info: (row, col, number of step to reach this cell)
+        for r in range(rowLen):
+            for c in range(colLen):
+                if grid[r][c] == '*':
+                    dq.append((r,c,0))
+                    visited[(r,c)] = 0
+
+        # Run BFS
+        directions = [(-1, 0), (0, 1), (1, 0), (0, -1)]
+        while dq: 
+            popR, popC, popDist = dq.popleft()
+            
+            # Check if we got food
+            if grid[popR][popC] == '#':
+                return popDist
+            
+            # Check each neighbor
+            for deltaR, deltaC in directions:
+                nR, nC = popR + deltaR, popC + deltaC
+
+                # Make sure neighbor is not oob and it's not an obs
+                if 0 <= nR < rowLen and 0 <= nC < colLen and grid[nR][nC] != 'X':
+                    if (nR, nC) not in visited or visited[(nR, nC)] > popDist+1:
+                        dq.append((nR, nC, popDist+1))
+                        visited[(nR, nC)] = popDist + 1
+        
+        return -1
+
+        
+
 
 
 
@@ -909,6 +950,14 @@ if __name__ == "__main__":
     # # board = [[-1,-1,-1,-1,-1,-1],[-1,-1,-1,-1,-1,-1],[-1,-1,-1,-1,-1,-1],[-1,35,-1,-1,13,-1],[-1,-1,-1,-1,-1,-1],[-1,15,-1,-1,-1,-1]]
     # print(leetcode.snakesAndLadders(board))
 
+    # --------------------------- 1730 ---------------------------
+    grid = [["X","X","X","X","X"],
+            ["X","*","X","O","X"],
+            ["X","O","X","#","X"],
+            ["X","X","X","X","X"]]
+    leetcode.getFood(grid)
+
+
     # --------------------------- 127 + 126 ---------------------------
     # beginWord = "hit"
     # endWord = "cog"
@@ -924,8 +973,8 @@ if __name__ == "__main__":
     # print(leetcode.shortestPathLength(graph))
 
     # --------------------------- 864 ---------------------------
-    grid = ["@.a..","###.#","b.A.B"]
-    print(leetcode.shortestPathAllKeys(grid))    
+    # grid = ["@.a..","###.#","b.A.B"]
+    # print(leetcode.shortestPathAllKeys(grid))    
 
     # --------------------------- 542 ---------------------------
     # mat = [[0,0,0],[0,1,0],[1,1,1]]

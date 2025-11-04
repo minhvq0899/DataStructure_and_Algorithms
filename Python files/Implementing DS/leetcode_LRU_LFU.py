@@ -23,7 +23,8 @@ obj = LRUCache(capacity)
 param_1 = obj.get(key)
 obj.put(key,value)
 """
-# Leetcode 146. LRU Cache ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------
+# Leetcode 146. LRU Cache 
 class LRUCache:
     def __init__(self, capacity: int):
         self.cap = capacity
@@ -168,7 +169,8 @@ class LinkedList:
         self.head = node
 
 
-# Leetcode 895. Maximum Frequency Stack (Hard) ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------
+# Leetcode 895. Maximum Frequency Stack (Hard)
 class FreqStack:
     def __init__(self):
         self.countStackMap = collections.defaultdict(list)
@@ -200,7 +202,8 @@ class FreqStack:
         return val
 
 
-# Leetcode 460: LFU cache (Hard) ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------
+# Leetcode 460: LFU cache (Hard) 
 class NodeLFU:
     def __init__(self, key: int, value: int, count=1):
         self.key = key

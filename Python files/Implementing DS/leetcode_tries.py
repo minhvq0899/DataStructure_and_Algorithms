@@ -8,6 +8,7 @@ I can later tackle Leetcode challenges with more confidence.
 
 1. Leetcode 208. Implement Trie (Prefix Tree)     
 2. Leetcode 588. Design In-Memory File System
+3. Leetcode 211. Design Add and Search Words Data Structure
 
 """
 
@@ -159,6 +160,68 @@ class FileSystem:
         return fileNode.content
 
 
+# Leetcode 211. Design Add and Search Words Data Structure ----------------------------------------------------------------
+class Trie211:
+    def __init__(self):
+        self.root = TrieNode()
+
+    def insert(self, word: str) -> None:
+        current = self.root
+
+        # iterate each char in word
+        for char in word:
+            # a char node exists as child
+            if char in current.children:
+                current = current.children[char]
+            # add new char node
+            else:
+                newNode = TrieNode()
+                current.children[char] = newNode
+                current = newNode
+
+        # mark the last char node as end of a word
+        current.isEnd = True
+
+    def searchPattern(self, word: str, node: TrieNode) -> bool:
+        for i, char in enumerate(word):
+            # Case 1: char is a wildcard
+            if char == '.':
+                # Try all children
+                for child in node.children.values():
+                    if self.searchPattern(word[i+1:], child):
+                        return True
+                return False
+            # Case 2: char is in alphabet
+            else:
+                if char not in node.children:
+                    return False
+                node = node.children[char]
+        
+        # If we are at node, then node has already been matched.
+        # So if the input to this API is empty string, just have to check if this node's isEnd
+        return node.isEnd
+
+
+class WordDictionary:
+    def __init__(self):
+        self.trie = Trie211()
+
+    def addWord(self, word: str) -> None:
+        self.trie.insert(word)
+
+    def search(self, word: str) -> bool:
+        return self.trie.searchPattern(word, self.trie.root)
+        
+        
+
+
+
+
+
+
+
+
+
 
 
 
@@ -173,6 +236,7 @@ if __name__ == "__main__":
     """
 
     # File System 
+    """
     fs = FileSystem()
     fs.ls("/")
     fs.mkdir("/a/b/c")
@@ -183,8 +247,7 @@ if __name__ == "__main__":
 
     fs.addContentToFile("/a/b/c/d", "hello" )
     fs.readContentFromFile("a/b/c/d")
-
-
+    """
 
 
 

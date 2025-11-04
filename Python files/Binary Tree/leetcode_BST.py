@@ -29,6 +29,7 @@ class TreeNode:
 
 
 class Solution:
+    """ Easy """
     # --------------------------------------------------------------------
     # Leetcode 783. Minimum Distance Between BST Nodes
     def minDiffInBST(self, root: TreeNode) -> int:
@@ -78,6 +79,7 @@ class Solution:
 
         return self.dfs_938(root, low, high)
 
+    """ Medium """
     # --------------------------------------------------------------------
     # Leetcode 653. Two Sum IV - Input is a BST
     def findTarget(self, root: TreeNode, k: int) -> bool:
@@ -108,23 +110,26 @@ class Solution:
     # --------------------------------------------------------------------
     # Leetcode 230. Kth Smallest Element in a BST
     def kthSmallest(self, root: TreeNode, k: int) -> int:
-        # we will take advantage of the in-order traversal, 
+        # We will take advantage of the in-order traversal, 
         # but we will not traverse in-order-ly the whole way (because it will be O(n))
         # we will use a stack to only traverse until we find the kth smallest element
         stack = []
         
         while (True):
             while root:
-                # append all the way to the smallest element
+                # Append all the way to the smallest element
                 stack.append(root)
                 root = root.left
-            # check
+
+            # Check the current smallest node
             root = stack.pop()
             k -= 1
-            if not k:
+            if k == 0:
                 return root.val
             
-            # beatifully done
+            # Beatifully done
+            # The whole right subtree of root is smaller than the next node in stack (stack[-1])
+            # So we reset root to add the whole right subtree to stack first before processing the next node in stack
             root = root.right
 
 

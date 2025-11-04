@@ -28,6 +28,7 @@ Leetcode 567. Permutation in String
 Leetcode 128: Longest Consecutive Sequence
 Leetcode 189. Rotate Array
 Leetcode 825. Friends Of Appropriate Ages
+Leetcode 134. Gas Station
 
     (Sweep line algorithm) # https://leetcode.com/problem-list/ax36evp1/
 G4G: Minimum Platforms Required for Given Arrival and Departure Times (identical to LC 253)
@@ -48,9 +49,9 @@ Leetcode 169. Majority Element I
 Leetcode 229. Majority Element II
 
     (Prefix sum)
-(Easy - try come up with a solution O(1) of space and problem will be Medium)
+(Easy prefix sum - try come up with a solution O(1) of space and problem will be Medium)
 Leetcode 724. Find Pivot Index
-(Medium)
+(Medium prefic sum)
 Leetcode 560. Subarray Sum Equals K  <-- medium version of 209 
 Leetcode 974. Subarray Sums Divisible by K
 Leetcode 1248. Count Number of Nice Subarrays
@@ -257,7 +258,15 @@ class Solution:
     # ------------------------------------------------------------------------------    
     # Leetcode 287. Find the Duplicate Number 
     # (must solve the problem without modifying the array nums and using only constant extra space)
-    # treat array as a linked list
+    """ 
+    1. Treat array as a linked list. Each index in the array is a node. The value at that index is the next pointer.
+    --> Node i points to node nums[i]
+    2. No node will ever point to index 0.
+    - Index 0 is only used as the starting point for the cycle detection.
+    - It’s never part of the cycle itself, and never pointed to by any other node.
+    3. There can only be one component in this graph. 
+    Every node points to [1, n], so all paths eventually land in the same value space.
+    """
     def findDuplicate(self, nums: List[int]) -> int:
         # Step 1: Initialize two pointers
         slow = nums[0]
@@ -354,7 +363,7 @@ class Solution:
         l = 1
         left[0] = 1
 
-        # Populate the 'left' array
+        # Populate the 'left' array, aka prefix product array
         for i in range (1, len(left)):
             left[i] = nums[i-1] * l
             l = left[i]
@@ -362,13 +371,32 @@ class Solution:
         right = [0] * len(nums)
         r = 1
         right[len(right)-1] = 1
-        # Populate the 'right' array
+        # Populate the 'right' array, aka suffix product array
         for i in range (len(right)-2, -1, -1):
             right[i] = nums[i+1] * r
             r = right[i]
 
         for i in range (len(left)):
             left[i] *= right[i]
+
+        return left
+    
+    # Optimized version: only use O(1) extra space (exclude the result array, in this case is the 'left' array)
+    def productExceptSelf(self, nums: List[int]) -> List[int]:
+        left = [0] * len(nums)
+        l = 1
+        left[0] = 1
+
+        # Populate the 'left' array, aka prefix product array
+        for i in range (1, len(left)):
+            left[i] = nums[i-1] * l
+            l = left[i]
+
+        # Multiply the suffix product on the fly
+        r = 1
+        for i in range (len(left)-1, -1, -1):
+            left[i] *= r
+            r *= nums[i]
 
         return left
 
@@ -647,6 +675,37 @@ class Solution:
                 heapq.heappop(heap)
 
         return result
+
+    # ------------------------------------------------------------------------------
+    # Leetcode 57. Insert Interval
+    # https://www.youtube.com/watch?v=A8NUOmlwOlM
+    def insert(self, intervals: List[List[int]], newInterval: List[int]) -> List[List[int]]:
+        result = []
+
+        # Each of the scenario below is comparing with intervals[i]
+        for i in range(len(intervals)):
+            # Case 1.1: no overlapping - newInterval comes before 
+            # Most basic test cases will eventually return from this if block instead of the global return below
+            if newInterval[1] < intervals[i][0]:
+                result.append(newInterval)
+                # Add the rest of intervals, because it's guarantee that the new interval won't overlap with any interval coming after this
+                result.extend(intervals[i:])
+                return result
+            # Case 1.2: no overlapping - newInterval comes after 
+            elif intervals[i][1] < newInterval[0]:
+                result.append(intervals[i])
+            # Case 2: overlapping with newInterval
+            else:
+                newStart = min(newInterval[0], intervals[i][0])
+                newEnd = max(newInterval[1], intervals[i][1])
+                
+                # We are only updating newInterval here because it can potentially still overlap with more intervals later on
+                newInterval = [newStart, newEnd]
+
+        result.append(newInterval)
+
+        return result
+
 
     # ------------------------------------------------------------------------------
     # Leetcode 1229. Meeting Scheduler
@@ -1232,6 +1291,11 @@ if __name__ == "__main__":
     # events = [[1, 2], [1, 2], [3, 3], [1, 5], [1, 5]]
     # leetcode.maxEvents(events)
 
+    # --------------------------- 57 ---------------------------
+    # intervals = [[1,2],[3,5],[6,7],[8,10],[12,16]]
+    # newInterval = [4,8]
+    # print(leetcode.insert(intervals, newInterval))
+
     # --------------------------- 986 ---------------------------
     # firstList = [[0,2],[5,10],[13,23],[24,25]]
     # secondList = [[1,5],[8,12],[15,24],[25,26]]
@@ -1273,12 +1337,11 @@ if __name__ == "__main__":
     # leetcode.numSubmatrixSumTarget(matrix, target)
 
     # --------------------------- 325 ---------------------------
-    nums = [1,-1,5,-2,3]
-    k = 3
-    leetcode.maxSubArrayLen(nums, k)
+    # nums = [1,-1,5,-2,3]
+    # k = 3
+    # leetcode.maxSubArrayLen(nums, k)
 
     # ---------------------- 2444 ----------------------
-          # 0,1,2,3,4,5,6,7,8,9,10,11
     # nums = [1,3,5,2,7,4,3,2,5,4,1,4]
     # minK = 1
     # maxK = 5

@@ -52,6 +52,13 @@ def binarySearch(nums: List[int], target: int):
     return -1    
 
 
+"""
+Note: 
+1. In both algorithms below, you can never set 'left' == 'mid' because the division to find 'mid' 
+always rounds down. If left == 0 and right == 1, setting 'left' == 'mid' will cause infinite loop.
+
+2. The reason why we set right = len(nums) and not len(nums)-1 is explained below
+"""
 # 2. Lower Bound Search - first index where the value is >= the target (bisect left) 
 def bs_left(nums: List[int], target: int) -> int:
     # 'right' starts at len(nums) here because the output can be len(nums)
@@ -74,7 +81,11 @@ def bs_left(nums: List[int], target: int) -> int:
 
 
 
-
+"""
+By setting right = len(nums), we allow the search to consider the position just beyond the last index — which is valid when:
+- The target is larger than all elements (so the answer is len(nums))
+- Or smaller than all elements (so the answer is 0)
+"""
 # 3. Upper Bound Search - last index where the value is <= the target (bisect right) 
 def bs_right(nums: List[int], target: int):
     left, right = 0, len(nums)

@@ -21,6 +21,13 @@ Leetcode 2058. Find the Minimum and Maximum Number of Nodes Between Critical Poi
 Leetcode 162. Find Peak Element
 Leetcode 1901. Find a Peak Element II
 
+    (Kadane's algorithm)
+Leetcode 53. Maximum Subarray
+Leetcode 918. Maximum Sum Circular Subarray
+Leetcode 152: Maximum Product Subarray
+Leetcode 1749. Maximum Absolute Sum of Any Subarray
+    
+    (No topic)
 Leetcode 1276. Number of Burgers with No Waste of Ingredients
 Leetcode 56. Merge Intervals
 Leetcode 1710. Maximum Units on a Truck
@@ -28,6 +35,7 @@ Leetcode 1029. Two City Scheduling
 Leetcode 55 Jump Game
 Leetcode 45 Jump Game II
 Leetcode 1057. Campus Bikes
+Leetcode 991. Broken Calculator
 
 (Hard)
 Leetcode 135. Candy
@@ -137,6 +145,7 @@ class Solution:
 
 
     # =========================================================================
+    """ Find localMin and localMax """
     # Leetcode 122. Best Time to Buy and Sell Stock II
     def maxProfit122(self, prices: List[int]) -> int:
         localMin, localMax = 0, 0           # These are indexes 
@@ -174,7 +183,6 @@ class Solution:
         
         return profit
 
-
     # -------------------------------------------------------------------------
     # Leetcode 845. Longest Mountain in Array
     def longestMountain(self, arr: List[int]) -> int:
@@ -211,7 +219,6 @@ class Solution:
 
         return longest
 
-
     # -------------------------------------------------------------------------
     # Leetcode 2058. Find the Minimum and Maximum Number of Nodes Between Critical Points
     def nodesBetweenCriticalPoints(self, head: ListNode) -> List[int]:
@@ -243,7 +250,6 @@ class Solution:
         
         return [-1,-1]
 
-
     # -------------------------------------------------------------------------
     # Leetcode 162. Find Peak Element
     # The reason why binary search works for this question is because it's guaranteed that a peak exists in the array
@@ -267,6 +273,161 @@ class Solution:
         return left
 
 
+
+
+    """ Kadane's algorithm """
+    # --------------------------------------------------------------------------------------------------
+    # Leetcode 53. Maximum Subarray
+    # Kadane’s Algorithm
+    def maxSubArray(self, nums):
+        # Initialize current subarray sum and overall maximum with the first element
+        max_ending_sum = nums[0]
+        result = nums[0]
+
+        # Should I keep adding to the current subarray, or start fresh from here?
+        for i in range(1, len(nums)):
+            # 1. Starting fresh from nums[i] gives a better sum
+            if max_ending_sum + nums[i] < nums[i]:
+                max_ending_sum = nums[i]
+            # 2. Extending the existing subarray gives a better or equal result
+            else:
+                max_ending_sum += nums[i]
+
+            result = max(result, max_ending_sum)        # Update result if we've found a new maximum
+
+        return result
+    
+    # ------------------------------------------------------------------------------
+    # Also use a variation of Kadane's algorithms
+    # Leetcode 152. Maximum Product Subarray
+    def maxProduct(self, nums: List[int]) -> int:
+        res = max(nums)
+        currentMin, currentMax = 1, 1       # the idea is to store both the max and min products at each step
+
+        for n in nums:
+            # reset the prod calculations because multiply by 0 eliminates any prior product contribution
+            if n == 0: 
+                currentMin, currentMax = 1, 1
+                continue
+            
+            # as long as n != 0, multiply n will guarantee to increase the absolute value of the product.
+            # we just have to worry about the sign
+            tmpMax = currentMax * n
+            tmpMin = currentMin * n
+            currentMax = max(tmpMax, tmpMin, n)
+            currentMin = min(tmpMax, tmpMin, n)
+            res = max(res, currentMax)
+
+        return res
+
+    # ------------------------------------------------------------------------------
+    # Leetcode 918. Maximum Sum Circular Subarray
+    # Similar to LC 152, but the array is circular
+    # Compute both globalMin and globalMax using Kadane's algorithm
+    # Scenario 1: the maximum sum subarray is in the middle of 'nums' -> globalMax is the answer
+    # Scenario 2: the maximum sum subarray is a circular subarray -> (arraySum - globalMin) is the answer
+    def maxSubarraySumCircular(self, nums: List[int]) -> int:
+        currMin = 0
+        currMax = 0
+        globalMin = nums[1]
+        globalMax = nums[1]
+        arraySum = 0
+
+        # Kadane's algorithm
+        for num in nums:
+            arraySum += num
+
+            # 1. Handle min scenario
+            # If including 'num' is worse than starting fresh from 'num'
+            if currMin + num > num:
+                currMin = num
+            else:
+                currMin += num
+
+            globalMin = min(globalMin, currMin)
+
+            # 2. Handle max scenario
+            # If including 'num' is worse than starting fresh from 'num'
+            if currMax + num < num:
+                currMax = num
+            else:
+                currMax += num
+
+            globalMax = max(globalMax, currMax)
+
+        # Edge case: all elements in 'nums' are negative
+        if globalMax < 0:
+            return globalMax
+        
+        # There can be 2 scenarios:
+        # Scenario 1: the maximum sum subarray is in the middle of 'nums' -> globalMax is the answer
+        # Scenario 2: the maximum sum subarray is a circular subarray -> (arraySum - globalMin) is the answer
+        return max(globalMax, (arraySum-globalMin))
+
+    # ------------------------------------------------------------------------------
+    # Leetcode 1749. Maximum Absolute Sum of Any Subarray
+    # We are looking for the largest positive subarray sum or the most negative subarray sum — whichever has the bigger absolute value
+    # --> We need to track both globalMin and globalMax
+    def maxAbsoluteSum(self, nums: List[int]) -> int:
+        currMin, currMax = 0, 0
+        result = 0
+
+        for num in nums:
+            # 1. track min
+            if currMin + num >= num:
+                currMin = num
+            else:
+                currMin += num
+            
+            # 2. track max
+            if currMax + num <= num:
+                currMax = num
+            else:
+                currMax += num
+
+            result = max(result, abs(currMin), abs(currMax))
+
+        return result
+
+    # ------------------------------------------------------------------------------
+    # Leetcode 134. Gas Station
+    # Insight 1: At each index, we can compute the 'diff' value (gas - cost). If diff is negative, that's not a possible starting point
+    # Insight 2: If sum(gas) < sum(cost), it's not possible to visit every gas station
+    # Insight 3: To visit every station, we must reach the end of the array at some point. The problem can now be rephrased as 
+    # "finding the starting index of the maximum sum subarray" because it's guaranteed that there is one unique solution
+    # In Kadane's algo we find the ending index of the maximum sum subarray. Here we have to find the starting index of that maximum sum subarray
+    def canCompleteCircuit(self, gas: List[int], cost: List[int]) -> int:
+        diffs = []
+        diffsSum = 0
+        # At each index, we can compute the 'diff' value (gas - cost)
+        for i in range(len(gas)):
+            diff = gas[i] - cost[i]
+            diffs.append(diff)
+            diffsSum += diff
+
+        # If sum(gas) < sum(cost), it's not possible to visit every gas station
+        if diffsSum < 0:
+            return -1
+
+        # Kadane's algo: Find the start index of maximum subarray sum
+        result = 0
+        runningSum = 0
+        for i, diff in enumerate(diffs):
+            # Case 1: start fresh
+            if runningSum + diff < diff:
+                runningSum = diff
+                result = i
+            # Case 2: keep adding to runningSum
+            else:
+                runningSum += diff
+
+        # print(result)
+        return result
+    
+
+
+    """ No topic """
+    # ------------------------------------------------------------------------------
     # Leetcode 1276. Number of Burgers with No Waste of Ingredients
     def numOfBurgers(self, tomatoSlices: int, cheeseSlices: int) -> List[int]:
         '''
@@ -463,8 +624,25 @@ class Solution:
         return result
 
 
+    # -------------------------------------------------------------------------
+    # Leetcode 991. Broken Calculator
+    def brokenCalc(self, startValue: int, target: int) -> int:
+        steps = 0
+        while target > startValue:
+            if target % 2 == 0:
+                target //= 2
+            else:
+                target += 1
+            steps += 1
+            
+        return steps + (startValue - target)
+
+
+
+
 
     # =============================================================================================
+    """ Hard """
     # -------------------------------------------------------------------------
     # Leetcode 135. Candy
     def candy(self, ratings: List[int]) -> int:
@@ -507,13 +685,18 @@ if __name__ == "__main__":
     # nums = [1,2,1,3,5,6,4]
     # print(leetcode.findPeakElement(nums))
 
+    # --------------------------- 134 ---------------------------
+    gas = [1,2,3,4,5]
+    cost = [3,4,5,1,2]
+    leetcode.canCompleteCircuit(gas, cost)
+
     # ----------------------------------- 55 -----------------------------------
     # nums = [3,2,1,0,4]
     # leetcode.canJump(nums)
 
     # ----------------------------------- 45 -----------------------------------
-    nums = [3,2,1,0,4]
-    print(leetcode.jump(nums))
+    # nums = [3,2,1,0,4]
+    # print(leetcode.jump(nums))
 
 
 
